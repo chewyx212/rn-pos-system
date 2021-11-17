@@ -1,12 +1,9 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
   Text,
   Link,
   HStack,
   Center,
-  Heading,
-  Switch,
-  useColorMode,
   NativeBaseProvider,
   extendTheme,
   VStack,
@@ -20,10 +17,6 @@ import { Provider } from "react-redux";
 import { store } from "./app/store";
 
 // Define the config
-const config = {
-  useSystemColorMode: false,
-  initialColorMode: "dark",
-};
 const fetchFonts = () => {
   return Font.loadAsync({
     "open-sans": require("./assets/fonts/OpenSans-Regular.ttf"),
@@ -32,7 +25,27 @@ const fetchFonts = () => {
 };
 
 // extend the theme
-export const theme = extendTheme({ config });
+export const theme = extendTheme({
+  colors: {
+    // Add new color
+    myPrimary: {
+      50: "#FF9671",
+      100: "#d16f4d",
+      200: "#cc5f39",
+      300: "#FF9671",
+      400: "#a74b2b",
+      500: "#934226",
+      600: "#7e3921",
+      700: "#7e3921",
+      800: "#6a301b",
+      900: "#550000",
+    },
+  },
+  config: {
+    useSystemColorMode: true,
+    initialColorMode: "dark",
+  },
+});
 
 export default function App() {
   const [fontLoaded, setFontLoaded] = useState(false);
@@ -50,7 +63,7 @@ export default function App() {
   }
   return (
     <Provider store={store}>
-      <NativeBaseProvider>
+      <NativeBaseProvider theme={theme}>
         <AppNavigator />
       </NativeBaseProvider>
     </Provider>
@@ -58,19 +71,4 @@ export default function App() {
 }
 
 // Color Switch Component
-function ToggleDarkMode() {
-  const { colorMode, toggleColorMode } = useColorMode();
-  return (
-    <HStack space={2} alignItems="center">
-      <Text>Dark</Text>
-      <Switch
-        isChecked={colorMode === "light" ? true : false}
-        onToggle={toggleColorMode}
-        aria-label={
-          colorMode === "light" ? "switch to dark mode" : "switch to light mode"
-        }
-      />
-      <Text>Light</Text>
-    </HStack>
-  );
-}
+
