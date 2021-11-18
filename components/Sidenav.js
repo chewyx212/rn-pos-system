@@ -69,7 +69,6 @@ const Sidenav = (props) => {
           space={{ base: "3", md: "5" }}
           flex={isOpen ? { md: 1 } : { md: 1 }}
           display={{ base: "none", md: "flex" }}
-          px="3"
           pt="10"
           bg={useColorModeValue("muted.50", "muted.900")}
           shadow={5}

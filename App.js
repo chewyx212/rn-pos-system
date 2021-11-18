@@ -44,6 +44,9 @@ export const theme = extendTheme({
   config: {
     useSystemColorMode: true,
     initialColorMode: "dark",
+    dependencies: {
+      "linear-gradient": require("expo-linear-gradient").LinearGradient,
+    },
   },
 });
 
