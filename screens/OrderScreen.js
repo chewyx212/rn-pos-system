@@ -21,6 +21,8 @@ import { Entypo } from "@expo/vector-icons";
 import { itemData } from "../assets/DUMMY";
 import PrimaryButton from "../components/Ui/PrimaryButton";
 import SecondaryButton from "../components/Ui/SecondaryButton";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { changeCart, clearCart } from "../app/cart/cartSlice";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -40,18 +42,23 @@ const OrderScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState(
     mappingItemCategory()[0].id
   );
-  const cartArray = [
-    { id: 1 },
-    { id: 2 },
-    { id: 3 },
-    { id: 4 },
-    { id: 5 },
-    { id: 6 },
-    { id: 7 },
-    { id: 8 },
-    { id: 9 },
-    { id: 10 },
-  ];
+  const dispatch = useAppDispatch();
+  const cartItem = useAppSelector((state) => state.cart.cartItem);
+  const onCartHandler = (item, quantity) => {
+    dispatch(
+      changeCart({
+        item: {
+          ...item,
+        },
+        quantity,
+      })
+    );
+  };
+
+  const onClearCartHandler = () => {
+    dispatch(clearCart());
+  };
+
   return (
     <Stack
       h="100%"
@@ -134,6 +141,7 @@ const OrderScreen = ({ navigation }) => {
                     borderRadius="lg"
                     m="1%"
                     aspectRatio="1"
+                    onPress={() => onCartHandler(item, 1)}
                   >
                     {({ isHovered, isFocused, isPressed }) => {
                       return (
@@ -194,7 +202,8 @@ const OrderScreen = ({ navigation }) => {
             Current Order
           </Heading>
           <FlatList
-            data={cartArray}
+            keyExtractor={(item, index) => index}
+            data={cartItem}
             renderItem={({ item }) => {
               return (
                 <Pressable>
@@ -212,25 +221,31 @@ const OrderScreen = ({ navigation }) => {
                         align="center"
                         justify="space-between"
                       >
-                        <HStack flex={5} align="center">
+                        <HStack flex={3} align="center">
                           <Image
                             size="sm"
-                            resizeMode={"contain"}
+                            resizeMode={"auto"}
                             borderRadius="md"
                             mr="10px"
+                            bg={useColorModeValue(
+                              "dark.500:alpha.20",
+                              "dark.300:alpha.20"
+                            )}
                             source={{
-                              uri: "https://wallpaperaccess.com/full/317501.jpg",
+                              uri: item.image?.url,
                             }}
                             alt="Alternate Text"
                           />
                           <VStack>
                             <Text>{item.id}</Text>
-                            <Text>Happy Meal</Text>
+                            <Text>{item.name}</Text>
                             <Text>Coke, Fries, Burger</Text>
                           </VStack>
                         </HStack>
-                        <View flex={1}>
-                          <Text>RM12</Text>
+                        <View flex={2}>
+                          <Text textAlign="right">
+                            RM {item.price} x {item.quantity}
+                          </Text>
                         </View>
                       </Flex>
                     );
@@ -250,7 +265,10 @@ const OrderScreen = ({ navigation }) => {
           <Button
             flex={1}
             colorScheme="warmGray"
-            leftIcon={<Icon as={Entypo} name="dots-three-horizontal" size="xs" />}
+            leftIcon={
+              <Icon as={Entypo} name="dots-three-horizontal" size="xs" />
+            }
+            onPress={onClearCartHandler}
           ></Button>
           <PrimaryButton
             style={{ flex: 9 }}

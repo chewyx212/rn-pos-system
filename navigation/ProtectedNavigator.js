@@ -5,6 +5,8 @@ import {
 } from "@react-navigation/stack";
 import OrderScreen from "../screens/OrderScreen";
 import TableScreen from "../screens/TableScreen";
+import CameraScreen from "../screens/CameraScreen";
+import PrinterScreen from "../screens/PrinterScreen";
 
 const Stack = createStackNavigator();
 
@@ -22,7 +24,8 @@ const ProtectedNavigator = (props) => {
     >
       <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Table" component={TableScreen} />
-      <Stack.Screen name="Menu" component={TableScreen} />
+      <Stack.Screen name="Camera" component={CameraScreen} />
+      <Stack.Screen name="Printer" component={PrinterScreen} />
     </Stack.Navigator>
   );
 };

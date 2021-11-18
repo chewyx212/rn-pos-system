@@ -22,9 +22,6 @@ const Sidenav = (props) => {
   const { colorMode, toggleColorMode } = useColorMode();
   const navigation = useNavigation();
   const state = useNavigationState((state) => state);
-  console.log(
-    "this is statethis is statethis is statethis is statethis is statethis is statethis is statethis is statethis is statethis is state"
-  );
   let route = "Order";
   if (state?.routeNames[state.index]) {
     route = state.routeNames[state.index];
@@ -44,10 +41,16 @@ const Sidenav = (props) => {
       route: "Table",
     },
     {
-      name: "Menu",
+      name: "Camera",
       library: Ionicons,
-      icon: "ios-book-outline",
-      route: "Menu",
+      icon: "ios-camera-outline",
+      route: "Camera",
+    },
+    {
+      name: "Printer",
+      library: Ionicons,
+      icon: "ios-camera-outline",
+      route: "Printer",
     },
   ];
   let isOpen = true;
