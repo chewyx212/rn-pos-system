@@ -8,13 +8,19 @@ import {
   Button,
   VStack,
   ScrollView,
+  FlatList,
   Flex,
   Image,
   Pressable,
   View,
+  Icon,
+  IconButton,
 } from "native-base";
 import React, { useState } from "react";
+import { Entypo } from "@expo/vector-icons";
 import { itemData } from "../assets/DUMMY";
+import PrimaryButton from "../components/Ui/PrimaryButton";
+import SecondaryButton from "../components/Ui/SecondaryButton";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -34,15 +40,27 @@ const OrderScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState(
     mappingItemCategory()[0].id
   );
+  const cartArray = [
+    { id: 1 },
+    { id: 2 },
+    { id: 3 },
+    { id: 4 },
+    { id: 5 },
+    { id: 6 },
+    { id: 7 },
+    { id: 8 },
+    { id: 9 },
+    { id: 10 },
+  ];
   return (
     <Stack
       h="100%"
       direction="row"
       pl={5}
-      bg={useColorModeValue("muted.100", "muted.800")}
+      bg={useColorModeValue("light.100", "muted.800")}
     >
       <VStack h="100%" flex={5} mr="1%" pt={3}>
-        <Heading size="lg">Orders</Heading>
+        <Heading size="lg">Order</Heading>
         <Stack maxH="9%">
           <ScrollView
             horizontal={true}
@@ -164,59 +182,85 @@ const OrderScreen = ({ navigation }) => {
         h="100%"
         flex={2}
         pt={3}
+        pb={10}
         px={3}
+        bg="light.100"
         borderLeftWidth="2"
-        borderLeftColor={useColorModeValue("light.200", "dark.200")}
+        borderLeftColor={useColorModeValue("light.100", "dark.200")}
       >
-        <Flex direction="row" justify="space-between" alignItems="center">
-          <Heading size="md"> Current Order</Heading>
-          <Button
-            variant="unstyled"
-            _text={{ color: useColorModeValue("primary.500", "primary.600") }}
-            _pressed={{
-              _text: { color: useColorModeValue("primary.900", "primary.800") },
+        <View w="100%" flex={14}>
+          <Heading size="md" py={2}>
+            {" "}
+            Current Order
+          </Heading>
+          <FlatList
+            data={cartArray}
+            renderItem={({ item }) => {
+              return (
+                <Pressable>
+                  {({ isHovered, isFocused, isPressed }) => {
+                    return (
+                      <Flex
+                        w="100%"
+                        py={1}
+                        bg={
+                          isPressed || isHovered
+                            ? "dark.100:alpha.30"
+                            : "transparent"
+                        }
+                        direction="row"
+                        align="center"
+                        justify="space-between"
+                      >
+                        <HStack flex={5} align="center">
+                          <Image
+                            size="sm"
+                            resizeMode={"contain"}
+                            borderRadius="md"
+                            mr="10px"
+                            source={{
+                              uri: "https://wallpaperaccess.com/full/317501.jpg",
+                            }}
+                            alt="Alternate Text"
+                          />
+                          <VStack>
+                            <Text>{item.id}</Text>
+                            <Text>Happy Meal</Text>
+                            <Text>Coke, Fries, Burger</Text>
+                          </VStack>
+                        </HStack>
+                        <View flex={1}>
+                          <Text>RM12</Text>
+                        </View>
+                      </Flex>
+                    );
+                  }}
+                </Pressable>
+              );
             }}
-          >
-            Clear All
-          </Button>
-        </Flex>
-
-        <View w="100%">
-          <ScrollView
-            _contentContainerStyle={{
-              mt: "5",
-              w: "65%",
-              h: "40%",
-            }}
-          >
-            <HStack w="100%">
-              <Image
-                size="sm"
-                resizeMode={"contain"}
-                borderRadius="md"
-                mr="10px"
-                source={{
-                  uri: "https://wallpaperaccess.com/full/317501.jpg",
-                }}
-                alt="Alternate Text"
-              />
-              <Flex
-                direction="row"
-                w="100%"
-                align="center"
-                justify="space-between"
-              >
-                <VStack>
-                  <Text>A12</Text>
-                  <Text>Happy Meal</Text>
-                </VStack>
-                <Text>RM12</Text>
-              </Flex>
-            </HStack>
-            
-          </ScrollView>
+          />
         </View>
-        <Text>Bill</Text>
+        <HStack flex={1} space={2} pt={3}>
+          {/* <SecondaryButton
+            style={{
+              flex: 1,
+            }}
+            icon={<Icon as={Entypo} name="dots-three-horizontal" size="xs" />}
+          ></SecondaryButton> */}
+          <Button
+            flex={1}
+            colorScheme="warmGray"
+            leftIcon={<Icon as={Entypo} name="dots-three-horizontal" size="xs" />}
+          ></Button>
+          <PrimaryButton
+            style={{ flex: 9 }}
+            onPress={() => {
+              console.log("hi");
+            }}
+          >
+            Checkout
+          </PrimaryButton>
+        </HStack>
       </VStack>
     </Stack>
   );

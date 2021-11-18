@@ -24,7 +24,6 @@ const fetchFonts = () => {
   });
 };
 
-// extend the theme
 export const theme = extendTheme({
   colors: {
     // Add new color
@@ -39,6 +38,26 @@ export const theme = extendTheme({
       700: "#7e3921",
       800: "#6a301b",
       900: "#550000",
+    },
+    primaryButton: {
+      lightBg: "#2563eb",
+      darkBg: "#1e40af",
+      lightPressBg: "#1d4ed8",
+      darkPressBg: "#1e3a8a",
+      lightText: "#fafafa",
+      darkText: "#e7e5e4",
+      lightPressText: "#fafaf9",
+      darkPressText: "#f5f5f4",
+    },
+    secondaryButton: {
+      lightBg: "#2563eb",
+      darkBg: "#1e40af",
+      lightPressBg: "#1d4ed8",
+      darkPressBg: "#1e3a8a",
+      lightText: "#fafafa",
+      darkText: "#e7e5e4",
+      lightPressText: "#fafaf9",
+      darkPressText: "#f5f5f4",
     },
   },
   config: {
@@ -74,4 +93,3 @@ export default function App() {
 }
 
 // Color Switch Component
-

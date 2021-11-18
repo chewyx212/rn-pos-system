@@ -71,7 +71,8 @@ const Sidenav = (props) => {
           display={{ base: "none", md: "flex" }}
           pt="10"
           bg={useColorModeValue("muted.50", "muted.900")}
-          shadow={5}
+          borderRightWidth={1}
+          borderRightColor={useColorModeValue("muted.200", "muted.800")}
           align="center"
           justify="center"
         >
@@ -140,7 +141,7 @@ const Sidenav = (props) => {
           </HStack>
         </VStack>
         <VStack
-          flex={{ base: 1, md: 10 }}
+          flex={{ base: 1, md: 13 }}
           bg={useColorModeValue("muted.100", "muted.800")}
         >
           {props.children}
