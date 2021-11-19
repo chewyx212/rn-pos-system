@@ -78,7 +78,6 @@ const theme = extendTheme({
 
 export default function App() {
   let [fontLoaded] = useFonts({
-    "sf-pro": require("./assets/Fonts/SF-Pro.ttf"),
     "sf-pro-display-regular": require("./assets/Fonts/SF-Pro-Display-Regular.otf"),
     "sf-pro-display-bold": require("./assets/Fonts/SF-Pro-Display-Bold.otf"),
     "sf-pro-text-regular": require("./assets/Fonts/SF-Pro-Text-Regular.otf"),
