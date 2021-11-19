@@ -1,4 +1,5 @@
 import {
+  Text,
   Stack,
   HStack,
   useColorModeValue,
@@ -14,6 +15,7 @@ import {
   View,
   Icon,
   IconButton,
+  Radio,
 } from "native-base";
 import React, { useState } from "react";
 import { Entypo } from "@expo/vector-icons";
@@ -21,7 +23,6 @@ import { itemData } from "../assets/DUMMY";
 import PrimaryButton from "../components/Ui/PrimaryButton";
 import SecondaryButton from "../components/Ui/SecondaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
-import Text from "../components/Ui/Text";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { changeCart, clearCart } from "../app/cart/cartSlice";
 
@@ -35,6 +36,65 @@ const mappingItemCategory = () => {
     }
   });
   return category;
+};
+
+const mappingAddon = (addons) => {
+  let temp = [];
+  let addonCategory = [];
+  addons.forEach((addon) => {
+    if (!temp.includes(addon.addon_category_id)) {
+      temp.push(addon.addon_category_id);
+      addonCategory.push({ ...addon.addon_category, data: [addon] });
+      console.log(addon.addon_category_id);
+    } else {
+      addonCategory
+        .find((category) => category.id === addon.addon_category_id)
+        .data.push(addon);
+    }
+  });
+  // return addonCategory.map((category) => {
+  //   return (
+  //     <>
+  //       <Text fontFamily="sf-pro-text-semibold" fontSize={17}>{category.name}</Text>
+  //       {category.addons.map((addon) => {
+  //         return <Text>{addon.name}</Text>;
+  //       })}
+  //     </>
+  //   );
+  // });
+  return (
+    <FlatList
+      data={addonCategory}
+      keyExtractor={(item, index) => item + index}
+      renderItem={({ item }) => {
+        return (
+          <>
+            <Text Text py="3" fontFamily="sf-pro-text-semibold" fontSize="15">
+              {item.name}
+            </Text>
+            {parseInt(item.type) === 1 && (<></>)}
+            {parseInt(item.type) === 2 && (
+              <Radio.Group name={item.name} accessibilityLabel={item.name}>
+                {item.data.map((addon) => {
+                  return (
+                    <Radio key={addon.id} value={addon.name} my={1.5} size="lg">
+                      <Text
+                        px={2}
+                        fontFamily="sf-pro-text-regular"
+                        fontSize="13"
+                      >
+                        {addon.name} RM{addon.price}
+                      </Text>
+                    </Radio>
+                  );
+                })}
+              </Radio.Group>
+            )}
+          </>
+        );
+      }}
+    />
+  );
 };
 
 const OrderScreen = ({ navigation }) => {
@@ -69,13 +129,16 @@ const OrderScreen = ({ navigation }) => {
 
   return (
     <Stack
+      position="relative"
       h="100%"
       direction="row"
       pl={5}
       bg={useColorModeValue("light.100", "muted.800")}
     >
       <VStack h="100%" flex={6} mr="1%" pt={3}>
-        <Heading size="lg">Order</Heading>
+        <Heading size="lg" fontFamily="sf-pro-display-bold" fontSize={32}>
+          Order
+        </Heading>
         <Stack maxH="9%">
           <ScrollView
             horizontal={true}
@@ -98,7 +161,11 @@ const OrderScreen = ({ navigation }) => {
                 <Button
                   key={category.id}
                   bg={bgColor}
-                  _text={{ color: textColor }}
+                  _text={{
+                    color: textColor,
+                    fontFamily: "sf-pro-text-medium",
+                    fontSize: 13,
+                  }}
                   _pressed={{
                     bg: bgColor,
                     _text: { color: textColor },
@@ -209,7 +276,7 @@ const OrderScreen = ({ navigation }) => {
         borderLeftColor={useColorModeValue("light.200", "dark.200")}
       >
         <View w="100%" flex={14}>
-          <Heading size="md" py={2}>
+          <Heading size="md" py={2} fontFamily="sf-pro-text-bold" fontSize={17}>
             Current Order
           </Heading>
           <FlatList
@@ -290,17 +357,26 @@ const OrderScreen = ({ navigation }) => {
             Checkout
           </PrimaryButton>
         </HStack>
-        <SlideFromRight isOpen={openAddon}>
-          <VStack
-            height="100%"
-            bg={useColorModeValue("light.100", "muted.800")}
-          >
-            <Icon
-              as={Entypo}
-              size="md"
-              name="chevron-left"
-              color={useColorModeValue("light.600", "muted.200")}
-            />
+        <SlideFromRight isOpen={openAddon} my={5} mx={3}>
+          <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
+            <Pressable
+              bg="transparent"
+              leftIcon={
+                <Icon
+                  as={Entypo}
+                  size="md"
+                  name="chevron-left"
+                  color={useColorModeValue("light.600", "muted.200")}
+                />
+              }
+              onPress={() => {
+                setSelectedItem();
+                setOpenAddon(false);
+              }}
+            >
+              <Text color="primary.500">Cancel</Text>
+            </Pressable>
+
             <HStack pt={4}>
               <Image
                 size="md"
@@ -314,13 +390,17 @@ const OrderScreen = ({ navigation }) => {
                 alt="Alternate Text"
               />
               <VStack>
-                <Text  fontSize="md">{selectedItem?.id}</Text>
-                <Text  fontSize="md">{selectedItem?.name}</Text>
+                <Text fontSize="md">{selectedItem?.id}</Text>
+                <Text fontSize="md">{selectedItem?.name}</Text>
                 <Text pt={1} color="primary.500" fontSize="lg" bold>
                   RM {selectedItem?.price}
                 </Text>
               </VStack>
             </HStack>
+            <View pt={3}>
+              {selectedItem?.addons.length > 0 &&
+                mappingAddon(selectedItem.addons)}
+            </View>
           </VStack>
         </SlideFromRight>
       </VStack>

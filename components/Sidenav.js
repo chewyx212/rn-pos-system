@@ -109,7 +109,11 @@ const Sidenav = (props) => {
                 bg="transparent"
                 eCol
                 disabled={isActive}
-                _text={{ color: textColor }}
+                _text={{
+                  color: textColor,
+                  fontFamily: "sf-pro-text-medium",
+                  fontSize: 10,
+                }}
                 _hover={{ bg: backgroundColor }}
                 _pressed={{ bg: backgroundColor }}
                 display="flex"
@@ -144,7 +148,7 @@ const Sidenav = (props) => {
           </HStack>
         </VStack>
         <VStack
-          flex={{ base: 1, md: 13 }}
+          flex={{ base: 1, md: 16 }}
           bg={useColorModeValue("muted.100", "muted.800")}
         >
           {props.children}
