@@ -11,20 +11,27 @@ import {
 
 import NativeBaseIcon from "./components/NativeBaseIcon";
 import AppNavigator from "./navigation/AppNavigator";
-import * as Font from "expo-font";
+import { useFonts } from "expo-font";
 import AppLoading from "expo-app-loading";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
 
-// Define the config
-const fetchFonts = () => {
-  return Font.loadAsync({
-    "open-sans": require("./assets/fonts/OpenSans-Regular.ttf"),
-    "open-sans-bold": require("./assets/fonts/OpenSans-Bold.ttf"),
-  });
-};
-
-export const theme = extendTheme({
+const theme = extendTheme({
+  fontConfig: {
+    SFPro: {
+      100: { normal: "sf-pro-text-regular" },
+      200: { normal: "sf-pro-text-medium" },
+      300: { normal: "sf-pro-text-semibold" },
+      400: { normal: "sf-pro-text-bold" },
+      500: { normal: "sf-pro-display-regular" },
+      600: { normal: "sf-pro-display-bold" },
+    },
+    fonts: {
+      heading: "SFPro",
+      body: "SFPro",
+      mono: "SFPro",
+    },
+  },
   colors: {
     // Add new color
     myPrimary: {
@@ -70,18 +77,17 @@ export const theme = extendTheme({
 });
 
 export default function App() {
-  const [fontLoaded, setFontLoaded] = useState(false);
-
+  let [fontLoaded] = useFonts({
+    "sf-pro": require("./assets/Fonts/SF-Pro.ttf"),
+    "sf-pro-display-regular": require("./assets/Fonts/SF-Pro-Display-Regular.otf"),
+    "sf-pro-display-bold": require("./assets/Fonts/SF-Pro-Display-Bold.otf"),
+    "sf-pro-text-regular": require("./assets/Fonts/SF-Pro-Text-Regular.otf"),
+    "sf-pro-text-bold": require("./assets/Fonts/SF-Pro-Text-Bold.otf"),
+    "sf-pro-text-semibold": require("./assets/Fonts/SF-Pro-Text-Semibold.otf"),
+    "sf-pro-text-medium": require("./assets/Fonts/SF-Pro-Text-Medium.otf"),
+  });
   if (!fontLoaded) {
-    return (
-      <AppLoading
-        startAsync={fetchFonts}
-        onFinish={() => {
-          setFontLoaded(true);
-        }}
-        onError={console.warn}
-      />
-    );
+    return <AppLoading />;
   }
   return (
     <Provider store={store}>

@@ -1,5 +1,4 @@
 import {
-  Text,
   Stack,
   HStack,
   useColorModeValue,
@@ -21,6 +20,8 @@ import { Entypo } from "@expo/vector-icons";
 import { itemData } from "../assets/DUMMY";
 import PrimaryButton from "../components/Ui/PrimaryButton";
 import SecondaryButton from "../components/Ui/SecondaryButton";
+import SlideFromRight from "../components/Ui/SlideFromRight";
+import Text from "../components/Ui/Text";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { changeCart, clearCart } from "../app/cart/cartSlice";
 
@@ -42,9 +43,11 @@ const OrderScreen = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState(
     mappingItemCategory()[0].id
   );
+  const [selectedItem, setSelectedItem] = useState();
+  const [openAddon, setOpenAddon] = useState(false);
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
-  const onCartHandler = (item, quantity) => {
+  const sendCartHandler = (item, quantity) => {
     dispatch(
       changeCart({
         item: {
@@ -59,6 +62,11 @@ const OrderScreen = ({ navigation }) => {
     dispatch(clearCart());
   };
 
+  const onOpenAddonHandler = (item) => {
+    setSelectedItem(item);
+    setOpenAddon(true);
+  };
+
   return (
     <Stack
       h="100%"
@@ -66,7 +74,7 @@ const OrderScreen = ({ navigation }) => {
       pl={5}
       bg={useColorModeValue("light.100", "muted.800")}
     >
-      <VStack h="100%" flex={5} mr="1%" pt={3}>
+      <VStack h="100%" flex={6} mr="1%" pt={3}>
         <Heading size="lg">Order</Heading>
         <Stack maxH="9%">
           <ScrollView
@@ -141,7 +149,11 @@ const OrderScreen = ({ navigation }) => {
                     borderRadius="lg"
                     m="1%"
                     aspectRatio="1"
-                    onPress={() => onCartHandler(item, 1)}
+                    onPress={() =>
+                      item.addons?.length === 0
+                        ? sendCartHandler(item, 1)
+                        : onOpenAddonHandler(item)
+                    }
                   >
                     {({ isHovered, isFocused, isPressed }) => {
                       return (
@@ -188,17 +200,16 @@ const OrderScreen = ({ navigation }) => {
       </VStack>
       <VStack
         h="100%"
-        flex={2}
+        flex={3}
         pt={3}
         pb={10}
         px={3}
-        bg="light.100"
+        bg={useColorModeValue("light.100", "muted.800")}
         borderLeftWidth="2"
-        borderLeftColor={useColorModeValue("light.100", "dark.200")}
+        borderLeftColor={useColorModeValue("light.200", "dark.200")}
       >
         <View w="100%" flex={14}>
           <Heading size="md" py={2}>
-            {" "}
             Current Order
           </Heading>
           <FlatList
@@ -224,7 +235,7 @@ const OrderScreen = ({ navigation }) => {
                         <HStack flex={3} align="center">
                           <Image
                             size="sm"
-                            resizeMode={"auto"}
+                            resizeMode={"cover"}
                             borderRadius="md"
                             mr="10px"
                             bg={useColorModeValue(
@@ -279,6 +290,39 @@ const OrderScreen = ({ navigation }) => {
             Checkout
           </PrimaryButton>
         </HStack>
+        <SlideFromRight isOpen={openAddon}>
+          <VStack
+            height="100%"
+            bg={useColorModeValue("light.100", "muted.800")}
+          >
+            <Icon
+              as={Entypo}
+              size="md"
+              name="chevron-left"
+              color={useColorModeValue("light.600", "muted.200")}
+            />
+            <HStack pt={4}>
+              <Image
+                size="md"
+                resizeMode={"cover"}
+                borderRadius="md"
+                mr="10px"
+                bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
+                source={{
+                  uri: "https://images.unsplash.com/photo-1502899576159-f224dc2349fa?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=764&q=80",
+                }}
+                alt="Alternate Text"
+              />
+              <VStack>
+                <Text  fontSize="md">{selectedItem?.id}</Text>
+                <Text  fontSize="md">{selectedItem?.name}</Text>
+                <Text pt={1} color="primary.500" fontSize="lg" bold>
+                  RM {selectedItem?.price}
+                </Text>
+              </VStack>
+            </HStack>
+          </VStack>
+        </SlideFromRight>
       </VStack>
     </Stack>
   );

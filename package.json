@@ -61,7 +61,10 @@
     "expo-contacts": "~10.0.3",
     "expo-sensors": "~11.0.3",
     "expo-print": "~11.0.4",
-    "expo-sharing": "~10.0.3"
+    "expo-sharing": "~10.0.3",
+    "expo-file-system": "~13.0.3",
+    "expo-asset": "~8.4.3",
+    "expo-sqlite": "~10.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
