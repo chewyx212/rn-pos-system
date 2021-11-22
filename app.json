@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "rn-pos-system",
+    "name": "POS System",
     "slug": "rn-pos-system",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",

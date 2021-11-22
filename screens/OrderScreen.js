@@ -14,7 +14,7 @@ import {
   Pressable,
   View,
   Icon,
-  IconButton,
+  Checkbox,
   Radio,
 } from "native-base";
 import React, { useState } from "react";
@@ -25,6 +25,7 @@ import SecondaryButton from "../components/Ui/SecondaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { changeCart, clearCart } from "../app/cart/cartSlice";
+import { saveOrder } from "../app/order/orderSlice";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -38,75 +39,21 @@ const mappingItemCategory = () => {
   return category;
 };
 
-const mappingAddon = (addons) => {
-  let temp = [];
-  let addonCategory = [];
-  addons.forEach((addon) => {
-    if (!temp.includes(addon.addon_category_id)) {
-      temp.push(addon.addon_category_id);
-      addonCategory.push({ ...addon.addon_category, data: [addon] });
-      console.log(addon.addon_category_id);
-    } else {
-      addonCategory
-        .find((category) => category.id === addon.addon_category_id)
-        .data.push(addon);
-    }
-  });
-  // return addonCategory.map((category) => {
-  //   return (
-  //     <>
-  //       <Text fontFamily="sf-pro-text-semibold" fontSize={17}>{category.name}</Text>
-  //       {category.addons.map((addon) => {
-  //         return <Text>{addon.name}</Text>;
-  //       })}
-  //     </>
-  //   );
-  // });
-  return (
-    <FlatList
-      data={addonCategory}
-      keyExtractor={(item, index) => item + index}
-      renderItem={({ item }) => {
-        return (
-          <>
-            <Text Text py="3" fontFamily="sf-pro-text-semibold" fontSize="15">
-              {item.name}
-            </Text>
-            {parseInt(item.type) === 1 && (<></>)}
-            {parseInt(item.type) === 2 && (
-              <Radio.Group name={item.name} accessibilityLabel={item.name}>
-                {item.data.map((addon) => {
-                  return (
-                    <Radio key={addon.id} value={addon.name} my={1.5} size="lg">
-                      <Text
-                        px={2}
-                        fontFamily="sf-pro-text-regular"
-                        fontSize="13"
-                      >
-                        {addon.name} RM{addon.price}
-                      </Text>
-                    </Radio>
-                  );
-                })}
-              </Radio.Group>
-            )}
-          </>
-        );
-      }}
-    />
-  );
-};
-
 const OrderScreen = ({ navigation }) => {
   const [itemList, setItemList] = useState(itemData);
   const [categoryList, setCategoryList] = useState(mappingItemCategory());
   const [selectedCategory, setSelectedCategory] = useState(
     mappingItemCategory()[0].id
   );
-  const [selectedItem, setSelectedItem] = useState();
+  const [selectedItem, setSelectedItem] = useState({});
+  const [selectedItemQuantity, setSelectedItemQuantity] = useState(1);
+  const [selectedItemAddon, setSelectedItemAddon] = useState({});
+  const [selectedAllAddon, setSelectedAllAddon] = useState([]);
+  const [addonForm, setAddonForm] = useState({});
   const [openAddon, setOpenAddon] = useState(false);
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
+
   const sendCartHandler = (item, quantity) => {
     dispatch(
       changeCart({
@@ -115,16 +62,96 @@ const OrderScreen = ({ navigation }) => {
         },
         quantity,
       })
-    );
+    ); 
+  };
+  const onSubmitOrder = () => {
+    dispatch(saveOrder({
+      id: 1,
+      
+    }))
+  }
+
+  const onRadioChange = (key, addonId) => {
+    const addon = selectedAllAddon.find((item) => item.id == addonId);
+    setAddonForm((prevState) => ({ ...prevState, [key]: addon }));
   };
 
-  const onClearCartHandler = () => {
-    dispatch(clearCart());
+  const onCheckChange = (key, values) => {
+    let addon = values.map((value) => {
+      return selectedAllAddon.find((item) => item.id == value);
+    });
+    setAddonForm((prevState) => ({ ...prevState, [key]: addon }));
+    console.log(addonForm[key]);
+  };
+  const onAddAddon = () => {
+    let addonsPayload = [];
+    Object.values(addonForm).forEach((item) => {
+      if (item.length > 0) {
+        addonsPayload = [...addonsPayload, ...item];
+      } else {
+        addonsPayload.push(item);
+      }
+    });
+    const payload = {
+      ...selectedItem,
+      addons: addonsPayload,
+    };
+
+    dispatch(
+      changeCart({
+        item: {
+          ...payload,
+        },
+        quantity: selectedItemQuantity,
+      })
+    );
+    onCloseModalHandler();
+  };
+
+  const mappingAddon = (addons) => {
+    let temp = [];
+    let addonCategory = [];
+    let allAddon = [];
+    addons.forEach((addon) => {
+      allAddon.push(addon);
+      if (!temp.includes(addon.addon_category_id)) {
+        temp.push(addon.addon_category_id);
+        addonCategory.push({ ...addon.addon_category, data: [addon] });
+        if (parseInt(addon.addon_category.type) === 2) {
+          setAddonForm((prevState) => ({
+            ...prevState,
+            [addon.addon_category.name]: addon,
+          }));
+        }
+      } else {
+        addonCategory
+          .find((category) => category.id === addon.addon_category_id)
+          .data.push(addon);
+      }
+    });
+    setSelectedAllAddon(allAddon);
+    setSelectedItemAddon(addonCategory);
   };
 
   const onOpenAddonHandler = (item) => {
     setSelectedItem(item);
+    setSelectedItemQuantity(1);
+    setAddonForm({});
     setOpenAddon(true);
+    mappingAddon(item.addons);
+  };
+
+  const onCloseModalHandler = () => {
+    setSelectedAllAddon([]);
+    setSelectedItemAddon({});
+    setSelectedItemQuantity(1);
+    setSelectedItem({});
+    setAddonForm({});
+    setOpenAddon(false);
+  };
+
+  const onClearCartHandler = () => {
+    dispatch(clearCart());
   };
 
   return (
@@ -317,7 +344,7 @@ const OrderScreen = ({ navigation }) => {
                           <VStack>
                             <Text>{item.id}</Text>
                             <Text>{item.name}</Text>
-                            <Text>Coke, Fries, Burger</Text>
+                            <Text>{item.addons.length > 0 && "haha"}</Text>
                           </VStack>
                         </HStack>
                         <View flex={2}>
@@ -349,60 +376,181 @@ const OrderScreen = ({ navigation }) => {
             onPress={onClearCartHandler}
           ></Button>
           <PrimaryButton
-            style={{ flex: 9 }}
-            onPress={() => {
-              console.log("hi");
-            }}
+            flex={9}
+            onPress={onSubmitOrder}
           >
             Checkout
           </PrimaryButton>
         </HStack>
-        <SlideFromRight isOpen={openAddon} my={5} mx={3}>
-          <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
-            <Pressable
-              bg="transparent"
-              leftIcon={
-                <Icon
-                  as={Entypo}
-                  size="md"
-                  name="chevron-left"
-                  color={useColorModeValue("light.600", "muted.200")}
-                />
-              }
-              onPress={() => {
-                setSelectedItem();
-                setOpenAddon(false);
-              }}
-            >
-              <Text color="primary.500">Cancel</Text>
-            </Pressable>
+          <SlideFromRight isOpen={openAddon} my={5} mx={3}>
+            <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
+              <Pressable
+                bg="transparent"
+                leftIcon={
+                  <Icon
+                    as={Entypo}
+                    size="md"
+                    name="chevron-left"
+                    color={useColorModeValue("light.600", "muted.200")}
+                  />
+                }
+                onPress={onCloseModalHandler}
+              >
+                <Text color="primary.500">Cancel</Text>
+              </Pressable>
 
-            <HStack pt={4}>
-              <Image
-                size="md"
-                resizeMode={"cover"}
-                borderRadius="md"
-                mr="10px"
-                bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
-                source={{
-                  uri: "https://images.unsplash.com/photo-1502899576159-f224dc2349fa?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=764&q=80",
-                }}
-                alt="Alternate Text"
-              />
-              <VStack>
-                <Text fontSize="md">{selectedItem?.id}</Text>
-                <Text fontSize="md">{selectedItem?.name}</Text>
-                <Text pt={1} color="primary.500" fontSize="lg" bold>
-                  RM {selectedItem?.price}
+              <HStack pt={4}>
+                <Image
+                  size="md"
+                  resizeMode={"cover"}
+                  borderRadius="md"
+                  mr="10px"
+                  bg={useColorModeValue(
+                    "dark.500:alpha.20",
+                    "dark.300:alpha.20"
+                  )}
+                  source={{
+                    uri: selectedItem.image?.url,
+                  }}
+                  alt="Alternate Text"
+                />
+                <VStack>
+                  <Text fontSize="md">{selectedItem?.id}</Text>
+                  <Text fontSize="md">{selectedItem?.name}</Text>
+                  <Text pt={1} color="primary.500" fontSize="lg" bold>
+                    RM {selectedItem?.price}
+                  </Text>
+                </VStack>
+              </HStack>
+              <View pt={3} h="70%">
+                {selectedItem?.addons?.length > 0 && (
+                  <FlatList
+                    data={selectedItemAddon}
+                    keyExtractor={(item, index) => item + index}
+                    renderItem={({ item }) => {
+                      return (
+                        <>
+                          <Text
+                            Text
+                            py="3"
+                            fontFamily="sf-pro-text-semibold"
+                            fontSize="15"
+                          >
+                            {item.name}
+                          </Text>
+                          {parseInt(item.type) === 1 && (
+                            <>
+                              <Checkbox.Group
+                                onChange={(nextValue) =>
+                                  onCheckChange(item.name, nextValue)
+                                }
+                                accessibilityLabel="choose addon"
+                              >
+                                {item.data.map((addon) => {
+                                  return (
+                                    <Checkbox
+                                      key={addon.id}
+                                      value={addon.id}
+                                      my={2}
+                                      size="md"
+                                    >
+                                      <Text
+                                        px={2}
+                                        fontFamily="sf-pro-text-regular"
+                                        fontSize="13"
+                                      >
+                                        {addon.name} RM{addon.price}
+                                      </Text>
+                                    </Checkbox>
+                                  );
+                                })}
+                              </Checkbox.Group>
+                            </>
+                          )}
+                          {parseInt(item.type) === 2 && (
+                            <Radio.Group
+                              name={item.name}
+                              accessibilityLabel={item.name}
+                              value={addonForm[item.name].id}
+                              onChange={(nextValue) =>
+                                onRadioChange(item.name, nextValue)
+                              }
+                            >
+                              {item.data.map((addon) => {
+                                return (
+                                  <Radio
+                                    key={addon.id}
+                                    value={addon.id}
+                                    my={1.5}
+                                    size="lg"
+                                  >
+                                    <Text
+                                      px={2}
+                                      fontFamily="sf-pro-text-regular"
+                                      fontSize="13"
+                                    >
+                                      {addon.name} RM{addon.price}
+                                    </Text>
+                                  </Radio>
+                                );
+                              })}
+                            </Radio.Group>
+                          )}
+                        </>
+                      );
+                    }}
+                  />
+                )}
+              </View>
+              <HStack justify="center" align="center" mt={2}>
+                <Button
+                  flex={1}
+                  colorScheme="red"
+                  leftIcon={
+                    selectedItemQuantity === 0 ? (
+                      <Icon as={Entypo} name="trash" size="xs" />
+                    ) : (
+                      <Icon as={Entypo} name="minus" size="xs" />
+                    )
+                  }
+                  onPress={() => {
+                    if (selectedItemQuantity === 0) {
+                      onCloseModalHandler();
+                    } else {
+                      setSelectedItemQuantity((prevState) => {
+                        if (prevState > 0) {
+                          return prevState - 1;
+                        }
+                        return prevState;
+                      });
+                    }
+                  }}
+                ></Button>
+                <Text flex={1} alignSelf="center" textAlign="center">
+                  {selectedItemQuantity}
                 </Text>
-              </VStack>
-            </HStack>
-            <View pt={3}>
-              {selectedItem?.addons.length > 0 &&
-                mappingAddon(selectedItem.addons)}
-            </View>
-          </VStack>
-        </SlideFromRight>
+                <Button
+                  flex={1}
+                  colorScheme="green"
+                  py={3}
+                  leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
+                  onPress={() =>
+                    setSelectedItemQuantity((prevState) => prevState + 1)
+                  }
+                ></Button>
+              </HStack>
+              <PrimaryButton
+                mt="auto"
+                mb={1}
+                align="flex-end"
+                p={3}
+                onPress={onAddAddon}
+                disabled={selectedItemQuantity === 0}
+              >
+                Add
+              </PrimaryButton>
+            </VStack>
+          </SlideFromRight>
       </VStack>
     </Stack>
   );
