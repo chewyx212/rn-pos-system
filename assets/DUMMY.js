@@ -1375,21 +1375,6 @@ export const itemData = [
         },
         media: [],
       },
-      {
-        id: 14,
-        name: "qwe",
-        price: "123.00",
-        is_active: 1,
-        created_at: "2021-08-23 16:03:12",
-        updated_at: "2021-08-23 16:03:12",
-        deleted_at: null,
-        addon_category_id: null,
-        restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 19, addon_id: 14 },
-        addon_category: null,
-        media: [],
-      },
     ],
     media: [
       {

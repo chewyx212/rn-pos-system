@@ -13,6 +13,8 @@ import NativeBaseIcon from "./components/NativeBaseIcon";
 import AppNavigator from "./navigation/AppNavigator";
 import { useFonts } from "expo-font";
 import AppLoading from "expo-app-loading";
+import { SSRProvider } from "@react-aria/ssr";
+
 import { Provider } from "react-redux";
 import { store } from "./app/store";
 
@@ -91,7 +93,9 @@ export default function App() {
   return (
     <Provider store={store}>
       <NativeBaseProvider theme={theme}>
-        <AppNavigator />
+        <SSRProvider>
+          <AppNavigator />
+        </SSRProvider>
       </NativeBaseProvider>
     </Provider>
   );

@@ -9,37 +9,15 @@ const orderSlice = createSlice({
   name: "order",
   initialState,
   reducers: {
-    saveOrder: async (state, action) => {
+    saveOrder: (state, action) => {
       const actionOrder = action.payload.order;
-      try {
-        const value = await AsyncStorage.getItem("orders");
-        console.log(value);
-        if (value) {
-          console.log(JSON.parse(value));
-          state.orders = JSON.parse(value);
-        }
-        state.orders.push(actionOrder);
-        const jsonValue = JSON.stringify(state.orders);
-        await AsyncStorage.setItem("orders", jsonValue);
-      } catch (e) {
-        // saving error
-      }
+      state.orders.push(actionOrder)
     },
-    fetchOrder: async (state, action) => {
-      state.orders = [];
-      try {
-        const value = await AsyncStorage.getItem("orders");
-        console.log(value);
-        if (value) {
-          console.log(JSON.parse(value));
-          state.orders = JSON.parse(value);
-        }
-      } catch (e) {
-        // saving error
-      }
+    setOrder: (state, action) => {
+      state.orders = action.payload.order
     },
   },
 });
 
-export const { saveOrder, fetchOrder } = orderSlice.actions;
+export const { saveOrder, setOrder } = orderSlice.actions;
 export default orderSlice.reducer;

@@ -10,7 +10,7 @@ import Sidenav from "../components/Sidenav";
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
-  let isAuth = true;
+  let isAuth = false;
   return (
     <NavigationContainer>
       {!isAuth && <AuthNavigator />}
