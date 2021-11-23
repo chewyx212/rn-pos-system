@@ -26,13 +26,18 @@ import PrimaryButton from "../components/Ui/PrimaryButton";
 import SecondaryButton from "../components/Ui/SecondaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
+
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "./RootStackParams";
+
 import { changeCart, clearCart } from "../app/cart/cartSlice";
 import { setOrder } from "../app/order/orderSlice";
 import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
+import { useNavigation } from "@react-navigation/native";
 
 const mappingItemCategory = () => {
   let category = [];
-  let idList = [];
+  let idList: number[] = [];
   itemData.forEach((item) => {
     if (!idList.includes(item.item_category.id)) {
       idList.push(item.item_category.id);
@@ -41,17 +46,14 @@ const mappingItemCategory = () => {
   });
   return category;
 };
-
-const TableScreen = ({ navigation }) => {
+type tableScreenProp = StackNavigationProp<RootStackParamList, "Table">;
+const TableScreen = () => {
+  const navigation = useNavigation<tableScreenProp>();
   const [itemList, setItemList] = useState(itemData);
   const [categoryList, setCategoryList] = useState(mappingItemCategory());
   const [selectedCategory, setSelectedCategory] = useState(
     mappingItemCategory()[0].id
   );
-  const [selectedItem, setSelectedItem] = useState({});
-  const [selectedItemQuantity, setSelectedItemQuantity] = useState(1);
-  const [selectedItemAddon, setSelectedItemAddon] = useState({});
-  const [selectedAllAddon, setSelectedAllAddon] = useState([]);
   const [isConfirm, setIsConfirm] = useState(false);
   const [openSelectionModal, setOpenSelectionModal] = useState(false);
   const [addonForm, setAddonForm] = useState({});
@@ -95,47 +97,6 @@ const TableScreen = ({ navigation }) => {
       },
     },
   ];
-  const mappingAddon = (addons) => {
-    let temp = [];
-    let addonCategory = [];
-    let allAddon = [];
-    addons.forEach((addon) => {
-      allAddon.push(addon);
-      if (!temp.includes(addon.addon_category_id)) {
-        temp.push(addon.addon_category_id);
-        addonCategory.push({ ...addon.addon_category, data: [addon] });
-        if (parseInt(addon.addon_category.type) === 2) {
-          setAddonForm((prevState) => ({
-            ...prevState,
-            [addon.addon_category.name]: addon,
-          }));
-        }
-      } else {
-        addonCategory
-          .find((category) => category.id === addon.addon_category_id)
-          .data.push(addon);
-      }
-    });
-    setSelectedAllAddon(allAddon);
-    setSelectedItemAddon(addonCategory);
-  };
-
-  const onOpenAddonHandler = (item) => {
-    setSelectedItem(item);
-    setSelectedItemQuantity(1);
-    setAddonForm({});
-    setOpenAddon(true);
-    mappingAddon(item.addons);
-  };
-
-  const onCloseModalHandler = () => {
-    setSelectedAllAddon([]);
-    setSelectedItemAddon({});
-    setSelectedItemQuantity(1);
-    setSelectedItem({});
-    setAddonForm({});
-    setOpenAddon(false);
-  };
 
   const onClearCartHandler = () => {
     dispatch(clearCart());
@@ -183,10 +144,12 @@ const TableScreen = ({ navigation }) => {
                   }}
                   _pressed={{
                     bg: bgColor,
+                    // @ts-ignore: Unreachable code error
                     _text: { color: textColor },
                   }}
                   _hover={{
                     bg: bgColor,
+                    // @ts-ignore: Unreachable code error
                     _text: { color: textColor },
                   }}
                   disabled={isActive}
@@ -230,7 +193,8 @@ const TableScreen = ({ navigation }) => {
                     h="100%"
                     borderRadius="lg"
                     m="1.5%"
-                    aspectRatio="1"
+                    // @ts-ignore: Unreachable code error
+                    aspectRatio={1}
                     onPress={() => {}}
                   >
                     {({ isHovered, isFocused, isPressed }) => {
@@ -297,7 +261,7 @@ const TableScreen = ({ navigation }) => {
                                   <Text
                                     fontFamily="sf-pro-text-medium"
                                     fontSize="19px"
-                                    align="center"
+                                    textAlign="center"
                                     color={useColorModeValue(
                                       "muted.400",
                                       "muted.400"
@@ -333,7 +297,7 @@ const TableScreen = ({ navigation }) => {
             Current Order
           </Heading>
           <FlatList
-            keyExtractor={(item, index) => index}
+            keyExtractor={(item, index) => item.name + index}
             data={cartItem}
             renderItem={({ item }) => {
               return (
@@ -352,7 +316,7 @@ const TableScreen = ({ navigation }) => {
                         align="center"
                         justify="space-between"
                       >
-                        <HStack flex={3} align="center">
+                        <HStack flex={3}>
                           <Image
                             size="sm"
                             resizeMode={"cover"}
@@ -469,8 +433,6 @@ const TableScreen = ({ navigation }) => {
                     fontSize: "15px",
                   }}
                   _stack={{
-                    align: "center",
-                    justify: "flex-start",
                     w: "100%",
                   }}
                   leftIcon={

@@ -43,7 +43,7 @@ const cartSlice = createSlice({
         });
       }
     },
-    clearCart: (state, action) => {
+    clearCart: (state) => {
       state.cartItem = [];
     },
   },

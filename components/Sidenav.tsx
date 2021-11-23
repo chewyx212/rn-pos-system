@@ -20,12 +20,13 @@ import { useNavigation, useNavigationState } from "@react-navigation/native";
 
 const Sidenav = (props) => {
   const { colorMode, toggleColorMode } = useColorMode();
-  const navigation = useNavigation();
   const state = useNavigationState((state) => state);
   let route = "Order";
   if (state?.routeNames[state.index]) {
     route = state.routeNames[state.index];
   }
+  const navigation = useNavigation(route);
+
   // const { isOpen, onOpen, onClose } = useDisclose();
   const drawerItem = [
     {
@@ -76,8 +77,6 @@ const Sidenav = (props) => {
           bg={useColorModeValue("muted.50", "muted.900")}
           borderRightWidth={1}
           borderRightColor={useColorModeValue("muted.200", "muted.800")}
-          align="center"
-          justify="center"
         >
           {/* <Icon
           as={Ionicons}
@@ -107,7 +106,6 @@ const Sidenav = (props) => {
               <Button
                 key={item.name}
                 bg="transparent"
-                eCol
                 disabled={isActive}
                 _text={{
                   color: textColor,
@@ -133,7 +131,7 @@ const Sidenav = (props) => {
               </Button>
             );
           })}
-          <HStack space={2} align="center" justify="center" size="sm">
+          <HStack space={2} justify="center" size="sm">
             {/* <Icon as={Ionicons} name="moon-outline" size="sm" /> */}
             <Switch
               size="sm"

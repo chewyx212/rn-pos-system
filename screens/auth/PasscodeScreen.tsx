@@ -2,9 +2,8 @@ import { Text, Box } from "native-base";
 import React from "react";
 import { View } from "react-native";
 
-const PasscodeScreen = ({ navigation }) => {
-  console.log(navigation);
-
+const PasscodeScreen = () => {
+  
   return (
     <Box safeArea>
       <Text>This is passcode page</Text>

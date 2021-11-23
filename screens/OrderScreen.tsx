@@ -32,7 +32,7 @@ import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
 
 const mappingItemCategory = () => {
   let category = [];
-  let idList = [];
+  let idList: number[] = [];
   itemData.forEach((item) => {
     if (!idList.includes(item.item_category.id)) {
       idList.push(item.item_category.id);
@@ -244,10 +244,12 @@ const OrderScreen = ({ navigation }) => {
                   }}
                   _pressed={{
                     bg: bgColor,
+                    // @ts-ignore: Unreachable code error
                     _text: { color: textColor },
                   }}
                   _hover={{
                     bg: bgColor,
+                    // @ts-ignore: Unreachable code error
                     _text: { color: textColor },
                   }}
                   disabled={isActive}
@@ -291,6 +293,7 @@ const OrderScreen = ({ navigation }) => {
                     h="100%"
                     borderRadius="lg"
                     m="1.5%"
+                    // @ts-ignore: Unreachable code error
                     aspectRatio="1"
                     onPress={() =>
                       item.addons?.length === 0
@@ -356,7 +359,7 @@ const OrderScreen = ({ navigation }) => {
             Current Order
           </Heading>
           <FlatList
-            keyExtractor={(item, index) => index}
+            keyExtractor={(item, index) => item.name + index}
             data={cartItem}
             renderItem={({ item }) => {
               return (
@@ -375,7 +378,7 @@ const OrderScreen = ({ navigation }) => {
                         align="center"
                         justify="space-between"
                       >
-                        <HStack flex={3} align="center">
+                        <HStack flex={3}>
                           <Image
                             size="sm"
                             resizeMode={"cover"}
@@ -439,14 +442,6 @@ const OrderScreen = ({ navigation }) => {
           <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
             <Pressable
               bg="transparent"
-              leftIcon={
-                <Icon
-                  as={Entypo}
-                  size="md"
-                  name="chevron-left"
-                  color={useColorModeValue("light.600", "muted.200")}
-                />
-              }
               onPress={onCloseModalHandler}
             >
               <Text color="primary.500">Cancel</Text>

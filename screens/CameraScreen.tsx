@@ -2,7 +2,7 @@ import { Text, Stack, useColorModeValue, Button, View } from "native-base";
 import React, { useEffect, useState } from "react";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { StyleSheet } from "react-native";
-const CameraScreen = ({ navigation }) => {
+const CameraScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   useEffect(() => {
@@ -30,7 +30,7 @@ const CameraScreen = ({ navigation }) => {
         style={StyleSheet.absoluteFillObject}
       />
       {scanned && (
-        <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
+        <Button onPress={() => setScanned(false)}>Tap to Scan Again</Button>
       )}
     </Stack>
   );

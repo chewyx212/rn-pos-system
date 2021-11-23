@@ -1,7 +1,7 @@
 import { Text as NBText } from "native-base";
 import React from "react";
-
-const Text = (props) => {
+// @ts-ignore: Unreachable code error
+const Text = (props: any) => {
   let settings = {
     fontFamily: "sf-pro-text-regular",
     fontSize: "16px",

@@ -2,8 +2,7 @@ import { Text, Box } from "native-base";
 import React from "react";
 import { View } from "react-native";
 
-const LoginScreen = ({ navigation }) => {
-  console.log(navigation);
+const LoginScreen = () => {
 
   return (
     <Box safeArea>

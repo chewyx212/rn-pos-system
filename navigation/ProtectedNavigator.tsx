@@ -10,7 +10,7 @@ import PrinterScreen from "../screens/PrinterScreen";
 
 const Stack = createStackNavigator();
 
-const ProtectedNavigator = (props) => {
+const ProtectedNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
