@@ -57,13 +57,8 @@ const Sidenav = (props) => {
   let isOpen = true;
   return (
     <>
-      <HStack
-        safeAreaTop
-        w="100%"
-        bg="dark.50"
-        justify="space-between"
-      ></HStack>
       <Stack
+        safeAreaTop
         w="100%"
         h="100%"
         direction={{ base: "column", md: "row" }}

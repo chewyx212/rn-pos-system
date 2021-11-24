@@ -5,9 +5,8 @@ const SlideFromRight = (props) => {
   return (
     <>
       {props.isOpen && (
-        <View position="absolute" w="100%" h="100%" {...props}>
+        <View position="absolute" {...props} zIndex={99}>
           <PresenceTransition
-            zIndex="99"
             visible={props.isOpen}
             initial={{
               translateX: 500,

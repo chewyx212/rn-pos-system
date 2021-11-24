@@ -190,11 +190,9 @@ const TableScreen = () => {
                   <Pressable
                     key={item.id}
                     flexBasis="22%"
-                    h="100%"
+                    h="60%"
                     borderRadius="lg"
                     m="1.5%"
-                    // @ts-ignore: Unreachable code error
-                    aspectRatio={1}
                     onPress={() => {}}
                   >
                     {({ isHovered, isFocused, isPressed }) => {
@@ -284,7 +282,7 @@ const TableScreen = () => {
       </VStack>
       <VStack
         h="100%"
-        flex={3}
+        flex={2.5}
         pt={3}
         pb={10}
         px={3}

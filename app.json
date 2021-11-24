@@ -17,9 +17,11 @@
       "**/*"
     ],
     "ios": {
+    "backgroundColor": "#000000",
       "supportsTablet": true
     },
     "android": {
+    "backgroundColor": "#ffffff",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

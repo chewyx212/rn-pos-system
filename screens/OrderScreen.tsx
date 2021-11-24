@@ -18,6 +18,7 @@ import {
   Radio,
   AlertDialog,
   Modal,
+  IconButton,
 } from "native-base";
 import React, { useRef, useState } from "react";
 import { AntDesign, Entypo, Feather } from "@expo/vector-icons";
@@ -54,6 +55,7 @@ const OrderScreen = ({ navigation }) => {
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
   const [isConfirm, setIsConfirm] = useState(false);
   const [openSelectionModal, setOpenSelectionModal] = useState(false);
+  const [openCart, setOpenCart] = useState(false);
   const [addonForm, setAddonForm] = useState({});
   const [openAddon, setOpenAddon] = useState(false);
   const dispatch = useAppDispatch();
@@ -65,7 +67,7 @@ const OrderScreen = ({ navigation }) => {
       name: "Add Customer",
       icon: AntDesign,
       iconName: "adduser",
-      function:  () => {
+      function: () => {
         setOpenSelectionModal(false);
       },
     },
@@ -73,7 +75,7 @@ const OrderScreen = ({ navigation }) => {
       name: "Add Promotion",
       icon: Feather,
       iconName: "percent",
-      function:  () => {
+      function: () => {
         setOpenSelectionModal(false);
       },
     },
@@ -81,7 +83,7 @@ const OrderScreen = ({ navigation }) => {
       name: "Hold Order",
       icon: AntDesign,
       iconName: "shoppingcart",
-      function:  () => {
+      function: () => {
         setOpenSelectionModal(false);
       },
     },
@@ -204,330 +206,500 @@ const OrderScreen = ({ navigation }) => {
   };
 
   return (
-    <Stack
-      position="relative"
-      h="100%"
-      direction="row"
-      pl={5}
-      bg={useColorModeValue("light.100", "muted.800")}
-    >
-      <VStack h="100%" flex={6} mr="1%" pt={3}>
-        <Heading size="lg" fontFamily="sf-pro-display-bold" fontSize={32}>
-          Order
-        </Heading>
-        <Stack maxH="9%">
+    <>
+      <Stack
+        position="relative"
+        h="100%"
+        direction="row"
+        pl={5}
+        bg={useColorModeValue("light.100", "muted.800")}
+      >
+        <VStack h="100%" flex={6} mr="1%" pt={3}>
+          <Flex direction="row" w="100%" justify="space-between" align="center">
+            <Heading size="lg" fontFamily="sf-pro-display-bold" fontSize={{base: 24,md:32}}>
+              Order
+            </Heading>
+            <IconButton
+              display={{md:'none'}}
+              icon={<Icon as={AntDesign} name="shoppingcart" size="sm" />}
+              mr={5}
+              onPress={() => setOpenCart(true)}
+            />
+          </Flex>
+          <Stack maxH={{md:"9%"}}>
+            <ScrollView
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              overflow="scroll"
+              _contentContainerStyle={{
+                m: "1%",
+                py: "10px",
+              }}
+            >
+              {categoryList.map((category) => {
+                let isActive = category.id === selectedCategory;
+                let bgColor = useColorModeValue("transparent", "transparent");
+                let textColor = useColorModeValue("muted.500", "muted.400");
+                if (isActive) {
+                  bgColor = useColorModeValue("primary.500", "primary.700");
+                  textColor = useColorModeValue("light.50", "light.50");
+                }
+                return (
+                  <Button
+                    key={category.id}
+                    bg={bgColor}
+                    _text={{
+                      color: textColor,
+                      fontFamily: "sf-pro-text-medium",
+                      fontSize: 13,
+                    }}
+                    _pressed={{
+                      bg: bgColor,
+                      // @ts-ignore: Unreachable code error
+                      _text: { color: textColor },
+                    }}
+                    _hover={{
+                      bg: bgColor,
+                      // @ts-ignore: Unreachable code error
+                      _text: { color: textColor },
+                    }}
+                    disabled={isActive}
+                    borderRadius="2xl"
+                    mx={1}
+                    onPress={() => {
+                      setSelectedCategory(category.id);
+                    }}
+                  >
+                    {category.name}
+                  </Button>
+                );
+              })}
+            </ScrollView>
+          </Stack>
+
           <ScrollView
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            overflow="scroll"
             _contentContainerStyle={{
-              m: "1%",
-              py: "10px",
+              px: "5px",
             }}
           >
-            {categoryList.map((category) => {
-              let isActive = category.id === selectedCategory;
-              let bgColor = useColorModeValue("transparent", "transparent");
-              let textColor = useColorModeValue("muted.500", "muted.400");
-              if (isActive) {
-                bgColor = useColorModeValue("primary.500", "primary.700");
-                textColor = useColorModeValue("light.50", "light.50");
-              }
-              return (
-                <Button
-                  key={category.id}
-                  bg={bgColor}
-                  _text={{
-                    color: textColor,
-                    fontFamily: "sf-pro-text-medium",
-                    fontSize: 13,
-                  }}
-                  _pressed={{
-                    bg: bgColor,
-                    // @ts-ignore: Unreachable code error
-                    _text: { color: textColor },
-                  }}
-                  _hover={{
-                    bg: bgColor,
-                    // @ts-ignore: Unreachable code error
-                    _text: { color: textColor },
-                  }}
-                  disabled={isActive}
-                  borderRadius="2xl"
-                  mx={1}
-                  shadow={isActive ? 4 : 0}
-                  onPress={() => {
-                    setSelectedCategory(category.id);
-                  }}
-                >
-                  {category.name}
-                </Button>
-              );
-            })}
+            <Flex flex="1" direction="row" wrap="wrap" justify="flex-start">
+              {itemList
+                .filter((item) => item.item_category_id === selectedCategory)
+                .map((item) => {
+                  let textColor = useColorModeValue("light.100", "light.100");
+                  let hoverTextColor = useColorModeValue(
+                    "light.50",
+                    "light.50"
+                  );
+                  let hoverBgColor = useColorModeValue(
+                    "dark.400:alpha.40",
+                    "dark.200:alpha.60"
+                  );
+                  let gradientColor = useColorModeValue(
+                    "dark.500:alpha.20",
+                    "dark.300:alpha.20"
+                  );
+                  return (
+                    <Pressable
+                      key={item.id}
+                      flexBasis={{ base: "48%", lg: "22%" }}
+                      h={{ base: "150px", md: "165px" }}
+                      borderRadius="lg"
+                      mx={{ base: "1%", lg: "1.5%" }}
+                      my={{ base: "2%", lg: "1.5%" }}
+                      onPress={() =>
+                        item.addons?.length === 0
+                          ? sendCartHandler(item, 1)
+                          : onOpenAddonHandler(item)
+                      }
+                    >
+                      {({ isHovered, isFocused, isPressed }) => {
+                        return (
+                          <>
+                            <Image
+                              h="100%"
+                              w="100%"
+                              borderRadius="lg"
+                              source={{
+                                uri: item.image?.url,
+                              }}
+                              alt={item.name}
+                            />
+                            <Box
+                              bg={
+                                isPressed || isHovered
+                                  ? hoverBgColor
+                                  : gradientColor
+                              }
+                              h="100%"
+                              w="100%"
+                              borderRadius="lg"
+                              position="absolute"
+                            >
+                              <Text
+                                position="absolute"
+                                color={
+                                  isPressed || isHovered
+                                    ? hoverTextColor
+                                    : textColor
+                                }
+                              >
+                                {item.name}
+                              </Text>
+                            </Box>
+                          </>
+                        );
+                      }}
+                    </Pressable>
+                  );
+                })}
+            </Flex>
           </ScrollView>
-        </Stack>
-
-        <ScrollView
-          _contentContainerStyle={{
-            px: "10px",
-          }}
+        </VStack>
+        <Box
+          h="100%"
+          display={{ base: "none", sm: "none", md: "flex" }}
+          flex={{ md: 4, lg: 2.5 }}
+          pt={{ base: 0, sm: 0, md: 3 }}
+          pb={10}
+          px={{ base: 0, sm: 0, md: 3 }}
+          bg={useColorModeValue("light.100", "muted.800")}
+          borderLeftWidth="2"
+          borderLeftColor={useColorModeValue("light.200", "dark.200")}
         >
-          <Flex flex="1" direction="row" wrap="wrap" justify="flex-start">
-            {itemList
-              .filter((item) => item.item_category_id === selectedCategory)
-              .map((item) => {
-                let textColor = useColorModeValue("light.100", "light.100");
-                let hoverTextColor = useColorModeValue("light.50", "light.50");
-                let hoverBgColor = useColorModeValue(
-                  "dark.400:alpha.40",
-                  "dark.200:alpha.60"
-                );
-                let gradientColor = useColorModeValue(
-                  "dark.500:alpha.20",
-                  "dark.300:alpha.20"
-                );
+          <View w="100%" flex={14}>
+            <Heading
+              size="md"
+              py={2}
+              fontFamily="sf-pro-text-bold"
+              fontSize={17}
+            >
+              Current Order
+            </Heading>
+            <FlatList
+              keyExtractor={(item, index) => item.name + index}
+              data={cartItem}
+              renderItem={({ item }) => {
                 return (
-                  <Pressable
-                    key={item.id}
-                    flexBasis="22%"
-                    h="100%"
-                    borderRadius="lg"
-                    m="1.5%"
-                    // @ts-ignore: Unreachable code error
-                    aspectRatio="1"
-                    onPress={() =>
-                      item.addons?.length === 0
-                        ? sendCartHandler(item, 1)
-                        : onOpenAddonHandler(item)
-                    }
-                  >
+                  <Pressable>
                     {({ isHovered, isFocused, isPressed }) => {
                       return (
-                        <>
-                          <Image
-                            h="100%"
-                            w="100%"
-                            borderRadius="lg"
-                            source={{
-                              uri: item.image?.url,
-                            }}
-                            alt={item.name}
-                          />
-                          <Box
-                            bg={
-                              isPressed || isHovered
-                                ? hoverBgColor
-                                : gradientColor
-                            }
-                            h="100%"
-                            w="100%"
-                            borderRadius="lg"
-                            position="absolute"
-                          >
-                            <Text
-                              position="absolute"
-                              color={
-                                isPressed || isHovered
-                                  ? hoverTextColor
-                                  : textColor
-                              }
-                            >
-                              {item.name}
+                        <Flex
+                          w="100%"
+                          py={1}
+                          bg={
+                            isPressed || isHovered
+                              ? "dark.100:alpha.30"
+                              : "transparent"
+                          }
+                          direction="row"
+                          align="center"
+                          justify="space-between"
+                        >
+                          <HStack flex={3}>
+                            <Image
+                              size="sm"
+                              resizeMode={"cover"}
+                              borderRadius="md"
+                              mr="10px"
+                              bg={useColorModeValue(
+                                "dark.500:alpha.20",
+                                "dark.300:alpha.20"
+                              )}
+                              source={{
+                                uri: item.image?.url,
+                              }}
+                              alt="Alternate Text"
+                            />
+                            <VStack>
+                              <Text>{item.id}</Text>
+                              <Text>{item.name}</Text>
+                              <Text>{item.addons.length > 0 && "haha"}</Text>
+                            </VStack>
+                          </HStack>
+                          <View flex={2}>
+                            <Text textAlign="right">
+                              RM {item.price} x {item.quantity}
                             </Text>
-                          </Box>
-                        </>
+                          </View>
+                        </Flex>
                       );
                     }}
                   </Pressable>
                 );
-              })}
-          </Flex>
-        </ScrollView>
-      </VStack>
-      <VStack
-        h="100%"
-        flex={3}
-        pt={3}
-        pb={10}
-        px={3}
-        bg={useColorModeValue("light.100", "muted.800")}
-        borderLeftWidth="2"
-        borderLeftColor={useColorModeValue("light.200", "dark.200")}
-      >
-        <View w="100%" flex={14}>
-          <Heading size="md" py={2} fontFamily="sf-pro-text-bold" fontSize={17}>
-            Current Order
-          </Heading>
-          <FlatList
-            keyExtractor={(item, index) => item.name + index}
-            data={cartItem}
-            renderItem={({ item }) => {
-              return (
-                <Pressable>
-                  {({ isHovered, isFocused, isPressed }) => {
-                    return (
-                      <Flex
-                        w="100%"
-                        py={1}
-                        bg={
-                          isPressed || isHovered
-                            ? "dark.100:alpha.30"
-                            : "transparent"
-                        }
-                        direction="row"
-                        align="center"
-                        justify="space-between"
-                      >
-                        <HStack flex={3}>
-                          <Image
-                            size="sm"
-                            resizeMode={"cover"}
-                            borderRadius="md"
-                            mr="10px"
-                            bg={useColorModeValue(
-                              "dark.500:alpha.20",
-                              "dark.300:alpha.20"
-                            )}
-                            source={{
-                              uri: item.image?.url,
-                            }}
-                            alt="Alternate Text"
-                          />
-                          <VStack>
-                            <Text>{item.id}</Text>
-                            <Text>{item.name}</Text>
-                            <Text>{item.addons.length > 0 && "haha"}</Text>
-                          </VStack>
-                        </HStack>
-                        <View flex={2}>
-                          <Text textAlign="right">
-                            RM {item.price} x {item.quantity}
-                          </Text>
-                        </View>
-                      </Flex>
-                    );
-                  }}
-                </Pressable>
-              );
-            }}
-          />
-        </View>
-        <HStack flex={1} space={2} pt={3}>
-          {/* <SecondaryButton
+              }}
+            />
+          </View>
+          <HStack flex={1} space={2} pt={3}>
+            {/* <SecondaryButton
             style={{
               flex: 1,
             }}
             icon={<Icon as={Entypo} name="dots-three-horizontal" size="xs" />}
           ></SecondaryButton> */}
-          <Button
-            flex={1}
-            variant="outline"
-            colorScheme="warmGray"
-            leftIcon={
-              <Icon as={Entypo} name="dots-three-horizontal" size="xs" />
-            }
-            onPress={() => setOpenSelectionModal(true)}
-          ></Button>
-          <PrimaryButton
-            flex={9}
-            disabled={cartItem.length < 1}
-            onPress={() => {
-              if (cartItem.length > 0) setIsConfirm(true);
-            }}
-          >
-            Checkout
-          </PrimaryButton>
-        </HStack>
-        <SlideFromRight isOpen={openAddon} my={5} mx={3}>
-          <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
-            <Pressable
-              bg="transparent"
-              onPress={onCloseModalHandler}
+            <Button
+              flex={1}
+              variant="outline"
+              colorScheme="warmGray"
+              leftIcon={
+                <Icon as={Entypo} name="dots-three-horizontal" size="xs" />
+              }
+              onPress={() => setOpenSelectionModal(true)}
+            ></Button>
+            <PrimaryButton
+              flex={9}
+              disabled={cartItem.length < 1}
+              onPress={() => {
+                if (cartItem.length > 0) setIsConfirm(true);
+              }}
             >
-              <Text color="primary.500">Cancel</Text>
-            </Pressable>
+              Checkout
+            </PrimaryButton>
+          </HStack>
+        </Box>
 
-            <HStack pt={4}>
-              <Image
-                size="md"
-                resizeMode={"cover"}
-                borderRadius="md"
-                mr="10px"
-                bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
-                source={{
-                  uri: selectedItem.image?.url,
-                }}
-                alt="Alternate Text"
+        {/* <-------------- Confirmation Modal when checkout--> */}
+        <AlertDialog
+          leastDestructiveRef={cancelRef}
+          isOpen={isConfirm}
+          onClose={onCloseConfirm}
+          closeOnOverlayClick={true}
+          size="md"
+        >
+          <AlertDialog.Content>
+            <AlertDialog.CloseButton />
+            <AlertDialog.Header>Place Order</AlertDialog.Header>
+            <AlertDialog.Body>
+              Your order will be send to kitchen and start prepare.
+            </AlertDialog.Body>
+            <AlertDialog.Footer>
+              <Button.Group space={2}>
+                <Button
+                  variant="unstyled"
+                  colorScheme="coolGray"
+                  onPress={onSubmitOrder}
+                  ref={cancelRef}
+                >
+                  Hold Order
+                </Button>
+                <Button colorScheme="success" onPress={onSubmitOrder}>
+                  Send to Kitchen
+                </Button>
+              </Button.Group>
+            </AlertDialog.Footer>
+          </AlertDialog.Content>
+        </AlertDialog>
+
+        {/* <---------- Cart Function Selection Modal -----------------> */}
+        <Modal
+          isOpen={openSelectionModal}
+          onClose={() => setOpenSelectionModal(false)}
+        >
+          <Modal.Content maxWidth="400px">
+            <Modal.CloseButton />
+            <Modal.Header>More Actions</Modal.Header>
+            <Modal.Body>
+              <ScrollView>
+                {selectionButtonGroup.map((button) => (
+                  <Button
+                    key={button.name}
+                    my={2}
+                    flex={1}
+                    variant="ghost"
+                    colorScheme="warmGray"
+                    _text={{
+                      ml: 1,
+                      fontFamily: "sf-pro-text-medium",
+                      fontSize: "15px",
+                    }}
+                    _stack={{
+                      align: "center",
+                      justify: "flex-start",
+                      w: "100%",
+                    }}
+                    leftIcon={
+                      <Icon as={button.icon} name={button.iconName} size="sm" />
+                    }
+                    onPress={button.function}
+                  >
+                    {button.name}
+                  </Button>
+                ))}
+              </ScrollView>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal>
+      </Stack>
+
+      <SlideFromRight
+        isOpen={openCart}
+        w={{ base: "100%", md: "0%" }}
+        right="0"
+        h="100%"
+      >
+        <VStack
+          h="100%"
+          pb={10}
+          bg={useColorModeValue("light.100", "muted.800")}
+        >
+          <View w="100%" flex={14}>
+            <Flex direction="row" justify="space-between" align="center" py={2} px={5}>
+              <Heading size="md" fontFamily="sf-pro-text-bold" fontSize={17}>
+                Current Order
+              </Heading>
+              <IconButton
+                icon={<Icon as={AntDesign} name="close" size="sm" />}
+                onPress={() => setOpenCart(false)}
               />
-              <VStack>
-                <Text fontSize="md">{selectedItem?.id}</Text>
-                <Text fontSize="md">{selectedItem?.name}</Text>
-                <Text pt={1} color="primary.500" fontSize="lg" bold>
-                  RM {selectedItem?.price}
-                </Text>
-              </VStack>
-            </HStack>
-            <View pt={3} h="70%">
-              {selectedItem?.addons?.length > 0 && (
-                <FlatList
-                  data={selectedItemAddon}
-                  keyExtractor={(item, index) => item + index}
-                  renderItem={({ item }) => {
-                    return (
-                      <>
-                        <Text
-                          Text
-                          py="3"
-                          fontFamily="sf-pro-text-semibold"
-                          fontSize="15"
+            </Flex>
+            <FlatList
+              keyExtractor={(item, index) => item.name + index}
+              data={cartItem}
+              renderItem={({ item }) => {
+                return (
+                  <Pressable>
+                    {({ isHovered, isFocused, isPressed }) => {
+                      return (
+                        <Flex
+                          w="100%"
+                          py={1}
+                          bg={
+                            isPressed || isHovered
+                              ? "dark.100:alpha.30"
+                              : "transparent"
+                          }
+                          direction="row"
+                          align="center"
+                          justify="space-between"
                         >
-                          {item.name}
-                        </Text>
-                        {parseInt(item.type) === 1 && (
-                          <>
-                            <Checkbox.Group
-                              onChange={(nextValue) =>
-                                onCheckChange(item.name, nextValue)
-                              }
-                              accessibilityLabel="choose addon"
-                            >
-                              {item.data.map((addon) => {
-                                return (
-                                  <Checkbox
-                                    key={addon.id}
-                                    value={addon.id}
-                                    my={2}
-                                    size="md"
-                                  >
-                                    <Text
-                                      px={2}
-                                      fontFamily="sf-pro-text-regular"
-                                      fontSize="13"
-                                    >
-                                      {addon.name} RM{addon.price}
-                                    </Text>
-                                  </Checkbox>
-                                );
-                              })}
-                            </Checkbox.Group>
-                          </>
-                        )}
-                        {parseInt(item.type) === 2 && (
-                          <Radio.Group
-                            name={item.name}
-                            accessibilityLabel={item.name}
-                            value={addonForm[item.name].id}
+                          <HStack flex={3}>
+                            <Image
+                              size="sm"
+                              resizeMode={"cover"}
+                              borderRadius="md"
+                              mr="10px"
+                              bg={useColorModeValue(
+                                "dark.500:alpha.20",
+                                "dark.300:alpha.20"
+                              )}
+                              source={{
+                                uri: item.image?.url,
+                              }}
+                              alt="Alternate Text"
+                            />
+                            <VStack>
+                              <Text>{item.id}</Text>
+                              <Text>{item.name}</Text>
+                              <Text>{item.addons.length > 0 && "haha"}</Text>
+                            </VStack>
+                          </HStack>
+                          <View flex={2}>
+                            <Text textAlign="right">
+                              RM {item.price} x {item.quantity}
+                            </Text>
+                          </View>
+                        </Flex>
+                      );
+                    }}
+                  </Pressable>
+                );
+              }}
+            />
+          </View>
+          <HStack flex={1} space={2} pt={3}>
+            {/* <SecondaryButton
+            style={{
+              flex: 1,
+            }}
+            icon={<Icon as={Entypo} name="dots-three-horizontal" size="xs" />}
+          ></SecondaryButton> */}
+            <Button
+              flex={1}
+              variant="outline"
+              colorScheme="warmGray"
+              leftIcon={
+                <Icon as={Entypo} name="dots-three-horizontal" size="xs" />
+              }
+              onPress={() => setOpenSelectionModal(true)}
+            ></Button>
+            <PrimaryButton
+              flex={9}
+              disabled={cartItem.length < 1}
+              onPress={() => {
+                if (cartItem.length > 0) setIsConfirm(true);
+              }}
+            >
+              Checkout
+            </PrimaryButton>
+          </HStack>
+        </VStack>
+      </SlideFromRight>
+      <SlideFromRight
+        isOpen={openAddon}
+        h="100%"
+        w={{ base: "100%", lg: "30%" }}
+        right="0 "
+      >
+        <VStack
+          h="100%"
+          bg={useColorModeValue("light.100", "muted.800")}
+          py={5}
+          px={2}
+        >
+          <Pressable bg="transparent" onPress={onCloseModalHandler}>
+            <Text color="primary.500">Cancel</Text>
+          </Pressable>
+
+          <HStack pt={4}>
+            <Image
+              size="md"
+              resizeMode={"cover"}
+              borderRadius="md"
+              mr="10px"
+              bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
+              source={{
+                uri: selectedItem.image?.url,
+              }}
+              alt="Alternate Text"
+            />
+            <VStack>
+              <Text fontSize="md">{selectedItem?.id}</Text>
+              <Text fontSize="md">{selectedItem?.name}</Text>
+              <Text pt={1} color="primary.500" fontSize="lg" bold>
+                RM {selectedItem?.price}
+              </Text>
+            </VStack>
+          </HStack>
+          <View pt={3} flex={1}>
+            {selectedItem?.addons?.length > 0 && (
+              <FlatList
+                data={selectedItemAddon}
+                keyExtractor={(item, index) => item + index}
+                renderItem={({ item }) => {
+                  return (
+                    <>
+                      <Text
+                        py="3"
+                        fontFamily="sf-pro-text-semibold"
+                        fontSize="15"
+                      >
+                        {item.name}
+                      </Text>
+                      {parseInt(item.type) === 1 && (
+                        <>
+                          <Checkbox.Group
                             onChange={(nextValue) =>
-                              onRadioChange(item.name, nextValue)
+                              onCheckChange(item.name, nextValue)
                             }
+                            accessibilityLabel="choose addon"
                           >
                             {item.data.map((addon) => {
                               return (
-                                <Radio
+                                <Checkbox
                                   key={addon.id}
                                   value={addon.id}
-                                  my={1.5}
-                                  size="lg"
+                                  my={2}
+                                  size="md"
                                 >
                                   <Text
                                     px={2}
@@ -536,18 +708,47 @@ const OrderScreen = ({ navigation }) => {
                                   >
                                     {addon.name} RM{addon.price}
                                   </Text>
-                                </Radio>
+                                </Checkbox>
                               );
                             })}
-                          </Radio.Group>
-                        )}
-                      </>
-                    );
-                  }}
-                />
-              )}
-            </View>
-            <HStack justify="center" align="center" mt={2}>
+                          </Checkbox.Group>
+                        </>
+                      )}
+                      {parseInt(item.type) === 2 && (
+                        <Radio.Group
+                          name={item.name}
+                          accessibilityLabel={item.name}
+                          value={addonForm[item.name].id}
+                          onChange={(nextValue) =>
+                            onRadioChange(item.name, nextValue)
+                          }
+                        >
+                          {item.data.map((addon) => {
+                            return (
+                              <Radio
+                                key={addon.id}
+                                value={addon.id}
+                                my={1.5}
+                                size="lg"
+                              >
+                                <Text
+                                  px={2}
+                                  fontFamily="sf-pro-text-regular"
+                                  fontSize="13"
+                                >
+                                  {addon.name} RM{addon.price}
+                                </Text>
+                              </Radio>
+                            );
+                          })}
+                        </Radio.Group>
+                      )}
+                    </>
+                  );
+                }}
+              />
+            )}
+            <HStack py={2}>
               <Button
                 flex={1}
                 colorScheme="red"
@@ -594,82 +795,10 @@ const OrderScreen = ({ navigation }) => {
             >
               Add
             </PrimaryButton>
-          </VStack>
-        </SlideFromRight>
-      </VStack>
-
-      {/* <-------------- Confirmation Modal when checkout--> */}
-      <AlertDialog
-        leastDestructiveRef={cancelRef}
-        isOpen={isConfirm}
-        onClose={onCloseConfirm}
-        closeOnOverlayClick={true}
-        size="md"
-      >
-        <AlertDialog.Content>
-          <AlertDialog.CloseButton />
-          <AlertDialog.Header>Place Order</AlertDialog.Header>
-          <AlertDialog.Body>
-            Your order will be send to kitchen and start prepare.
-          </AlertDialog.Body>
-          <AlertDialog.Footer>
-            <Button.Group space={2}>
-              <Button
-                variant="unstyled"
-                colorScheme="coolGray"
-                onPress={onSubmitOrder}
-                ref={cancelRef}
-              >
-                Hold Order
-              </Button>
-              <Button colorScheme="success" onPress={onSubmitOrder}>
-                Send to Kitchen
-              </Button>
-            </Button.Group>
-          </AlertDialog.Footer>
-        </AlertDialog.Content>
-      </AlertDialog>
-
-      {/* <---------- Cart Function Selection Modal -----------------> */}
-      <Modal
-        isOpen={openSelectionModal}
-        onClose={() => setOpenSelectionModal(false)}
-      >
-        <Modal.Content maxWidth="400px">
-          <Modal.CloseButton />
-          <Modal.Header>More Actions</Modal.Header>
-          <Modal.Body>
-            <ScrollView>
-              {selectionButtonGroup.map((button) => (
-                <Button
-                  key={button.name}
-                  my={2}
-                  flex={1}
-                  variant="ghost"
-                  colorScheme="warmGray"
-                  _text={{
-                    ml: 1,
-                    fontFamily: "sf-pro-text-medium",
-                    fontSize: "15px",
-                  }}
-                  _stack={{
-                    align: "center",
-                    justify: "flex-start",
-                    w: "100%",
-                  }}
-                  leftIcon={
-                    <Icon as={button.icon} name={button.iconName} size="sm" />
-                  }
-                  onPress={button.function}
-                >
-                  {button.name}
-                </Button>
-              ))}
-            </ScrollView>
-          </Modal.Body>
-        </Modal.Content>
-      </Modal>
-    </Stack>
+          </View>
+        </VStack>
+      </SlideFromRight>
+    </>
   );
 };
 
