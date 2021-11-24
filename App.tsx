@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   Text,
   Link,
@@ -12,7 +12,7 @@ import AppNavigator from "./navigation/AppNavigator";
 import { useFonts } from "expo-font";
 import AppLoading from "expo-app-loading";
 import { SSRProvider } from "@react-aria/ssr";
-
+import * as ScreenOrientation from "expo-screen-orientation";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
 
@@ -88,6 +88,15 @@ export default function App() {
   if (!fontLoaded) {
     return <AppLoading />;
   }
+  const changeScreenOrientation = async () => {
+    const result = await ScreenOrientation.lockAsync(
+      ScreenOrientation.OrientationLock.PORTRAIT_UP
+    );
+
+    console.log(result);
+  };
+
+  changeScreenOrientation();
   return (
     <Provider store={store}>
       <NativeBaseProvider theme={theme}>

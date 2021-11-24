@@ -17,11 +17,11 @@
       "**/*"
     ],
     "ios": {
-    "backgroundColor": "#000000",
+      "requireFullScreen":true,
       "supportsTablet": true
     },
     "android": {
-    "backgroundColor": "#ffffff",
+      "backgroundColor": "#ffffff",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

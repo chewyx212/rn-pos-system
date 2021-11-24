@@ -20,7 +20,7 @@ import {
   Modal,
   IconButton,
 } from "native-base";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather } from "@expo/vector-icons";
 import { itemData } from "../assets/DUMMY";
 import PrimaryButton from "../components/Ui/PrimaryButton";
@@ -43,7 +43,7 @@ const mappingItemCategory = () => {
   return category;
 };
 
-const OrderScreen = ({ navigation }) => {
+const OrderScreen = () => {
   const [itemList, setItemList] = useState(itemData);
   const [categoryList, setCategoryList] = useState(mappingItemCategory());
   const [selectedCategory, setSelectedCategory] = useState(
@@ -58,10 +58,15 @@ const OrderScreen = ({ navigation }) => {
   const [openCart, setOpenCart] = useState(false);
   const [addonForm, setAddonForm] = useState({});
   const [openAddon, setOpenAddon] = useState(false);
+  const [orderDetail, setOrderDetail] = useState({
+    subtotal: 0.0,
+    total: 0.0,
+    discount: 0.0,
+    tax: 0.0,
+  });
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
-  const onCloseConfirm = () => setIsConfirm(false);
   const selectionButtonGroup = [
     {
       name: "Add Customer",
@@ -98,26 +103,52 @@ const OrderScreen = ({ navigation }) => {
     },
   ];
 
+  useEffect(() => {
+    calculateOrderPrice(cartItem);
+  }, [cartItem]);
+
+  const calculateOrderPrice = (items) => {
+    let detail = {
+      subtotal: 0,
+      discount: 0,
+      tax: 0,
+      total: 0,
+    };
+
+    items.forEach((item) => {
+      detail.subtotal += parseFloat(item.calculatedPrice);
+    });
+
+    detail.total = detail.subtotal;
+
+    setOrderDetail(detail);
+  };
+
+  const onCloseConfirm = () => setIsConfirm(false);
+
   const sendCartHandler = (item, quantity) => {
     dispatch(
       changeCart({
         item: {
           ...item,
+          calculatedPrice: parseFloat(item.price),
         },
         quantity,
       })
     );
   };
+
   const onSubmitOrder = async () => {
     if (cartItem.length > 0) {
       const orderValue = await fetchOrder();
-      console.log(orderValue);
       orderValue.push({
         id: orderValue.length + 1,
         items: cartItem,
       });
       await storeOrder(orderValue);
       dispatch(setOrder(orderValue));
+      setOpenCart(false);
+      onCloseConfirm();
       onClearCartHandler();
     }
   };
@@ -132,8 +163,8 @@ const OrderScreen = ({ navigation }) => {
       return selectedAllAddon.find((item) => item.id == value);
     });
     setAddonForm((prevState) => ({ ...prevState, [key]: addon }));
-    console.log(addonForm[key]);
   };
+
   const onAddAddon = () => {
     let addonsPayload = [];
     Object.values(addonForm).forEach((item) => {
@@ -143,10 +174,16 @@ const OrderScreen = ({ navigation }) => {
         addonsPayload.push(item);
       }
     });
-    const payload = {
+    let payload = {
       ...selectedItem,
+      calculatedPrice: parseFloat(selectedItem.price),
       addons: addonsPayload,
     };
+    if (payload.addons.length > 0) {
+      payload.addons.forEach((addon) => {
+        (payload.calculatedPrice += parseFloat(addon.price)).toFixed(2);
+      });
+    }
 
     dispatch(
       changeCart({
@@ -216,17 +253,22 @@ const OrderScreen = ({ navigation }) => {
       >
         <VStack h="100%" flex={6} mr="1%" pt={3}>
           <Flex direction="row" w="100%" justify="space-between" align="center">
-            <Heading size="lg" fontFamily="sf-pro-display-bold" fontSize={{base: 24,md:32}}>
+            <Heading
+              size="lg"
+              fontFamily="sf-pro-display-bold"
+              fontWeight="600"
+              fontSize={{ base: 24, md: 32 }}
+            >
               Order
             </Heading>
             <IconButton
-              display={{md:'none'}}
+              display={{ md: "none" }}
               icon={<Icon as={AntDesign} name="shoppingcart" size="sm" />}
               mr={5}
               onPress={() => setOpenCart(true)}
             />
           </Flex>
-          <Stack maxH={{md:"9%"}}>
+          <Stack maxH={{ md: "9%" }}>
             <ScrollView
               horizontal={true}
               showsHorizontalScrollIndicator={false}
@@ -251,7 +293,7 @@ const OrderScreen = ({ navigation }) => {
                     _text={{
                       color: textColor,
                       fontFamily: "sf-pro-text-medium",
-                      fontSize: 13,
+                      fontSize: { base: 15, md: 13 },
                     }}
                     _pressed={{
                       bg: bgColor,
@@ -302,7 +344,7 @@ const OrderScreen = ({ navigation }) => {
                   return (
                     <Pressable
                       key={item.id}
-                      flexBasis={{ base: "48%", lg: "22%" }}
+                      flexBasis={{ base: "47%", lg: "22%" }}
                       h={{ base: "150px", md: "165px" }}
                       borderRadius="lg"
                       mx={{ base: "1%", lg: "1.5%" }}
@@ -361,13 +403,12 @@ const OrderScreen = ({ navigation }) => {
           display={{ base: "none", sm: "none", md: "flex" }}
           flex={{ md: 4, lg: 2.5 }}
           pt={{ base: 0, sm: 0, md: 3 }}
-          pb={10}
           px={{ base: 0, sm: 0, md: 3 }}
           bg={useColorModeValue("light.100", "muted.800")}
           borderLeftWidth="2"
           borderLeftColor={useColorModeValue("light.200", "dark.200")}
         >
-          <View w="100%" flex={14}>
+          <View w="100%" flex={{ base: 20, lg: 14 }}>
             <Heading
               size="md"
               py={2}
@@ -379,83 +420,10 @@ const OrderScreen = ({ navigation }) => {
             <FlatList
               keyExtractor={(item, index) => item.name + index}
               data={cartItem}
-              renderItem={({ item }) => {
-                return (
-                  <Pressable>
-                    {({ isHovered, isFocused, isPressed }) => {
-                      return (
-                        <Flex
-                          w="100%"
-                          py={1}
-                          bg={
-                            isPressed || isHovered
-                              ? "dark.100:alpha.30"
-                              : "transparent"
-                          }
-                          direction="row"
-                          align="center"
-                          justify="space-between"
-                        >
-                          <HStack flex={3}>
-                            <Image
-                              size="sm"
-                              resizeMode={"cover"}
-                              borderRadius="md"
-                              mr="10px"
-                              bg={useColorModeValue(
-                                "dark.500:alpha.20",
-                                "dark.300:alpha.20"
-                              )}
-                              source={{
-                                uri: item.image?.url,
-                              }}
-                              alt="Alternate Text"
-                            />
-                            <VStack>
-                              <Text>{item.id}</Text>
-                              <Text>{item.name}</Text>
-                              <Text>{item.addons.length > 0 && "haha"}</Text>
-                            </VStack>
-                          </HStack>
-                          <View flex={2}>
-                            <Text textAlign="right">
-                              RM {item.price} x {item.quantity}
-                            </Text>
-                          </View>
-                        </Flex>
-                      );
-                    }}
-                  </Pressable>
-                );
-              }}
+              renderItem={({ item }) => <CartListItem item={item} />}
             />
           </View>
-          <HStack flex={1} space={2} pt={3}>
-            {/* <SecondaryButton
-            style={{
-              flex: 1,
-            }}
-            icon={<Icon as={Entypo} name="dots-three-horizontal" size="xs" />}
-          ></SecondaryButton> */}
-            <Button
-              flex={1}
-              variant="outline"
-              colorScheme="warmGray"
-              leftIcon={
-                <Icon as={Entypo} name="dots-three-horizontal" size="xs" />
-              }
-              onPress={() => setOpenSelectionModal(true)}
-            ></Button>
-            <PrimaryButton
-              flex={9}
-              disabled={cartItem.length < 1}
-              onPress={() => {
-                if (cartItem.length > 0) setIsConfirm(true);
-              }}
-            >
-              Checkout
-            </PrimaryButton>
-          </HStack>
+          <OrderDetailComponent setOpenSelectionModal={setOpenSelectionModal} setIsConfirm={setIsConfirm} cartItem={cartItem} order={orderDetail} />
         </Box>
 
         {/* <-------------- Confirmation Modal when checkout--> */}
@@ -537,14 +505,15 @@ const OrderScreen = ({ navigation }) => {
         right="0"
         h="100%"
       >
-        <VStack
-          h="100%"
-          pb={10}
-          bg={useColorModeValue("light.100", "muted.800")}
-        >
-          <View w="100%" flex={14}>
-            <Flex direction="row" justify="space-between" align="center" py={2} px={5}>
-              <Heading size="md" fontFamily="sf-pro-text-bold" fontSize={17}>
+        <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
+          <View w="100%" flex={14} px={3}>
+            <Flex direction="row" justify="space-between" align="center" py={2}>
+              <Heading
+                size="md"
+                fontFamily="sf-pro-text-bold"
+                fontWeight="600"
+                fontSize={17}
+              >
                 Current Order
               </Heading>
               <IconButton
@@ -555,83 +524,10 @@ const OrderScreen = ({ navigation }) => {
             <FlatList
               keyExtractor={(item, index) => item.name + index}
               data={cartItem}
-              renderItem={({ item }) => {
-                return (
-                  <Pressable>
-                    {({ isHovered, isFocused, isPressed }) => {
-                      return (
-                        <Flex
-                          w="100%"
-                          py={1}
-                          bg={
-                            isPressed || isHovered
-                              ? "dark.100:alpha.30"
-                              : "transparent"
-                          }
-                          direction="row"
-                          align="center"
-                          justify="space-between"
-                        >
-                          <HStack flex={3}>
-                            <Image
-                              size="sm"
-                              resizeMode={"cover"}
-                              borderRadius="md"
-                              mr="10px"
-                              bg={useColorModeValue(
-                                "dark.500:alpha.20",
-                                "dark.300:alpha.20"
-                              )}
-                              source={{
-                                uri: item.image?.url,
-                              }}
-                              alt="Alternate Text"
-                            />
-                            <VStack>
-                              <Text>{item.id}</Text>
-                              <Text>{item.name}</Text>
-                              <Text>{item.addons.length > 0 && "haha"}</Text>
-                            </VStack>
-                          </HStack>
-                          <View flex={2}>
-                            <Text textAlign="right">
-                              RM {item.price} x {item.quantity}
-                            </Text>
-                          </View>
-                        </Flex>
-                      );
-                    }}
-                  </Pressable>
-                );
-              }}
+              renderItem={({ item }) => <CartListItem item={item} />}
             />
           </View>
-          <HStack flex={1} space={2} pt={3}>
-            {/* <SecondaryButton
-            style={{
-              flex: 1,
-            }}
-            icon={<Icon as={Entypo} name="dots-three-horizontal" size="xs" />}
-          ></SecondaryButton> */}
-            <Button
-              flex={1}
-              variant="outline"
-              colorScheme="warmGray"
-              leftIcon={
-                <Icon as={Entypo} name="dots-three-horizontal" size="xs" />
-              }
-              onPress={() => setOpenSelectionModal(true)}
-            ></Button>
-            <PrimaryButton
-              flex={9}
-              disabled={cartItem.length < 1}
-              onPress={() => {
-                if (cartItem.length > 0) setIsConfirm(true);
-              }}
-            >
-              Checkout
-            </PrimaryButton>
-          </HStack>
+          <OrderDetailComponent setOpenSelectionModal={setOpenSelectionModal} setIsConfirm={setIsConfirm} cartItem={cartItem} order={orderDetail} />
         </VStack>
       </SlideFromRight>
       <SlideFromRight
@@ -647,7 +543,15 @@ const OrderScreen = ({ navigation }) => {
           px={2}
         >
           <Pressable bg="transparent" onPress={onCloseModalHandler}>
-            <Text color="primary.500">Cancel</Text>
+            <Flex direction="row" align="center">
+              <Icon
+                color="primary.500"
+                as={Entypo}
+                name="chevron-left"
+                size="xs"
+              />
+              <Text color="primary.500">Cancel</Text>
+            </Flex>
           </Pressable>
 
           <HStack pt={4}>
@@ -799,6 +703,175 @@ const OrderScreen = ({ navigation }) => {
         </VStack>
       </SlideFromRight>
     </>
+  );
+};
+
+const CartListItem = ({ item }) => {
+  return (
+    <Pressable>
+      {({ isHovered, isFocused, isPressed }) => {
+        return (
+          <Flex
+            w="100%"
+            py={1}
+            bg={isPressed || isHovered ? "dark.100:alpha.30" : "transparent"}
+            direction="row"
+            align="center"
+            justify="space-between"
+          >
+            <HStack flex={3}>
+              <Image
+                size="sm"
+                resizeMode={"cover"}
+                borderRadius="md"
+                mr="10px"
+                bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
+                source={{
+                  uri: item.image?.url,
+                }}
+                alt="Alternate Text"
+              />
+              <VStack>
+                <Text
+                  fontFamily="sf-pro-text-semibold"
+                  fontWeight="400"
+                  fontSize={15}
+                  isTruncated
+                  noOfLines={2}
+                  maxW={{ base: "150", md: "120" }}
+                >
+                  {item.id}. {item.name}
+                </Text>
+                <Text
+                  fontFamily="sf-pro-text-regular"
+                  fontWeight="400"
+                  fontSize={{ base: 14, md: 12 }}
+                  isTruncated
+                  noOfLines={2}
+                  maxW={{ base: "150", md: "120" }}
+                >
+                  {item.addons.length > 0 &&
+                    item.addons.map((addon, index) => {
+                      if (index + 1 === item.addons.length) {
+                        return `${addon.name}`;
+                      } else {
+                        return `${addon.name}, `;
+                      }
+                    })}
+                </Text>
+              </VStack>
+            </HStack>
+            <View flex={2}>
+              <Text textAlign="right">
+                {item.addons.length > 0
+                  ? `RM ${item.calculatedPrice} x ${item.quantity}`
+                  : `RM ${item.price} x ${item.quantity}`}
+              </Text>
+            </View>
+          </Flex>
+        );
+      }}
+    </Pressable>
+  );
+};
+
+const OrderDetailComponent = ({
+  cartItem,
+  order,
+  setOpenSelectionModal,
+  setIsConfirm,
+}) => {
+  return (
+    <Flex
+      justify="flex-end"
+      pt={4}
+      pb={{ base: 10, md: 5 }}
+      mb={{ md: 5 }}
+      px={3}
+      borderRadius={{ base: undefined, md: "xl" }}
+      bg={useColorModeValue("white", "black")}
+    >
+      <Flex direction="row" align="center" justify="space-between">
+        <Text fontFamily="sf-pro-text-medium" fontWeight="500" fontSize="15px">
+          Subtotal
+        </Text>
+        <Text fontFamily="sf-pro-text-medium" fontWeight="500" fontSize="15px">
+          {order.subtotal}
+        </Text>
+      </Flex>
+      {parseFloat(order.discount) > 0 && (
+        <Flex direction="row" align="center" justify="space-between">
+          <Text
+            fontFamily="sf-pro-text-medium"
+            fontWeight="500"
+            fontSize="15px"
+          >
+            Discount
+          </Text>
+          <Text
+            fontFamily="sf-pro-text-medium"
+            fontWeight="500"
+            fontSize="15px"
+          >
+            {order.discount}
+          </Text>
+        </Flex>
+      )}
+
+      {parseFloat(order.tax) > 0 && (
+        <Flex direction="row" align="center" justify="space-between">
+          <Text
+            fontFamily="sf-pro-text-medium"
+            fontWeight="500"
+            fontSize="15px"
+          >
+            Tax
+          </Text>
+          <Text
+            fontFamily="sf-pro-text-medium"
+            fontWeight="500"
+            fontSize="15px"
+          >
+            {order.tax}
+          </Text>
+        </Flex>
+      )}
+      <Flex direction="row" align="center" justify="space-between">
+        <Text
+          fontFamily="sf-pro-text-semibold"
+          fontWeight="500"
+          fontSize="17px"
+        >
+          Total
+        </Text>
+        <Text
+          fontFamily="sf-pro-text-semibold"
+          fontWeight="500"
+          fontSize="17px"
+        >
+          {order.total}
+        </Text>
+      </Flex>
+
+      <HStack space={2} pt={3}>
+        <Button
+          flex={1}
+          variant="outline"
+          colorScheme="warmGray"
+          leftIcon={<Icon as={Entypo} name="dots-three-horizontal" size="xs" />}
+          onPress={() => setOpenSelectionModal(true)}
+        ></Button>
+        <PrimaryButton
+          flex={{ base: 11, lg: 9 }}
+          disabled={cartItem.length < 1}
+          onPress={() => {
+            if (cartItem.length > 0) setIsConfirm(true);
+          }}
+        >
+          Checkout
+        </PrimaryButton>
+      </HStack>
+    </Flex>
   );
 };
 
