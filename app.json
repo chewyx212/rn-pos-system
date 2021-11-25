@@ -17,7 +17,7 @@
       "**/*"
     ],
     "ios": {
-      "requireFullScreen":true,
+      "requireFullScreen": true,
       "supportsTablet": true
     },
     "android": {
@@ -25,7 +25,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.chewyx212.rnpossystem"
     },
     "web": {
       "favicon": "./assets/favicon.png"

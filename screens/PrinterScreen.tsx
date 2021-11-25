@@ -1,5 +1,6 @@
-import * as React from "react";
-import { View, StyleSheet, Button, Platform, Text } from "react-native";
+import React, { useState } from "react";
+import { Flex, View, Button, Text } from "native-base";
+import { Platform } from "react-native";
 import * as Print from "expo-print";
 import { shareAsync } from "expo-sharing";
 
@@ -20,7 +21,7 @@ const html = `
 `;
 
 const PrinterScreen = () => {
-  const [selectedPrinter, setSelectedPrinter] = React.useState();
+  const [selectedPrinter, setSelectedPrinter] = useState();
 
   const print = async () => {
     // On iOS/android prints the given html. On web prints the HTML from the current page.
@@ -45,39 +46,22 @@ const PrinterScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Button title="Print" onPress={print} />
-      <View style={styles.spacer} />
-      <Button title="Print to PDF file" onPress={printToFile} />
+    <Flex justify="center" p={8}>
+      <Button onPress={print}>Print</Button>
+      <View h={8} />
+      <Button onPress={printToFile}>Print to PDF file</Button>
       {Platform.OS === "ios" && (
         <>
-          <View style={styles.spacer} />
-          <Button title="Select printer" onPress={selectPrinter} />
-          <View style={styles.spacer} />
+          <View h={8} />
+          <Button onPress={selectPrinter}>Select printer</Button>
+          <View h={8} />
           {selectedPrinter ? (
-            <Text
-              style={styles.printer}
-            >{`Selected printer: ${selectedPrinter.name}`}</Text>
+            <Text textAlign="center">{`Selected printer: ${selectedPrinter.name}`}</Text>
           ) : undefined}
         </>
       )}
-    </View>
+    </Flex>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    backgroundColor: "#ecf0f1",
-    flexDirection: "column",
-    padding: 8,
-  },
-  spacer: {
-    height: 8,
-  },
-  printer: {
-    textAlign: "center",
-  },
-});
 export default PrinterScreen;

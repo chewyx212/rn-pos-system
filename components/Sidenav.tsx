@@ -67,7 +67,7 @@ const Sidenav = (props) => {
         <VStack
           space={{ base: "3", md: "5" }}
           flex={isOpen ? { md: 1 } : { md: 1 }}
-          display={{ base: "none", md: "flex" }}
+          display={{ base: "flex", md: "flex" }}
           pt="10"
           bg={useColorModeValue("muted.50", "muted.900")}
           borderRightWidth={1}
