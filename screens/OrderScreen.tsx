@@ -19,6 +19,7 @@ import {
   AlertDialog,
   Modal,
   IconButton,
+  useToast,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather } from "@expo/vector-icons";
@@ -67,6 +68,7 @@ const OrderScreen = () => {
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
+  const toast = useToast();
   const selectionButtonGroup = [
     {
       name: "Add Customer",
@@ -118,8 +120,9 @@ const OrderScreen = () => {
     items.forEach((item) => {
       detail.subtotal += parseFloat(item.calculatedPrice);
     });
+    detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
 
-    detail.total = detail.subtotal;
+    detail.total = parseFloat(detail.subtotal.toFixed(2));
 
     setOrderDetail(detail);
   };
@@ -136,6 +139,10 @@ const OrderScreen = () => {
         quantity,
       })
     );
+    toast.show({
+      description: `${item.name} added into cart.`,
+      background: "emerald.500",
+    });
   };
 
   const onSubmitOrder = async () => {
@@ -193,6 +200,11 @@ const OrderScreen = () => {
         quantity: selectedItemQuantity,
       })
     );
+
+    toast.show({
+      background: "emerald.500",
+      description: `${payload.name} added into cart.`,
+    });
     onCloseModalHandler();
   };
 
@@ -423,7 +435,12 @@ const OrderScreen = () => {
               renderItem={({ item }) => <CartListItem item={item} />}
             />
           </View>
-          <OrderDetailComponent setOpenSelectionModal={setOpenSelectionModal} setIsConfirm={setIsConfirm} cartItem={cartItem} order={orderDetail} />
+          <OrderDetailComponent
+            setOpenSelectionModal={setOpenSelectionModal}
+            setIsConfirm={setIsConfirm}
+            cartItem={cartItem}
+            order={orderDetail}
+          />
         </Box>
 
         {/* <-------------- Confirmation Modal when checkout--> */}
@@ -527,7 +544,12 @@ const OrderScreen = () => {
               renderItem={({ item }) => <CartListItem item={item} />}
             />
           </View>
-          <OrderDetailComponent setOpenSelectionModal={setOpenSelectionModal} setIsConfirm={setIsConfirm} cartItem={cartItem} order={orderDetail} />
+          <OrderDetailComponent
+            setOpenSelectionModal={setOpenSelectionModal}
+            setIsConfirm={setIsConfirm}
+            cartItem={cartItem}
+            order={orderDetail}
+          />
         </VStack>
       </SlideFromRight>
       <SlideFromRight

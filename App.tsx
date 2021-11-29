@@ -15,6 +15,7 @@ import { SSRProvider } from "@react-aria/ssr";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
+import { Platform } from "react-native";
 
 const theme = extendTheme({
   fontConfig: {
@@ -91,9 +92,7 @@ export default function App() {
   const changeScreenOrientation = async () => {
     const result = await ScreenOrientation.lockAsync(
       ScreenOrientation.OrientationLock.PORTRAIT_UP
-    );
-
-    console.log(result);
+    )
   };
 
   changeScreenOrientation();
