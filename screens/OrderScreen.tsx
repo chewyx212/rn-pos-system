@@ -377,6 +377,7 @@ const OrderScreen = () => {
                               source={{
                                 uri: item.image?.url,
                               }}
+                              fallbackSource={require("./../assets/fallback-img.jpg")}
                               alt={item.name}
                             />
                             <Box
@@ -586,6 +587,7 @@ const OrderScreen = () => {
               source={{
                 uri: selectedItem.image?.url,
               }}
+              fallbackSource={require("./../assets/fallback-img.jpg")}
               alt="Alternate Text"
             />
             <VStack>
@@ -751,6 +753,7 @@ const CartListItem = ({ item }) => {
                 source={{
                   uri: item.image?.url,
                 }}
+                fallbackSource={require("./../assets/fallback-img.jpg")}
                 alt="Alternate Text"
               />
               <VStack>

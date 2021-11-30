@@ -21,11 +21,12 @@ import { useNavigation, useNavigationState } from "@react-navigation/native";
 const Sidenav = (props) => {
   const { colorMode, toggleColorMode } = useColorMode();
   const state = useNavigationState((state) => state);
-  let route = "Order";
+  let route = "Table";
   if (state?.routeNames[state.index]) {
     route = state.routeNames[state.index];
   }
-  const navigation = useNavigation(route);
+  const navigation = useNavigation();
+  console.log(state);
 
   // const { isOpen, onOpen, onClose } = useDisclose();
   const drawerItem = [
@@ -67,7 +68,7 @@ const Sidenav = (props) => {
         <VStack
           space={{ base: "3", md: "5" }}
           flex={isOpen ? { md: 1 } : { md: 1 }}
-          display={{ base: "flex", md: "flex" }}
+          display={{ base: "none", md: "none" }}
           pt="10"
           bg={useColorModeValue("muted.50", "muted.900")}
           borderRightWidth={1}
@@ -101,7 +102,6 @@ const Sidenav = (props) => {
               <Button
                 key={item.name}
                 bg="transparent"
-                disabled={isActive}
                 _text={{
                   color: textColor,
                   fontFamily: "sf-pro-text-medium",
@@ -109,10 +109,6 @@ const Sidenav = (props) => {
                 }}
                 _hover={{ bg: backgroundColor }}
                 _pressed={{ bg: backgroundColor }}
-                display="flex"
-                direction="column"
-                align="center"
-                justify="center"
                 onPress={() => navigation.navigate(item.route)}
               >
                 <Icon
@@ -126,7 +122,7 @@ const Sidenav = (props) => {
               </Button>
             );
           })}
-          <HStack space={2} justify="center" size="sm">
+          <HStack space={2} size="sm">
             {/* <Icon as={Ionicons} name="moon-outline" size="sm" /> */}
             <Switch
               size="sm"

@@ -20,10 +20,10 @@ const ProtectedNavigator = () => {
         presentation: "card",
         ...TransitionPresets.FadeFromBottomAndroid,
       }}
-      initialRouteName="Order"
+      initialRouteName="Table"
     >
-      <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Table" component={TableScreen} />
+      <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />
       <Stack.Screen name="Printer" component={PrinterScreen} />
     </Stack.Navigator>
