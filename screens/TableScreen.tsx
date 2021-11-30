@@ -21,6 +21,8 @@ import {
   IconButton,
   useToast,
   Menu,
+  Input,
+  KeyboardAvoidingView,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -32,6 +34,7 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { changeCart, clearCart } from "../app/cart/cartSlice";
 import { setOrder } from "../app/order/orderSlice";
 import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
+import { Platform } from "react-native";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -49,6 +52,11 @@ const TableScreen = () => {
   const [tableList, setTableList] = useState(tableData);
   const [categoryList, setCategoryList] = useState(mappingItemCategory());
   const [isAllCategory, setIsAllCategory] = useState<boolean>(true);
+  const [showQuantityModal, setShowQuantityModal] = useState<boolean>(false);
+  const [showCustomQuantityModal, setShowCustomQuantityModal] =
+    useState<boolean>(false);
+  const [selectedTable, setSelectedTable] = useState();
+  const [selectedTableQuantity, setSelectedTableQuantity] = useState();
   const [selectedCategory, setSelectedCategory] = useState(
     mappingItemCategory()[0].id
   );
@@ -89,6 +97,12 @@ const TableScreen = () => {
 
   const onCloseConfirm = () => setIsConfirm(false);
 
+
+  const onNumberInputChange = (event) => {
+    console.log(event.target.value)
+    
+  }
+
   return (
     <>
       <Stack
@@ -109,23 +123,23 @@ const TableScreen = () => {
               Table & Order
             </Heading>
 
-            <Box mr={5} pr={5} align="flex-start">
-              <Menu
-                w="190"
-                trigger={(triggerProps) => {
-                  return (
-                    <Button size="lg" {...triggerProps}>
-                      Start Order
-                    </Button>
-                  );
-                }}
-                placement="bottom right"
-              >
-                <Menu.Item>Take Away</Menu.Item>
-                <Menu.Item>Delivery</Menu.Item>
-                <Menu.Item>Counter</Menu.Item>
-              </Menu>
-            </Box>
+            <Menu
+              mr={5}
+              pr={5}
+              w="190"
+              trigger={(triggerProps) => {
+                return (
+                  <Button size="lg" {...triggerProps}>
+                    Start Order
+                  </Button>
+                );
+              }}
+              placement="bottom right"
+            >
+              <Menu.Item>Take Away</Menu.Item>
+              <Menu.Item>Delivery</Menu.Item>
+              <Menu.Item>Counter</Menu.Item>
+            </Menu>
           </Flex>
           <Stack maxH={{ md: "12%" }}>
             <ScrollView
@@ -237,7 +251,10 @@ const TableScreen = () => {
                       borderRadius="lg"
                       mx={{ base: "2%", md: "1.5", lg: "1%" }}
                       my={{ base: "2%", md: "1.5", lg: "1%" }}
-                      onPress={() => {}}
+                      onPress={() => {
+                        setSelectedTable(table);
+                        setShowQuantityModal(true);
+                      }}
                     >
                       {({ isHovered, isFocused, isPressed }) => {
                         let statusBgColor = useColorModeValue(
@@ -342,6 +359,106 @@ const TableScreen = () => {
             </Flex>
           </ScrollView>
         </VStack>
+
+        {/* <-------------- Quantity Modal when order on table--> */}
+
+        <Modal
+          isOpen={showQuantityModal}
+          onClose={() => setShowQuantityModal(false)}
+        >
+          <Modal.Content maxWidth="400px">
+            <Modal.CloseButton />
+            <Modal.Header>Number of customer</Modal.Header>
+            <Modal.Body>
+              <Flex direction="row" w="100%" align="flex-start" wrap="wrap">
+                {[...Array(7)].map((elementInArray, index) => (
+                  <Button
+                    key={index}
+                    flex={1}
+                    borderColor="light.400"
+                    borderWidth={0.5}
+                    bg="transparent"
+                    _text={{ color: "light.400" }}
+                    _pressed={{
+                      bg: useColorModeValue("light.200", "dark.200"),
+                    }}
+                    flexBasis="23%"
+                    mx="1%"
+                    my="3%"
+                    maxW="23%"
+                    h={16}
+                  >
+                    {index + 1}
+                  </Button>
+                ))}
+                <Button
+                  flex={1}
+                  borderColor="light.400"
+                  borderWidth={0.5}
+                  bg="transparent"
+                  _text={{ color: "light.400" }}
+                  _pressed={{
+                    bg: useColorModeValue("light.200", "dark.200"),
+                  }}
+                  flexBasis="23%"
+                  mx="1%"
+                  my="3%"
+                  maxW="23%"
+                  h={16}
+                  onPress={() => setShowCustomQuantityModal(true)}
+                >
+                  Custom
+                </Button>
+              </Flex>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal>
+
+        {/* <-------------- Custom Quantity Modal when --> */}
+
+        <Modal
+          isOpen={showCustomQuantityModal}
+          onClose={() => setShowCustomQuantityModal(false)}
+        >
+          <KeyboardAvoidingView
+            w="auto"
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <Modal.Content maxW="400px" w="400px">
+              <Modal.CloseButton />
+              <Modal.Header>Contact Us</Modal.Header>
+
+              <Modal.Body>
+                <Input
+                  onChange={onNumberInputChange}
+                  placeholder="Enter quantityhere..."
+                  type="number"
+                  keyboardType="numeric"
+                />
+              </Modal.Body>
+              <Modal.Footer>
+                <Button.Group space={2}>
+                  <Button
+                    variant="ghost"
+                    colorScheme="blueGray"
+                    onPress={() => {
+                      setShowCustomQuantityModal(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onPress={() => {
+                      setShowCustomQuantityModal(false);
+                    }}
+                  >
+                    Save
+                  </Button>
+                </Button.Group>
+              </Modal.Footer>
+            </Modal.Content>
+          </KeyboardAvoidingView>
+        </Modal>
 
         {/* <-------------- Confirmation Modal when checkout--> */}
         <AlertDialog
