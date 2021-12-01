@@ -23,6 +23,7 @@ import {
   Menu,
   Input,
   KeyboardAvoidingView,
+  Select,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -35,6 +36,7 @@ import { changeCart, clearCart } from "../app/cart/cartSlice";
 import { setOrder } from "../app/order/orderSlice";
 import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
 import { Platform } from "react-native";
+import NumberPadInput from "../components/NumberPadInput";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -56,7 +58,7 @@ const TableScreen = () => {
   const [showCustomQuantityModal, setShowCustomQuantityModal] =
     useState<boolean>(false);
   const [selectedTable, setSelectedTable] = useState();
-  const [selectedTableQuantity, setSelectedTableQuantity] = useState();
+  const [selectedTableQuantity, setSelectedTableQuantity] = useState<string>();
   const [selectedCategory, setSelectedCategory] = useState(
     mappingItemCategory()[0].id
   );
@@ -97,11 +99,9 @@ const TableScreen = () => {
 
   const onCloseConfirm = () => setIsConfirm(false);
 
-
   const onNumberInputChange = (event) => {
-    console.log(event.target.value)
-    
-  }
+    console.log(event.target.value);
+  };
 
   return (
     <>
@@ -366,7 +366,7 @@ const TableScreen = () => {
           isOpen={showQuantityModal}
           onClose={() => setShowQuantityModal(false)}
         >
-          <Modal.Content maxWidth="400px">
+          <Modal.Content maxW={{ base: "300px", md: "400px" }}>
             <Modal.CloseButton />
             <Modal.Header>Number of customer</Modal.Header>
             <Modal.Body>
@@ -415,50 +415,14 @@ const TableScreen = () => {
         </Modal>
 
         {/* <-------------- Custom Quantity Modal when --> */}
-
-        <Modal
+        <NumberPadInput
           isOpen={showCustomQuantityModal}
           onClose={() => setShowCustomQuantityModal(false)}
-        >
-          <KeyboardAvoidingView
-            w="auto"
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
-            <Modal.Content maxW="400px" w="400px">
-              <Modal.CloseButton />
-              <Modal.Header>Contact Us</Modal.Header>
-
-              <Modal.Body>
-                <Input
-                  onChange={onNumberInputChange}
-                  placeholder="Enter quantityhere..."
-                  type="number"
-                  keyboardType="numeric"
-                />
-              </Modal.Body>
-              <Modal.Footer>
-                <Button.Group space={2}>
-                  <Button
-                    variant="ghost"
-                    colorScheme="blueGray"
-                    onPress={() => {
-                      setShowCustomQuantityModal(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onPress={() => {
-                      setShowCustomQuantityModal(false);
-                    }}
-                  >
-                    Save
-                  </Button>
-                </Button.Group>
-              </Modal.Footer>
-            </Modal.Content>
-          </KeyboardAvoidingView>
-        </Modal>
+          headerTitle={`Number of customer`}
+          getInput={(quantity) => setSelectedTableQuantity(quantity)}
+          isDecimal={false}
+          maximumInputLength={4}
+        />
 
         {/* <-------------- Confirmation Modal when checkout--> */}
         <AlertDialog
