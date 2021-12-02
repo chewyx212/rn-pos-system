@@ -26,7 +26,6 @@ const Sidenav = (props) => {
     route = state.routeNames[state.index];
   }
   const navigation = useNavigation();
-  console.log(state);
 
   // const { isOpen, onOpen, onClose } = useDisclose();
   const drawerItem = [

@@ -6,11 +6,9 @@ export type RootStackParamList = {
     orderType: number;
     tableId?: number;
     pax?: number;
-    refreshCount: number;
+    refresher: Function;
   };
-  Table: {
-    refreshCount: number;
-  };
+  Table: undefined;
   Printer: undefined;
   Camera: undefined;
 };

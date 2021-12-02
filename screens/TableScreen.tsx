@@ -31,17 +31,17 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { changeCart, clearCart } from "../app/cart/cartSlice";
 import { setOrder } from "../app/order/orderSlice";
 import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
-import { Platform } from "react-native";
 import NumberPadInput from "../components/NumberPadInput";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "./RootStackParams";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TableCategory, TableDataType } from "../types/tableType";
 
 const mappingItemCategory = () => {
-  let category = [];
+  let category: TableCategory[] = [];
   let idList: number[] = [];
-  tableData.forEach((table) => {
+  tableData.forEach((table: TableDataType) => {
     if (!idList.includes(table.table_category.id)) {
       idList.push(table.table_category.id);
       category.push(table.table_category);
@@ -53,15 +53,16 @@ const mappingItemCategory = () => {
 type TableScreenProp = StackNavigationProp<RootStackParamList, "Table">;
 type TableScreenRouteProp = RouteProp<RootStackParamList, "Table">;
 const TableScreen = () => {
-  const [tableList, setTableList] = useState(tableData);
-  const [categoryList, setCategoryList] = useState(mappingItemCategory());
+  const [tableList, setTableList] = useState<TableDataType[]>(tableData);
+  const [categoryList, setCategoryList] = useState<TableCategory[]>(
+    mappingItemCategory()
+  );
   const [isAllCategory, setIsAllCategory] = useState<boolean>(true);
   const [showQuantityModal, setShowQuantityModal] = useState<boolean>(false);
   const [showCustomQuantityModal, setShowCustomQuantityModal] =
     useState<boolean>(false);
-  const [selectedTable, setSelectedTable] = useState({});
-  const [orders, setOrders] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(
+  const [selectedTable, setSelectedTable] = useState<TableDataType>({});
+  const [selectedCategory, setSelectedCategory] = useState<number>(
     mappingItemCategory()[0].id
   );
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
@@ -78,9 +79,6 @@ const TableScreen = () => {
   const cancelRef = useRef(null);
   const toast = useToast();
   const navigation = useNavigation<TableScreenProp>();
-  const route = useRoute<TableScreenRouteProp>();
-
-  const { refreshCount } = route.params;
 
   useEffect(() => {
     calculateOrderPrice(cartItem);
@@ -93,8 +91,12 @@ const TableScreen = () => {
     orderItemMapping();
   }, [orderItem]);
 
+  const orderRefresher = () => {
+    orderItemMapping();
+  };
   const orderItemMapping = async () => {
     const orderValue = await fetchOrder();
+    await AsyncStorage.removeItem("orders");
     let temp: number[] = [];
     let orderTemp = [...orderValue];
     orderTemp.forEach((order) => {
@@ -103,36 +105,40 @@ const TableScreen = () => {
       }
       order.detail = calculateOrderPrice(order.items);
     });
-    let tableTemp = [...tableList];
-    tableTemp.forEach((table) => {
+    let tableTemp: TableDataType[] = [];
+
+    tableList.forEach((table) => {
+      {
+        /* <-------------- This code got huge problem :)---------------------------------> */
+      }
+      // if (temp.includes(table.id)) {
+      //   table.status = 1;
+      //   table.pax = orderTemp.find((order) => order?.tableId === table.id).pax;
+      //   table.order = orderTemp.filter((order) => order.tableId === table.id);
+      //   let tempPrice = 0;
+      //   table.order.forEach((order) => {
+      //     tempPrice += order.detail.total;
+      //   });
+      //   table.total = tempPrice;
+      // }
       if (temp.includes(table.id)) {
-        table.status = 1;
-        table.pax = orderTemp.find((order) => order?.tableId === table.id).pax;
-        table.order = orderTemp.filter((order) => order.tableId === table.id);
-        let tempPrice = 0;
-        table.order.forEach((order) => {
-          tempPrice += order.detail.total;
+        tableTemp.push({
+          ...table,
+          status: 1,
+          pax: orderTemp.find((order) => order?.tableId === table.id).pax,
+          order: orderTemp.filter((order) => order.tableId === table.id),
         });
-        table.total = tempPrice;
       }
     });
-    setTableList([...tableTemp]);
+    setTableList(tableTemp);
   };
-  if (refreshCount === 1) {
-    console.log("triggered");
-    console.log(refreshCount);
-    orderItemMapping();
-    navigation.setParams({
-      refreshCount: 0,
-    });
-  }
 
   const onSelectQuantity = (quantity: number) => {
     navigation.navigate("Order", {
       orderType: 1,
       tableId: selectedTable?.id,
       pax: quantity,
-      refreshCount: 0,
+      refresher: orderRefresher,
     });
     setShowQuantityModal(false);
     setShowCustomQuantityModal(false);
@@ -357,16 +363,16 @@ const TableScreen = () => {
                             </Text>
 
                             <Flex>
-                              {table.total > 0 && (
+                              {parseFloat(table.total) > 0 && (
                                 <Text
                                   fontFamily="sf-pro-text-semibold"
                                   fontSize="15px"
                                 >
-                                  RM{table.total.toFixed(2)}
+                                  RM{parseFloat(table.total).toFixed(2)}
                                 </Text>
                               )}
                               <Flex direction="row" align="center">
-                                {table.pax > 0 && (
+                                {parseInt(table.pax) > 0 && (
                                   <>
                                     <Icon
                                       as={Ionicons}

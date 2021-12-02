@@ -1,4 +1,5 @@
-export const itemData = [
+import { TableData } from "./../types/tableType";
+export const itemData: any[] = [
   {
     id: 1,
     name: "Coffee",
@@ -1798,8 +1799,7 @@ export const itemData = [
   },
 ];
 
-
-export const tableData = [
+export const tableData: TableData[] = [
   {
     id: 1,
     name: "T01",

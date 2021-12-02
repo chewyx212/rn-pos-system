@@ -79,7 +79,7 @@ const OrderScreen = () => {
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
   const route = useRoute<OrderScreenRouteProp>();
-  const { orderType, tableId, pax, refreshCount } = route.params;
+  const { orderType, tableId, pax, refresher } = route.params;
   const selectionButtonGroup = [
     {
       name: "Add Customer",
@@ -172,7 +172,8 @@ const OrderScreen = () => {
       setOpenCart(false);
       onCloseConfirm();
       onClearCartHandler();
-      navigation.navigate("Table", { refreshCount: refreshCount + 1 });
+      refresher();
+      navigation.navigate("Table");
     }
   };
 
