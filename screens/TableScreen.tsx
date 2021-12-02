@@ -19,6 +19,7 @@ import {
   IconButton,
   useToast,
   Menu,
+  useContrastText,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -34,7 +35,7 @@ import { Platform } from "react-native";
 import NumberPadInput from "../components/NumberPadInput";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "./RootStackParams";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const mappingItemCategory = () => {
@@ -49,7 +50,8 @@ const mappingItemCategory = () => {
   return category;
 };
 
-type tableScreenProp = StackNavigationProp<RootStackParamList, "Table">;
+type TableScreenProp = StackNavigationProp<RootStackParamList, "Table">;
+type TableScreenRouteProp = RouteProp<RootStackParamList, "Table">;
 const TableScreen = () => {
   const [tableList, setTableList] = useState(tableData);
   const [categoryList, setCategoryList] = useState(mappingItemCategory());
@@ -57,9 +59,8 @@ const TableScreen = () => {
   const [showQuantityModal, setShowQuantityModal] = useState<boolean>(false);
   const [showCustomQuantityModal, setShowCustomQuantityModal] =
     useState<boolean>(false);
-  const [selectedTable, setSelectedTable] = useState();
+  const [selectedTable, setSelectedTable] = useState({});
   const [orders, setOrders] = useState([]);
-  const [tableOrders, setTableOrders] = useState<number[]>([]);
   const [selectedCategory, setSelectedCategory] = useState(
     mappingItemCategory()[0].id
   );
@@ -76,7 +77,10 @@ const TableScreen = () => {
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
   const toast = useToast();
-  const navigation = useNavigation<tableScreenProp>();
+  const navigation = useNavigation<TableScreenProp>();
+  const route = useRoute<TableScreenRouteProp>();
+
+  const { refreshCount } = route.params;
 
   useEffect(() => {
     calculateOrderPrice(cartItem);
@@ -92,31 +96,43 @@ const TableScreen = () => {
   const orderItemMapping = async () => {
     const orderValue = await fetchOrder();
     let temp: number[] = [];
-    orderValue.forEach((order) => {
+    let orderTemp = [...orderValue];
+    orderTemp.forEach((order) => {
       if (order.orderType === 1) {
         temp.push(order.tableId);
       }
       order.detail = calculateOrderPrice(order.items);
     });
-    tableList.forEach((table) => {
-      if (tableOrders.includes(table.id)) {
+    let tableTemp = [...tableList];
+    tableTemp.forEach((table) => {
+      if (temp.includes(table.id)) {
         table.status = 1;
-        table.pax = orderValue.find((order) => order?.tableId === table.id).pax;
-        table.order = orderValue.filter((order) => order.tableId === table.id);
+        table.pax = orderTemp.find((order) => order?.tableId === table.id).pax;
+        table.order = orderTemp.filter((order) => order.tableId === table.id);
+        let tempPrice = 0;
         table.order.forEach((order) => {
-          table.total += order.detail.total;
+          tempPrice += order.detail.total;
         });
+        table.total = tempPrice;
       }
     });
-
-    setOrders(orderValue);
+    setTableList([...tableTemp]);
   };
+  if (refreshCount === 1) {
+    console.log("triggered");
+    console.log(refreshCount);
+    orderItemMapping();
+    navigation.setParams({
+      refreshCount: 0,
+    });
+  }
 
   const onSelectQuantity = (quantity: number) => {
     navigation.navigate("Order", {
       orderType: 1,
       tableId: selectedTable?.id,
       pax: quantity,
+      refreshCount: 0,
     });
     setShowQuantityModal(false);
     setShowCustomQuantityModal(false);
@@ -131,7 +147,7 @@ const TableScreen = () => {
     };
 
     items.forEach((item) => {
-      detail.subtotal += parseFloat(item.calculatedPrice);
+      detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
     });
     detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
 
@@ -283,6 +299,17 @@ const TableScreen = () => {
                     isAllCategory
                 )
                 .map((table) => {
+                  let statusBgColor = useColorModeValue("red.500", "red.700");
+                  if (table.status === 2) {
+                    statusBgColor = useColorModeValue("green.500", "green.700");
+                  }
+
+                  if (table.status === 3) {
+                    statusBgColor = useColorModeValue("blue.500", "blue.700");
+                  }
+                  if (table.status === 4) {
+                    statusBgColor = useColorModeValue("amber.500", "amber.700");
+                  }
                   return (
                     <Pressable
                       key={table.id}
@@ -296,108 +323,79 @@ const TableScreen = () => {
                         setShowQuantityModal(true);
                       }}
                     >
-                      {({ isHovered, isFocused, isPressed }) => {
-                        let statusBgColor = useColorModeValue(
-                          "red.500",
-                          "red.700"
-                        );
-                        if (table.status === 2) {
-                          statusBgColor = useColorModeValue(
-                            "green.500",
-                            "green.700"
-                          );
-                        }
+                      <Flex
+                        w="100%"
+                        h="100%"
+                        bg={useColorModeValue("white", "dark.200")}
+                        shadow={2}
+                        borderRadius="lg"
+                        justify="space-between"
+                        direction="row"
+                      >
+                        <Box
+                          borderLeftRadius="lg"
+                          bg={statusBgColor}
+                          w={{ base: "7%", md: "5%", lg: "9%" }}
+                          h="100%"
+                        ></Box>
 
-                        if (table.status === 3) {
-                          statusBgColor = useColorModeValue(
-                            "blue.500",
-                            "blue.700"
-                          );
-                        }
-                        if (table.status === 4) {
-                          statusBgColor = useColorModeValue(
-                            "amber.500",
-                            "amber.700"
-                          );
-                        }
-                        return (
-                          <>
-                            <Flex
-                              w="100%"
-                              h="100%"
-                              bg={useColorModeValue("white", "dark.200")}
-                              shadow={2}
-                              borderRadius="lg"
-                              justify="space-between"
-                              direction="row"
+                        <Flex
+                          borderRightRadius="lg"
+                          w="90%"
+                          h="100%"
+                          direction="row"
+                          justify="space-between"
+                          py={2}
+                          pl={1}
+                        >
+                          <Flex h="100%" justify="space-between" pl={2}>
+                            <Text
+                              fontFamily="sf-pro-display-bold"
+                              fontSize="22px"
                             >
-                              <Box
-                                borderLeftRadius="lg"
-                                bg={statusBgColor}
-                                w={{ base: "7%", md: "5%", lg: "9%" }}
-                                h="100%"
-                              ></Box>
+                              {table.name}
+                            </Text>
 
-                              <Flex
-                                borderRightRadius="lg"
-                                w="90%"
-                                h="100%"
-                                direction="row"
-                                justify="space-between"
-                                py={2}
-                                pl={1}
-                              >
-                                <Flex h="100%" justify="space-between" pl={2}>
-                                  <Text
-                                    fontFamily="sf-pro-display-bold"
-                                    fontSize="22px"
-                                  >
-                                    {table.name}
-                                  </Text>
-
-                                  <Flex>
-                                    {table.total > 0 && (
-                                      <Text
-                                        fontFamily="sf-pro-text-semibold"
-                                        fontSize="15px"
-                                      >
-                                        RM{table.total.toFixed(2)}
-                                      </Text>
-                                    )}
-                                    <Flex direction="row" align="center">
-                                      {table.pax > 0 && (
-                                        <>
-                                          <Icon
-                                            as={Ionicons}
-                                            name="people"
-                                            size="sm"
-                                            mr={2}
-                                            color={useColorModeValue(
-                                              "muted.400",
-                                              "muted.400"
-                                            )}
-                                          />
-                                          <Text
-                                            fontFamily="sf-pro-text-medium"
-                                            fontSize="19px"
-                                            textAlign="center"
-                                            color={useColorModeValue(
-                                              "muted.400",
-                                              "muted.400"
-                                            )}
-                                          >
-                                            {table.pax}
-                                          </Text>
-                                        </>
+                            <Flex>
+                              {table.total > 0 && (
+                                <Text
+                                  fontFamily="sf-pro-text-semibold"
+                                  fontSize="15px"
+                                >
+                                  RM{table.total.toFixed(2)}
+                                </Text>
+                              )}
+                              <Flex direction="row" align="center">
+                                {table.pax > 0 && (
+                                  <>
+                                    <Icon
+                                      as={Ionicons}
+                                      name="people"
+                                      size="sm"
+                                      mr={2}
+                                      color={useColorModeValue(
+                                        "muted.400",
+                                        "muted.400"
                                       )}
-                                    </Flex>
-                                  </Flex>
-                                </Flex>
+                                    />
+                                    <Text
+                                      fontFamily="sf-pro-text-medium"
+                                      fontSize="19px"
+                                      textAlign="center"
+                                      color={useColorModeValue(
+                                        "muted.400",
+                                        "muted.400"
+                                      )}
+                                    >
+                                      {table.pax}
+                                    </Text>
+                                  </>
+                                )}
                               </Flex>
                             </Flex>
-                          </>
-                        );
-                      }}
+                          </Flex>
+                        </Flex>
+                      </Flex>
                     </Pressable>
                   );
                 })}

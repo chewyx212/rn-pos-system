@@ -79,7 +79,7 @@ const OrderScreen = () => {
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
   const route = useRoute<OrderScreenRouteProp>();
-  const { orderType, tableId, pax } = route.params;
+  const { orderType, tableId, pax, refreshCount } = route.params;
   const selectionButtonGroup = [
     {
       name: "Add Customer",
@@ -129,7 +129,7 @@ const OrderScreen = () => {
     };
 
     items.forEach((item) => {
-      detail.subtotal += parseFloat(item.calculatedPrice);
+      detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
     });
     detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
 
@@ -153,6 +153,7 @@ const OrderScreen = () => {
     toast.show({
       description: `${item.name} added into cart.`,
       background: "emerald.500",
+      placement: "top",
     });
   };
 
@@ -171,7 +172,7 @@ const OrderScreen = () => {
       setOpenCart(false);
       onCloseConfirm();
       onClearCartHandler();
-      navigation.goBack()
+      navigation.navigate("Table", { refreshCount: refreshCount + 1 });
     }
   };
 
@@ -219,6 +220,7 @@ const OrderScreen = () => {
     toast.show({
       background: "emerald.500",
       description: `${payload.name} added into cart.`,
+      placement: "top",
     });
     onCloseModalHandler();
   };
@@ -443,9 +445,9 @@ const OrderScreen = () => {
               </Heading>
               <Text fontFamily="sf-pro-text-regular" fontSize={13}>
                 {orderType === 1 && `Table Number: ${tableId}`}
-                {orderType === 2 && 'Take  Away'}
-                {orderType === 3 && 'Delivery'}
-                {orderType === 4 && 'Counter'}
+                {orderType === 2 && "Take  Away"}
+                {orderType === 3 && "Delivery"}
+                {orderType === 4 && "Counter"}
               </Text>
             </Flex>
             <FlatList

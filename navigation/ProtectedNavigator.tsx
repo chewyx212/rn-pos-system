@@ -22,7 +22,13 @@ const ProtectedNavigator = () => {
       }}
       initialRouteName="Table"
     >
-      <Stack.Screen name="Table" component={TableScreen} />
+      <Stack.Screen
+        name="Table"
+        component={TableScreen}
+        initialParams={{
+          refreshCount: 0,
+        }}
+      />
       <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />
       <Stack.Screen name="Printer" component={PrinterScreen} />

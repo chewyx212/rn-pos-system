@@ -7,7 +7,6 @@ export const fetchOrder = async () => {
     if (value) {
       const parseValue = JSON.parse(value);
       if (parseValue[0]) {
-        console.log(JSON.parse(value));
         return JSON.parse(value);
       }
     }
