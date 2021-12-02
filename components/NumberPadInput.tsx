@@ -1,25 +1,25 @@
 import {
-  HStack,
-  VStack,
-  Center,
   Text,
-  Box,
-  Stack,
-  useDisclose,
   Icon,
   Button,
   Flex,
   useColorModeValue,
   Modal,
-  Heading,
   useToast,
 } from "native-base";
 import React, { useState } from "react";
-import { Ionicons, Feather } from "@expo/vector-icons";
-import { useNavigation, useNavigationState } from "@react-navigation/native";
-import { Platform } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
-const NumberPadInput = ({
+interface IProps {
+  isOpen: boolean;
+  onClose: Function;
+  getInput: Function;
+  headerTitle: string;
+  isDecimal: boolean;
+  maximumInputLength: number;
+}
+
+const NumberPadInput: React.FC<IProps> = ({
   isOpen,
   onClose,
   getInput,
@@ -27,35 +27,51 @@ const NumberPadInput = ({
   isDecimal,
   maximumInputLength,
 }) => {
-  const [enteredValue, setEnteredValue] = useState<string>("0");
+  const [enteredValue, setEnteredValue] = useState<String>("0");
+  const [enteredDecimalValue, setEnteredDecimalValue] =
+    useState<String>("0.00");
   const toast = useToast();
+
   const onPressInput = (value) => {
-      if (enteredValue.length >= maximumInputLength) {
-        toast.show({
-          background: "red.500",
-          description: `Maximum length is ${maximumInputLength} digits.`,
-        });
-    } else if (parseFloat(enteredValue) > 0) {
+    if (enteredValue.length >= maximumInputLength) {
+      toast.show({
+        background: "red.500",
+        description: `Maximum length is ${maximumInputLength} digits.`,
+      });
+    } else if (Number(enteredValue) > 0) {
       setEnteredValue((prevValue) => (prevValue += `${value}`));
     } else {
-      console.log(parseFloat(enteredValue));
+      console.log(Number(enteredValue));
       setEnteredValue(value);
+    }
+    if (isDecimal) {
+      if (enteredValue.length > 2) {
+        let str1 = enteredValue.substr(0, enteredValue.length - 2);
+        let str2 = enteredValue.substr(enteredValue.length - 2, 2);
+        setEnteredDecimalValue(str1 + "." + str2);
+      } else if (enteredValue.length === 2) {
+        setEnteredDecimalValue(`0.${enteredValue}`);
+      } else {
+        setEnteredDecimalValue(`0.0${enteredValue}`);
+      }
     }
   };
 
   const onDeleteHandler = () => {
     setEnteredValue("0");
+    setEnteredDecimalValue("0.00");
   };
 
   const onCloseHandler = () => {
     setEnteredValue("0");
+    setEnteredDecimalValue("0.00");
     onClose();
   };
 
   const onSubmitHandler = () => {
-    if (parseFloat(enteredValue) > 0) {
-        getInput(enteredValue);
-        onCloseHandler();
+    if (Number(enteredValue) > 0) {
+      getInput(enteredValue);
+      onCloseHandler();
     } else {
       toast.show({
         background: "red.500",
@@ -63,11 +79,12 @@ const NumberPadInput = ({
       });
     }
   };
+
   return (
     <Modal isOpen={isOpen} onClose={onCloseHandler}>
       <Modal.Content
-        maxW={{ base: "300px", md: "400px" }}
-        w={{ base: "300px", md: "400px" }}
+        maxW={{ base: "320px", md: "400px" }}
+        w={{ base: "320px", md: "400px" }}
       >
         <Modal.CloseButton />
         <Modal.Header>{headerTitle}</Modal.Header>
@@ -76,13 +93,13 @@ const NumberPadInput = ({
             <Flex
               direction="row"
               my={3}
-              px={16}
+              px={12}
               align="center"
               justify="space-between"
               w="100%"
             >
               <Flex
-                width="80%"
+                width="90%"
                 borderColor="pink.400"
                 borderBottomWidth={1}
                 mr={3}
@@ -94,7 +111,7 @@ const NumberPadInput = ({
                   fontSize={22}
                   pb={2}
                 >
-                  {enteredValue}
+                  {isDecimal ? `RM ${enteredDecimalValue}` : enteredValue}
                 </Text>
               </Flex>
 
@@ -107,9 +124,11 @@ const NumberPadInput = ({
                   fontSize: "15px",
                 }}
                 leftIcon={<Icon as={Feather} name="delete" size="sm" />}
+                p={4}
                 onPress={onDeleteHandler}
               ></Button>
             </Flex>
+            <Text>Maximum length: {maximumInputLength} digits.</Text>
             <Flex direction="row" justify="center" w="100%" wrap="wrap">
               {[...Array(9)].map((elementInArray, index) => (
                 <Button
@@ -128,6 +147,7 @@ const NumberPadInput = ({
                   onPress={() => {
                     onPressInput(index + 1);
                   }}
+                  disabled={enteredValue.length >= maximumInputLength}
                 >
                   {index + 1}
                 </Button>
@@ -141,7 +161,7 @@ const NumberPadInput = ({
                   fontFamily: "sf-pro-display-regular",
                   fontSize: 24,
                 }}
-                disabled={!isDecimal}
+                disabled={true}
                 _pressed={{
                   bg: useColorModeValue("light.200", "dark.200"),
                 }}
@@ -149,7 +169,7 @@ const NumberPadInput = ({
                   onPressInput(".");
                 }}
               >
-                {isDecimal ? "." : ""}
+                {/* {isDecimal ? "." : ""} */}
               </Button>
               <Button
                 bg="transparent"

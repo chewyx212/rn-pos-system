@@ -14,16 +14,11 @@ import {
   Pressable,
   View,
   Icon,
-  Checkbox,
-  Radio,
   AlertDialog,
   Modal,
   IconButton,
   useToast,
   Menu,
-  Input,
-  KeyboardAvoidingView,
-  Select,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -37,6 +32,10 @@ import { setOrder } from "../app/order/orderSlice";
 import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
 import { Platform } from "react-native";
 import NumberPadInput from "../components/NumberPadInput";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "./RootStackParams";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -50,6 +49,7 @@ const mappingItemCategory = () => {
   return category;
 };
 
+type tableScreenProp = StackNavigationProp<RootStackParamList, "Table">;
 const TableScreen = () => {
   const [tableList, setTableList] = useState(tableData);
   const [categoryList, setCategoryList] = useState(mappingItemCategory());
@@ -58,7 +58,8 @@ const TableScreen = () => {
   const [showCustomQuantityModal, setShowCustomQuantityModal] =
     useState<boolean>(false);
   const [selectedTable, setSelectedTable] = useState();
-  const [selectedTableQuantity, setSelectedTableQuantity] = useState<string>();
+  const [orders, setOrders] = useState([]);
+  const [tableOrders, setTableOrders] = useState<number[]>([]);
   const [selectedCategory, setSelectedCategory] = useState(
     mappingItemCategory()[0].id
   );
@@ -71,13 +72,55 @@ const TableScreen = () => {
     tax: 0.0,
   });
   const dispatch = useAppDispatch();
+  const orderItem = useAppSelector((state) => state.order.orders);
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
   const toast = useToast();
+  const navigation = useNavigation<tableScreenProp>();
 
   useEffect(() => {
     calculateOrderPrice(cartItem);
   }, [cartItem]);
+
+  useEffect(() => {
+    orderItemMapping();
+  }, []);
+  useEffect(() => {
+    orderItemMapping();
+  }, [orderItem]);
+
+  const orderItemMapping = async () => {
+    const orderValue = await fetchOrder();
+    let temp: number[] = [];
+    orderValue.forEach((order) => {
+      if (order.orderType === 1) {
+        temp.push(order.tableId);
+      }
+      order.detail = calculateOrderPrice(order.items);
+    });
+    tableList.forEach((table) => {
+      if (tableOrders.includes(table.id)) {
+        table.status = 1;
+        table.pax = orderValue.find((order) => order?.tableId === table.id).pax;
+        table.order = orderValue.filter((order) => order.tableId === table.id);
+        table.order.forEach((order) => {
+          table.total += order.detail.total;
+        });
+      }
+    });
+
+    setOrders(orderValue);
+  };
+
+  const onSelectQuantity = (quantity: number) => {
+    navigation.navigate("Order", {
+      orderType: 1,
+      tableId: selectedTable?.id,
+      pax: quantity,
+    });
+    setShowQuantityModal(false);
+    setShowCustomQuantityModal(false);
+  };
 
   const calculateOrderPrice = (items) => {
     let detail = {
@@ -95,13 +138,10 @@ const TableScreen = () => {
     detail.total = parseFloat(detail.subtotal.toFixed(2));
 
     setOrderDetail(detail);
+    return detail;
   };
 
   const onCloseConfirm = () => setIsConfirm(false);
-
-  const onNumberInputChange = (event) => {
-    console.log(event.target.value);
-  };
 
   return (
     <>
@@ -307,12 +347,7 @@ const TableScreen = () => {
                                 py={2}
                                 pl={1}
                               >
-                                <Flex
-                                  h="100%"
-                                  justify="space-between"
-                                  align="flex-end"
-                                  pr={3}
-                                >
+                                <Flex h="100%" justify="space-between" pl={2}>
                                   <Text
                                     fontFamily="sf-pro-display-bold"
                                     fontSize="22px"
@@ -320,32 +355,42 @@ const TableScreen = () => {
                                     {table.name}
                                   </Text>
 
-                                  <Flex
-                                    direction="row"
-                                    align="center"
-                                    justify="center"
-                                  >
-                                    <Icon
-                                      as={Ionicons}
-                                      name="people"
-                                      size="sm"
-                                      mr={2}
-                                      color={useColorModeValue(
-                                        "muted.400",
-                                        "muted.400"
+                                  <Flex>
+                                    {table.total > 0 && (
+                                      <Text
+                                        fontFamily="sf-pro-text-semibold"
+                                        fontSize="15px"
+                                      >
+                                        RM{table.total.toFixed(2)}
+                                      </Text>
+                                    )}
+                                    <Flex direction="row" align="center">
+                                      {table.pax > 0 && (
+                                        <>
+                                          <Icon
+                                            as={Ionicons}
+                                            name="people"
+                                            size="sm"
+                                            mr={2}
+                                            color={useColorModeValue(
+                                              "muted.400",
+                                              "muted.400"
+                                            )}
+                                          />
+                                          <Text
+                                            fontFamily="sf-pro-text-medium"
+                                            fontSize="19px"
+                                            textAlign="center"
+                                            color={useColorModeValue(
+                                              "muted.400",
+                                              "muted.400"
+                                            )}
+                                          >
+                                            {table.pax}
+                                          </Text>
+                                        </>
                                       )}
-                                    />
-                                    <Text
-                                      fontFamily="sf-pro-text-medium"
-                                      fontSize="19px"
-                                      textAlign="center"
-                                      color={useColorModeValue(
-                                        "muted.400",
-                                        "muted.400"
-                                      )}
-                                    >
-                                      {table.pax}
-                                    </Text>
+                                    </Flex>
                                   </Flex>
                                 </Flex>
                               </Flex>
@@ -366,7 +411,7 @@ const TableScreen = () => {
           isOpen={showQuantityModal}
           onClose={() => setShowQuantityModal(false)}
         >
-          <Modal.Content maxW={{ base: "300px", md: "400px" }}>
+          <Modal.Content maxW={{ base: "320px", md: "400px" }} w="100%">
             <Modal.CloseButton />
             <Modal.Header>Number of customer</Modal.Header>
             <Modal.Body>
@@ -387,6 +432,7 @@ const TableScreen = () => {
                     my="3%"
                     maxW="23%"
                     h={16}
+                    onPress={() => onSelectQuantity(index + 1)}
                   >
                     {index + 1}
                   </Button>
@@ -419,7 +465,7 @@ const TableScreen = () => {
           isOpen={showCustomQuantityModal}
           onClose={() => setShowCustomQuantityModal(false)}
           headerTitle={`Number of customer`}
-          getInput={(quantity) => setSelectedTableQuantity(quantity)}
+          getInput={onSelectQuantity}
           isDecimal={false}
           maximumInputLength={4}
         />

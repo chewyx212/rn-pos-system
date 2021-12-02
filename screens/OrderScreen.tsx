@@ -31,6 +31,9 @@ import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { changeCart, clearCart } from "../app/cart/cartSlice";
 import { setOrder } from "../app/order/orderSlice";
 import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "./RootStackParams";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -44,6 +47,11 @@ const mappingItemCategory = () => {
   return category;
 };
 
+type OrderScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "Order"
+>;
+type OrderScreenRouteProp = RouteProp<RootStackParamList, "Order">;
 const OrderScreen = () => {
   const [itemList, setItemList] = useState(itemData);
   const [categoryList, setCategoryList] = useState(mappingItemCategory());
@@ -69,6 +77,9 @@ const OrderScreen = () => {
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
   const toast = useToast();
+  const navigation = useNavigation<OrderScreenNavigationProp>();
+  const route = useRoute<OrderScreenRouteProp>();
+  const { orderType, tableId, pax } = route.params;
   const selectionButtonGroup = [
     {
       name: "Add Customer",
@@ -150,6 +161,9 @@ const OrderScreen = () => {
       const orderValue = await fetchOrder();
       orderValue.push({
         id: orderValue.length + 1,
+        orderType,
+        tableId,
+        pax,
         items: cartItem,
       });
       await storeOrder(orderValue);
@@ -157,15 +171,16 @@ const OrderScreen = () => {
       setOpenCart(false);
       onCloseConfirm();
       onClearCartHandler();
+      navigation.goBack()
     }
   };
 
-  const onRadioChange = (key, addonId) => {
+  const onRadioChange = (key: string, addonId: number) => {
     const addon = selectedAllAddon.find((item) => item.id == addonId);
     setAddonForm((prevState) => ({ ...prevState, [key]: addon }));
   };
 
-  const onCheckChange = (key, values) => {
+  const onCheckChange = (key: string, values: any[]) => {
     let addon = values.map((value) => {
       return selectedAllAddon.find((item) => item.id == value);
     });
@@ -208,7 +223,7 @@ const OrderScreen = () => {
     onCloseModalHandler();
   };
 
-  const mappingAddon = (addons) => {
+  const mappingAddon = (addons: any[]) => {
     let temp = [];
     let addonCategory = [];
     let allAddon = [];
@@ -422,14 +437,17 @@ const OrderScreen = () => {
           borderLeftColor={useColorModeValue("light.200", "dark.200")}
         >
           <View w="100%" flex={{ base: 20, lg: 14 }}>
-            <Heading
-              size="md"
-              py={2}
-              fontFamily="sf-pro-text-bold"
-              fontSize={17}
-            >
-              Current Order
-            </Heading>
+            <Flex direction="row" justify="space-between" align="center" py="2">
+              <Heading size="md" fontFamily="sf-pro-text-bold" fontSize={17}>
+                Current Order
+              </Heading>
+              <Text fontFamily="sf-pro-text-regular" fontSize={13}>
+                {orderType === 1 && `Table Number: ${tableId}`}
+                {orderType === 2 && 'Take  Away'}
+                {orderType === 3 && 'Delivery'}
+                {orderType === 4 && 'Counter'}
+              </Text>
+            </Flex>
             <FlatList
               keyExtractor={(item, index) => item.name + index}
               data={cartItem}
