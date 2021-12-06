@@ -36,10 +36,10 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "./RootStackParams";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TableCategory, TableDataType } from "../types/tableType";
+import { TableCategoryType, TableDataType } from "../types/tableType";
 
 const mappingItemCategory = () => {
-  let category: TableCategory[] = [];
+  let category: TableCategoryType[] = [];
   let idList: number[] = [];
   tableData.forEach((table: TableDataType) => {
     if (!idList.includes(table.table_category.id)) {
@@ -54,7 +54,7 @@ type TableScreenProp = StackNavigationProp<RootStackParamList, "Table">;
 type TableScreenRouteProp = RouteProp<RootStackParamList, "Table">;
 const TableScreen = () => {
   const [tableList, setTableList] = useState<TableDataType[]>(tableData);
-  const [categoryList, setCategoryList] = useState<TableCategory[]>(
+  const [categoryList, setCategoryList] = useState<TableCategoryType[]>(
     mappingItemCategory()
   );
   const [isAllCategory, setIsAllCategory] = useState<boolean>(true);
@@ -111,7 +111,7 @@ const TableScreen = () => {
       {
         /* <-------------- This code got huge problem :)---------------------------------> */
       }
-      // if (temp.includes(table.id)) {
+      // if (temp.includes(ta ble.id)) {
       //   table.status = 1;
       //   table.pax = orderTemp.find((order) => order?.tableId === table.id).pax;
       //   table.order = orderTemp.filter((order) => order.tableId === table.id);
@@ -122,15 +122,23 @@ const TableScreen = () => {
       //   table.total = tempPrice;
       // }
       if (temp.includes(table.id)) {
+        let tempOrder:any[] = [];
+        orderTemp
+          .filter((order) => order.tableId === table.id)
+          .forEach((filterItem) => {
+            tempOrder.push(filterItem);
+          });
         tableTemp.push({
           ...table,
           status: 1,
           pax: orderTemp.find((order) => order?.tableId === table.id).pax,
-          order: orderTemp.filter((order) => order.tableId === table.id),
+          order: tempOrder,
         });
+      } else {
+        tableTemp.push(table);
       }
     });
-    setTableList(tableTemp);
+    setTableList([...tableTemp]);
   };
 
   const onSelectQuantity = (quantity: number) => {

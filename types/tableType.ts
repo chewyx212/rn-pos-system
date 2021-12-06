@@ -2,7 +2,7 @@ export interface TableDataType {
   id: number;
   name: string;
   table_category_id: number;
-  table_category: TableCategory;
+  table_category: TableCategoryType;
   order: any[];
   status: number;
   pax: string;
@@ -10,7 +10,7 @@ export interface TableDataType {
 }
 
 
-export interface TableCategory {
+export interface TableCategoryType {
     id: number;
     name: string
 }
