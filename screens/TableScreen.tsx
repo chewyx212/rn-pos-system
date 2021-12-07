@@ -23,7 +23,7 @@ import {
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
-import { tableData } from "../assets/DUMMY";
+import { tableData, tableCategoryData } from "../assets/DUMMY";
 import PrimaryButton from "../components/Ui/PrimaryButton";
 import SecondaryButton from "../components/Ui/SecondaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
@@ -39,15 +39,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TableCategoryType, TableDataType } from "../types/tableType";
 
 const mappingItemCategory = () => {
-  let category: TableCategoryType[] = [];
-  let idList: number[] = [];
-  tableData.forEach((table: TableDataType) => {
-    if (!idList.includes(table.table_category.id)) {
-      idList.push(table.table_category.id);
-      category.push(table.table_category);
-    }
-  });
-  return category;
+  // let category: TableCategoryType[] = [];
+  // let idList: number[] = [];
+  // tableData.forEach((table: TableDataType) => {
+  //   if (!idList.includes(table.table_category.id)) {
+  //     idList.push(table.table_category.id);
+  //     category.push(table.table_category);
+  //   }
+  // });
+  // return category;
+  return tableCategoryData;
 };
 
 type TableScreenProp = StackNavigationProp<RootStackParamList, "Table">;
@@ -62,6 +63,7 @@ const TableScreen = () => {
   const [showCustomQuantityModal, setShowCustomQuantityModal] =
     useState<boolean>(false);
   const [selectedTable, setSelectedTable] = useState<TableDataType>({});
+  const [showTableOrder, setShowTableOrder] = useState<TableDataType>({});
   const [selectedCategory, setSelectedCategory] = useState<number>(
     mappingItemCategory()[0].id
   );
@@ -122,12 +124,8 @@ const TableScreen = () => {
       //   table.total = tempPrice;
       // }
       if (temp.includes(table.id)) {
-        let tempOrder:any[] = [];
-        orderTemp
-          .filter((order) => order.tableId === table.id)
-          .forEach((filterItem) => {
-            tempOrder.push(filterItem);
-          });
+        let tempOrder = orderTemp.find((order) => order.tableId === table.id);
+
         tableTemp.push({
           ...table,
           status: 1,
@@ -141,6 +139,11 @@ const TableScreen = () => {
     setTableList([...tableTemp]);
   };
 
+  const onSelectShowOrder = (table: TableDataType) => {
+    console.log(table);
+    setShowTableOrder(table);
+    setOpenCart(true);
+  };
   const onSelectQuantity = (quantity: number) => {
     navigation.navigate("Order", {
       orderType: 1,
@@ -191,6 +194,14 @@ const TableScreen = () => {
               fontSize={{ base: 24, md: 32 }}
             >
               Table & Order
+              <Button
+                variant="outline"
+                onPress={() => {
+                  navigation.navigate("TableList");
+                }}
+              >
+                Edit Table
+              </Button>
             </Heading>
 
             <Menu
@@ -333,8 +344,12 @@ const TableScreen = () => {
                       mx={{ base: "2%", md: "1.5", lg: "1%" }}
                       my={{ base: "2%", md: "1.5", lg: "1%" }}
                       onPress={() => {
-                        setSelectedTable(table);
-                        setShowQuantityModal(true);
+                        if (table.status === 1) {
+                          onSelectShowOrder(table);
+                        } else {
+                          setSelectedTable(table);
+                          setShowQuantityModal(true);
+                        }
                       }}
                     >
                       <Flex
@@ -511,15 +526,25 @@ const TableScreen = () => {
           </AlertDialog.Content>
         </AlertDialog>
       </Stack>
-
+      {openCart && (
+        <Pressable
+          position="absolute"
+          w="100%"
+          h="100%"
+          bg={useColorModeValue("muted.600:alpha.40", "muted.800")}
+          onPress={() => setOpenCart(false)}
+        ></Pressable>
+      )}
       <SlideFromRight
         isOpen={openCart}
-        w={{ base: "100%", md: "0%" }}
+        w={{ base: "100%", md: "50%" }}
+        top="0"
         right="0"
+        bottom="0"
         h="100%"
       >
         <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
-          <View w="100%" flex={14} px={3}>
+          <View w="100%" flex={14} px={3} h="100%">
             <Flex direction="row" justify="space-between" align="center" py={2}>
               <Heading
                 size="md"
@@ -536,14 +561,14 @@ const TableScreen = () => {
             </Flex>
             <FlatList
               keyExtractor={(item, index) => item.name + index}
-              data={cartItem}
+              data={showTableOrder.order?.items}
               renderItem={({ item }) => <CartListItem item={item} />}
             />
           </View>
           <OrderDetailComponent
             setIsConfirm={setIsConfirm}
-            cartItem={cartItem}
-            order={orderDetail}
+            cartItem={showTableOrder?.order}
+            order={showTableOrder?.order?.detail}
           />
         </VStack>
       </SlideFromRight>
@@ -552,6 +577,7 @@ const TableScreen = () => {
 };
 
 const CartListItem = ({ item }) => {
+  console.log(item);
   return (
     <Pressable>
       {({ isHovered, isFocused, isPressed }) => {
@@ -595,7 +621,7 @@ const CartListItem = ({ item }) => {
                   noOfLines={2}
                   maxW={{ base: "150", md: "120" }}
                 >
-                  {item.addons.length > 0 &&
+                  {item.addons?.length > 0 &&
                     item.addons.map((addon, index) => {
                       if (index + 1 === item.addons.length) {
                         return `${addon.name}`;
@@ -608,7 +634,7 @@ const CartListItem = ({ item }) => {
             </HStack>
             <View flex={2}>
               <Text textAlign="right">
-                {item.addons.length > 0
+                {item.addons?.length > 0
                   ? `RM ${item.calculatedPrice} x ${item.quantity}`
                   : `RM ${item.price} x ${item.quantity}`}
               </Text>
@@ -621,6 +647,7 @@ const CartListItem = ({ item }) => {
 };
 
 const OrderDetailComponent = ({ cartItem, order, setIsConfirm }) => {
+  console.log(cartItem.total);
   return (
     <Flex
       justify="flex-end"
@@ -628,6 +655,7 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm }) => {
       pb={{ base: 10, md: 5 }}
       mb={{ md: 5 }}
       px={3}
+      mx={3}
       borderRadius={{ base: undefined, md: "xl" }}
       bg={useColorModeValue("white", "black")}
     >
@@ -636,7 +664,7 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm }) => {
           Subtotal
         </Text>
         <Text fontFamily="sf-pro-text-medium" fontWeight="500" fontSize="15px">
-          {order.subtotal}
+          {order.subtotal.toFixed(2)}
         </Text>
       </Flex>
       {parseFloat(order.discount) > 0 && (
@@ -653,7 +681,7 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm }) => {
             fontWeight="500"
             fontSize="15px"
           >
-            {order.discount}
+            {order.discount.toFixed(2)}
           </Text>
         </Flex>
       )}
@@ -672,7 +700,7 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm }) => {
             fontWeight="500"
             fontSize="15px"
           >
-            {order.tax}
+            {order.tax.toFixed(2)}
           </Text>
         </Flex>
       )}
@@ -689,7 +717,7 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm }) => {
           fontWeight="500"
           fontSize="17px"
         >
-          {order.total}
+          {order.total.toFixed(2)}
         </Text>
       </Flex>
 

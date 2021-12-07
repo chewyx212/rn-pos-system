@@ -1,4 +1,4 @@
-import { TableDataType } from "./../types/tableType";
+import { TableCategoryType, TableDataType } from "./../types/tableType";
 export const itemData: any[] = [
   {
     id: 1,
@@ -1840,4 +1840,12 @@ export const tableData: TableDataType[] = [
     pax: 0,
     total: 0,
   },
+];
+
+export const tableCategoryData: TableCategoryType[] = [
+  { id: 1, name: "Floor 1" },
+  { id: 2, name: "Floor 2" },
+  { id: 3, name: "Floor 3" },
+  { id: 4, name: "Floor 4" },
+  { id: 5, name: "Floor 5" },
 ];

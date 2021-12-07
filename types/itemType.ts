@@ -1,9 +1,9 @@
 export interface ItemDataType {
   id: number;
   name: string;
-  table_category_id: number;
-  table_category: TableCategory;
-  order: any[];
+  addon_category_id: number;
+  addon_category: ItemCategoryType;
+  addon: any[];
   status: number;
   pax: string;
   total: string;
