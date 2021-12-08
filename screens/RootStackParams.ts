@@ -9,7 +9,7 @@ export type RootStackParamList = {
     refresher: Function;
   };
   Table: undefined;
-  TableList: undefined;
+  TableEdit: undefined;
   Printer: undefined;
   Camera: undefined;
 };

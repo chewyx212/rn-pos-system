@@ -368,8 +368,8 @@ const OrderScreen = () => {
                     "dark.200:alpha.60"
                   );
                   let gradientColor = useColorModeValue(
-                    "dark.500:alpha.20",
-                    "dark.300:alpha.20"
+                    "dark.400:alpha.50",
+                    "dark.300:alpha.40"
                   );
                   return (
                     <Pressable
@@ -398,7 +398,7 @@ const OrderScreen = () => {
                               fallbackSource={require("./../assets/fallback-img.jpg")}
                               alt={item.name}
                             />
-                            <Box
+                            <Flex
                               bg={
                                 isPressed || isHovered
                                   ? hoverBgColor
@@ -406,20 +406,52 @@ const OrderScreen = () => {
                               }
                               h="100%"
                               w="100%"
+                              pl={2}
+                              pb={2}
                               borderRadius="lg"
                               position="absolute"
+                              justify="space-between"
+                              align="flex-start"
                             >
                               <Text
-                                position="absolute"
                                 color={
                                   isPressed || isHovered
                                     ? hoverTextColor
                                     : textColor
                                 }
+                                fontFamily="sf-pro-text-medium"
+                                fontWeight="400"
+                                fontSize={{ base: 17, md: 18 }}
                               >
-                                {item.name}
+                                RM {item.price}
                               </Text>
-                            </Box>
+                              <Flex>
+                                <Text
+                                  color={
+                                    isPressed || isHovered
+                                      ? hoverTextColor
+                                      : textColor
+                                  }
+                                  fontFamily="sf-pro-display-bold"
+                                  fontWeight="600"
+                                  fontSize={{ base: 17, md: 22 }}
+                                >
+                                  {item.id}
+                                </Text>
+                                <Text
+                                  color={
+                                    isPressed || isHovered
+                                      ? hoverTextColor
+                                      : textColor
+                                  }
+                                  fontFamily="sf-pro-text-semibold"
+                                  fontWeight="600"
+                                  fontSize={{ base: 17, md: 20 }}
+                                >
+                                  {item.name}
+                                </Text>
+                              </Flex>
+                            </Flex>
                           </>
                         );
                       }}

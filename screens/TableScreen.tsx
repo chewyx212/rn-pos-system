@@ -197,7 +197,7 @@ const TableScreen = () => {
               <Button
                 variant="outline"
                 onPress={() => {
-                  navigation.navigate("TableList");
+                  navigation.navigate("TableEdit");
                 }}
               >
                 Edit Table

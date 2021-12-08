@@ -87,37 +87,16 @@ const TableListScreen = () => {
         position="relative"
         h="100%"
         direction="row"
-        pl={5}
         bg={useColorModeValue("light.100", "muted.800")}
       >
-        <VStack h="100%" flex={6} mr="1%" pt={3}>
-          <Flex direction="row" w="100%" justify="space-between" align="center">
-            <Box></Box>
-            <Heading
-              size="lg"
-              fontFamily="sf-pro-display-bold"
-              fontWeight="600"
-              fontSize={{ base: 24, md: 32 }}
-            >
-              Table
-            </Heading>
-
-            <Button
-              variant="outline"
-              onPress={() => {
-                navigation.navigate("Table");
-              }}
-            >
-              Back
-            </Button>
-          </Flex>
-          <Flex direction="row" w="100%" h="100%" pt={5}>
-            <Stack flex={3} pr={3}>
+        <VStack h="100%" flex={6}>
+          <Flex direction="row" w="100%" h="100%">
+            <Stack flex={3}>
               <ScrollView
                 showsHorizontalScrollIndicator={false}
                 overflow="scroll"
                 _contentContainerStyle={{
-                  py: "10px",
+                  pt: 5,
                 }}
               >
                 {categoryList.map((category) => {
@@ -129,44 +108,40 @@ const TableListScreen = () => {
                     textColor = useColorModeValue("light.50", "light.50");
                   }
                   return (
-                    <Button
+                    <Pressable
                       key={category.id}
                       bg={bgColor}
-                      _text={{
-                        color: textColor,
-                        fontFamily: "sf-pro-text-medium",
-                        fontSize: { base: 17, md: 15 },
-                      }}
-                      _pressed={{
-                        bg: bgColor,
-                        // @ts-ignore: Unreachable code error
-                        _text: { color: textColor },
-                      }}
-                      _hover={{
-                        bg: bgColor,
-                        // @ts-ignore: Unreachable code error
-                        _text: { color: textColor },
-                      }}
                       disabled={isActive}
                       borderRadius="0"
-                      py={3}
-                      mx={1}
+                      py={5}
                       onPress={() => {
                         setSelectedCategory(category.id);
                       }}
                     >
-                      {category.name}
-                    </Button>
+                      {(isHovered, isFocused, isPressed) => (
+                        <Text
+                          color={textColor}
+                          pl={3}
+                          fontFamily="sf-pro-text-medium"
+                          fontSize={{ base: 17, md: 15 }}
+                        >
+                          {category.name}
+                        </Text>
+                      )}
+                    </Pressable>
                   );
                 })}
               </ScrollView>
             </Stack>
             <Flex
               flex={10}
-              h="100%"
+              m={5}
               bg={useColorModeValue("white", "black")}
-              borderTopLeftRadius="2xl"
-            ></Flex>
+              borderRadius="2xl"
+              shadow={2}
+            >
+              
+            </Flex>
           </Flex>
         </VStack>
 

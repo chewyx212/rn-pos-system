@@ -8,6 +8,7 @@ import TableScreen from "../screens/TableScreen";
 import CameraScreen from "../screens/CameraScreen";
 import PrinterScreen from "../screens/PrinterScreen";
 import TableListScreen from "../screens/TableListScreen";
+import TableTabNavigator from "./TableTabNaivgator";
 
 const Stack = createStackNavigator();
 
@@ -24,7 +25,7 @@ const ProtectedNavigator = () => {
       initialRouteName="Table"
     >
       <Stack.Screen name="Table" component={TableScreen} />
-      <Stack.Screen name="TableList" component={TableListScreen} />
+      <Stack.Screen name="TableEdit" component={TableTabNavigator} />
       <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />
       <Stack.Screen name="Printer" component={PrinterScreen} />
