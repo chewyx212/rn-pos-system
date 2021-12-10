@@ -21,8 +21,8 @@ const findSameItemInArray = (cartItemSlice, payloadItem) => {
     (item) =>
       item.id === payloadItem.id &&
       item.addons.length === payloadItem.addons.length &&
-      item.addons.filter((arr1) =>
-        !payloadItem.addons.find((arr2) => arr1.id === arr2.id)
+      item.addons.filter(
+        (arr1) => !payloadItem.addons.find((arr2) => arr1.id === arr2.id)
       ).length === 0
   );
 };
@@ -33,7 +33,6 @@ const cartSlice = createSlice({
     changeCart: (state, action) => {
       const payloadItem = action.payload.item;
       let itemIndex = findSameItemInArray(state.cartItem, payloadItem);
-      console.log(itemIndex);
       if (itemIndex >= 0) {
         state.cartItem[itemIndex].quantity += action.payload.quantity;
       } else {
@@ -43,11 +42,14 @@ const cartSlice = createSlice({
         });
       }
     },
+    setCart: (state, action) => {
+      state.cartItem = action.payload.item;
+    },
     clearCart: (state) => {
       state.cartItem = [];
     },
   },
 });
 
-export const { changeCart, clearCart } = cartSlice.actions;
+export const { changeCart, setCart, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

@@ -89,11 +89,11 @@ const TableScreen = () => {
   }, [orderItem]);
 
   const orderRefresher = () => {
+    setOpenCart(false);
     orderItemMapping();
   };
   const orderItemMapping = async () => {
     const orderValue = await fetchOrder();
-    await AsyncStorage.removeItem("orders");
     let temp: number[] = [];
     let orderTemp = [...orderValue];
     orderTemp.forEach((order) => {
@@ -169,7 +169,6 @@ const TableScreen = () => {
   };
 
   const editOrder = (items) => {
-    console.log(items)
     navigation.navigate("Order", {
       orderType: items.orderType,
       tableId: items.tableId,

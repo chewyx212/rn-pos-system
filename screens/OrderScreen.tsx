@@ -28,7 +28,7 @@ import PrimaryButton from "../components/Ui/PrimaryButton";
 import SecondaryButton from "../components/Ui/SecondaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { changeCart, clearCart } from "../app/cart/cartSlice";
+import { changeCart, clearCart, setCart } from "../app/cart/cartSlice";
 import { setOrder } from "../app/order/orderSlice";
 import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
@@ -124,6 +124,9 @@ const OrderScreen = () => {
   useEffect(() => {
     if (orders && orders.length > 0) {
       setIsEditCartMode(true);
+      dispatch(setCart({ item: orders }));
+    } else {
+      dispatch(clearCart());
     }
   }, []);
 
@@ -166,21 +169,34 @@ const OrderScreen = () => {
 
   const onSubmitOrder = async () => {
     if (cartItem.length > 0) {
-      const orderValue = await fetchOrder();
-      orderValue.push({
-        id: orderValue.length + 1,
-        orderType,
-        tableId,
-        pax,
-        items: cartItem,
-      });
-      await storeOrder(orderValue);
-      dispatch(setOrder(orderValue));
-      setOpenCart(false);
-      onCloseConfirm();
-      onClearCartHandler();
-      refresher();
-      navigation.navigate("Table");
+      if (isEditCartMode) {
+        const orderValue = await fetchOrder();
+        orderValue.find((order) => order.tableId === tableId).items = cartItem;
+        await storeOrder(orderValue);
+        dispatch(setOrder(orderValue));
+        setOpenCart(false);
+        onCloseConfirm();
+        onClearCartHandler();
+        refresher();
+        navigation.navigate("Table");
+      } else {
+        const orderValue = await fetchOrder();
+        orderValue.push({
+          id: orderValue.length + 1,
+          orderType,
+          tableId,
+          pax,
+          items: cartItem,
+        });
+        console.log(orderValue);
+        await storeOrder(orderValue);
+        dispatch(setOrder(orderValue));
+        setOpenCart(false);
+        onCloseConfirm();
+        onClearCartHandler();
+        refresher();
+        navigation.navigate("Table");
+      }
     }
   };
 
@@ -198,13 +214,15 @@ const OrderScreen = () => {
 
   const onAddAddon = () => {
     let addonsPayload = [];
+    console.log(addonForm);
     Object.values(addonForm).forEach((item) => {
       if (item.length > 0) {
         addonsPayload = [...addonsPayload, ...item];
-      } else {
+      } else if (item.length === undefined) {
         addonsPayload.push(item);
       }
     });
+
     let payload = {
       ...selectedItem,
       calculatedPrice: parseFloat(selectedItem.price),

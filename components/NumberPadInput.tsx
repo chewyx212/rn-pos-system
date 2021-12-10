@@ -41,7 +41,6 @@ const NumberPadInput: React.FC<IProps> = ({
     } else if (Number(enteredValue) > 0) {
       setEnteredValue((prevValue) => (prevValue += `${value}`));
     } else {
-      console.log(Number(enteredValue));
       setEnteredValue(value);
     }
     if (isDecimal) {

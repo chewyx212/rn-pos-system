@@ -39,7 +39,6 @@ const DrawerNavigator = () => {
   );
 };
 const CustomDrawerContent = (props) => {
-  console.log(props);
   return (
     <Flex align="center" pt={12}>
       <Pressable my={3} onPress={() => props.navigation.navigate("Table")}>
