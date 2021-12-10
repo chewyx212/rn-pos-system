@@ -77,14 +77,9 @@ const TableScreen = () => {
   });
   const dispatch = useAppDispatch();
   const orderItem = useAppSelector((state) => state.order.orders);
-  const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
   const toast = useToast();
   const navigation = useNavigation<TableScreenProp>();
-
-  useEffect(() => {
-    calculateOrderPrice(cartItem);
-  }, [cartItem]);
 
   useEffect(() => {
     orderItemMapping();
@@ -138,23 +133,7 @@ const TableScreen = () => {
     });
     setTableList([...tableTemp]);
   };
-
-  const onSelectShowOrder = (table: TableDataType) => {
-    console.log(table);
-    setShowTableOrder(table);
-    setOpenCart(true);
-  };
-  const onSelectQuantity = (quantity: number) => {
-    navigation.navigate("Order", {
-      orderType: 1,
-      tableId: selectedTable?.id,
-      pax: quantity,
-      refresher: orderRefresher,
-    });
-    setShowQuantityModal(false);
-    setShowCustomQuantityModal(false);
-  };
-
+  
   const calculateOrderPrice = (items) => {
     let detail = {
       subtotal: 0,
@@ -170,8 +149,34 @@ const TableScreen = () => {
 
     detail.total = parseFloat(detail.subtotal.toFixed(2));
 
-    setOrderDetail(detail);
     return detail;
+  };
+
+  const onSelectShowOrder = (table: TableDataType) => {
+    setShowTableOrder(table);
+    setOpenCart(true);
+  };
+  const onSelectQuantity = (quantity: number) => {
+    navigation.navigate("Order", {
+      orderType: 1,
+      tableId: selectedTable?.id,
+      pax: quantity,
+      orders: [],
+      refresher: orderRefresher,
+    });
+    setShowQuantityModal(false);
+    setShowCustomQuantityModal(false);
+  };
+
+  const editOrder = (items) => {
+    console.log(items)
+    navigation.navigate("Order", {
+      orderType: items.orderType,
+      tableId: items.tableId,
+      pax: items.pax,
+      orders:items.items,
+      refresher: orderRefresher,
+    });
   };
 
   const onCloseConfirm = () => setIsConfirm(false);
@@ -179,6 +184,7 @@ const TableScreen = () => {
   return (
     <>
       <Stack
+        safeArea
         position="relative"
         h="100%"
         direction="row"
@@ -194,14 +200,14 @@ const TableScreen = () => {
               fontSize={{ base: 24, md: 32 }}
             >
               Table & Order
-              <Button
+              {/* <Button
                 variant="outline"
                 onPress={() => {
                   navigation.navigate("TableEdit");
                 }}
               >
                 Edit Table
-              </Button>
+              </Button> */}
             </Heading>
 
             <Menu
@@ -545,7 +551,7 @@ const TableScreen = () => {
       >
         <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
           <View w="100%" flex={14} px={3} h="100%">
-            <Flex direction="row" justify="space-between" align="center" py={2}>
+            <Flex direction="row" justify="space-between" align="center" py={4}>
               <Heading
                 size="md"
                 fontFamily="sf-pro-text-bold"
@@ -569,6 +575,7 @@ const TableScreen = () => {
             setIsConfirm={setIsConfirm}
             cartItem={showTableOrder?.order}
             order={showTableOrder?.order?.detail}
+            editOrder={editOrder}
           />
         </VStack>
       </SlideFromRight>
@@ -577,7 +584,6 @@ const TableScreen = () => {
 };
 
 const CartListItem = ({ item }) => {
-  console.log(item);
   return (
     <Pressable>
       {({ isHovered, isFocused, isPressed }) => {
@@ -646,8 +652,7 @@ const CartListItem = ({ item }) => {
   );
 };
 
-const OrderDetailComponent = ({ cartItem, order, setIsConfirm }) => {
-  console.log(cartItem.total);
+const OrderDetailComponent = ({ cartItem, order, setIsConfirm, editOrder }) => {
   return (
     <Flex
       justify="flex-end"
@@ -722,11 +727,19 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm }) => {
       </Flex>
 
       <HStack space={2} pt={3}>
+        <Button
+          flex={1}
+          variant="outline"
+          colorScheme="warmGray"
+          onPress={() => editOrder(cartItem)}
+        >
+          Edit
+        </Button>
         <PrimaryButton
           flex={{ base: 11, lg: 9 }}
-          disabled={cartItem.length < 1}
+          disabled={cartItem.items.length < 1}
           onPress={() => {
-            if (cartItem.length > 0) setIsConfirm(true);
+            if (cartItem.items.length > 0) setIsConfirm(true);
           }}
         >
           Checkout

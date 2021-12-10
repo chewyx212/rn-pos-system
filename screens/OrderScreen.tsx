@@ -22,7 +22,7 @@ import {
   useToast,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
-import { AntDesign, Entypo, Feather } from "@expo/vector-icons";
+import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import { itemData } from "../assets/DUMMY";
 import PrimaryButton from "../components/Ui/PrimaryButton";
 import SecondaryButton from "../components/Ui/SecondaryButton";
@@ -64,6 +64,7 @@ const OrderScreen = () => {
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
   const [isConfirm, setIsConfirm] = useState(false);
   const [openSelectionModal, setOpenSelectionModal] = useState(false);
+  const [isEditCartMode, setIsEditCartMode] = useState(false);
   const [openCart, setOpenCart] = useState(false);
   const [addonForm, setAddonForm] = useState({});
   const [openAddon, setOpenAddon] = useState(false);
@@ -79,7 +80,7 @@ const OrderScreen = () => {
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
   const route = useRoute<OrderScreenRouteProp>();
-  const { orderType, tableId, pax, refresher } = route.params;
+  const { orderType, tableId, pax, refresher, orders } = route.params;
   const selectionButtonGroup = [
     {
       name: "Add Customer",
@@ -119,6 +120,12 @@ const OrderScreen = () => {
   useEffect(() => {
     calculateOrderPrice(cartItem);
   }, [cartItem]);
+
+  useEffect(() => {
+    if (orders && orders.length > 0) {
+      setIsEditCartMode(true);
+    }
+  }, []);
 
   const calculateOrderPrice = (items) => {
     let detail = {
@@ -275,6 +282,7 @@ const OrderScreen = () => {
   return (
     <>
       <Stack
+        safeArea
         position="relative"
         h="100%"
         direction="row"
@@ -283,14 +291,26 @@ const OrderScreen = () => {
       >
         <VStack h="100%" flex={6} mr="1%" pt={3}>
           <Flex direction="row" w="100%" justify="space-between" align="center">
-            <Heading
-              size="lg"
-              fontFamily="sf-pro-display-bold"
-              fontWeight="600"
-              fontSize={{ base: 24, md: 32 }}
-            >
-              Order
-            </Heading>
+            <Flex direction="row">
+              <IconButton
+                _icon={{
+                  color: "primary.500",
+                  size: "md",
+                }}
+                colorScheme="primary"
+                icon={<Icon as={Ionicons} name="arrow-back" size="sm" />}
+                mr={5}
+                onPress={() => navigation.goBack()}
+              />
+              <Heading
+                size="lg"
+                fontFamily="sf-pro-display-bold"
+                fontWeight="600"
+                fontSize={{ base: 24, md: 32 }}
+              >
+                Order
+              </Heading>
+            </Flex>
             <IconButton
               display={{ md: "none" }}
               icon={<Icon as={AntDesign} name="shoppingcart" size="sm" />}
@@ -552,8 +572,6 @@ const OrderScreen = () => {
                       fontSize: "15px",
                     }}
                     _stack={{
-                      align: "center",
-                      justify: "flex-start",
                       w: "100%",
                     }}
                     leftIcon={

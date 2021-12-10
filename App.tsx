@@ -8,6 +8,7 @@ import {
   extendTheme,
   VStack,
 } from "native-base";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AppNavigator from "./navigation/AppNavigator";
 import { useFonts } from "expo-font";
 import AppLoading from "expo-app-loading";
@@ -16,6 +17,7 @@ import * as ScreenOrientation from "expo-screen-orientation";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
 import { Platform } from "react-native";
+import "react-native-gesture-handler";
 
 const theme = extendTheme({
   fontConfig: {
@@ -92,16 +94,18 @@ export default function App() {
   const changeScreenOrientation = async () => {
     const result = await ScreenOrientation.lockAsync(
       ScreenOrientation.OrientationLock.PORTRAIT_UP
-    )
+    );
   };
 
   changeScreenOrientation();
   return (
     <Provider store={store}>
       <NativeBaseProvider theme={theme}>
-        <SSRProvider>
-          <AppNavigator />
-        </SSRProvider>
+        <SafeAreaProvider>
+          <SSRProvider>
+            <AppNavigator />
+          </SSRProvider>
+        </SafeAreaProvider>
       </NativeBaseProvider>
     </Provider>
   );

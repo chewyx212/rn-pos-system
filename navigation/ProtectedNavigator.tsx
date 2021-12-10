@@ -9,14 +9,19 @@ import CameraScreen from "../screens/CameraScreen";
 import PrinterScreen from "../screens/PrinterScreen";
 import TableListScreen from "../screens/TableListScreen";
 import TableTabNavigator from "./TableTabNaivgator";
+import { Flex } from "native-base";
+import DrawerNavigator from "./DrawerNavigator";
+import { useWindowDimensions } from "react-native";
 
 const Stack = createStackNavigator();
 
 const ProtectedNavigator = () => {
+  const dimensions = useWindowDimensions();
+  const isLargeScreen = dimensions.width >= 768;
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: isLargeScreen ? false : true,
         cardShadowEnabled: false,
         cardOverlayEnabled: false,
         presentation: "card",
@@ -24,7 +29,7 @@ const ProtectedNavigator = () => {
       }}
       initialRouteName="Table"
     >
-      <Stack.Screen name="Table" component={TableScreen} />
+      <Stack.Screen name="Home" component={DrawerNavigator} />
       <Stack.Screen name="TableEdit" component={TableTabNavigator} />
       <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />
