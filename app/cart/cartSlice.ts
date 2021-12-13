@@ -39,6 +39,7 @@ const cartSlice = createSlice({
         state.cartItem.push({
           ...payloadItem,
           quantity: action.payload.quantity,
+          status : action.payload.status
         });
       }
     },

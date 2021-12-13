@@ -34,6 +34,9 @@ import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "./RootStackParams";
+import Swipeable from "react-native-gesture-handler/Swipeable";
+import { Animated } from "react-native";
+import { RectButton } from "react-native-gesture-handler";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -77,6 +80,7 @@ const OrderScreen = () => {
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
+  const swipeableRef = useRef(null);
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
   const route = useRoute<OrderScreenRouteProp>();
@@ -158,6 +162,7 @@ const OrderScreen = () => {
           calculatedPrice: parseFloat(item.price),
         },
         quantity,
+        status: 0,
       })
     );
     toast.show({
@@ -167,7 +172,7 @@ const OrderScreen = () => {
     });
   };
 
-  const onSubmitOrder = async () => {
+  const onSubmitOrder = async (orderStatus: number) => {
     if (cartItem.length > 0) {
       if (isEditCartMode) {
         const orderValue = await fetchOrder();
@@ -240,6 +245,7 @@ const OrderScreen = () => {
           ...payload,
         },
         quantity: selectedItemQuantity,
+        status: 0,
       })
     );
 
@@ -296,6 +302,8 @@ const OrderScreen = () => {
   const onClearCartHandler = () => {
     dispatch(clearCart());
   };
+
+  const deleteItemHandler = (item) => {};
 
   return (
     <>
@@ -524,7 +532,9 @@ const OrderScreen = () => {
             <FlatList
               keyExtractor={(item, index) => item.name + index}
               data={cartItem}
-              renderItem={({ item }) => <CartListItem item={item} />}
+              renderItem={({ item }) => (
+                <CartListItem ref={swipeableRef} item={item} />
+              )}
             />
           </View>
           <OrderDetailComponent
@@ -554,12 +564,12 @@ const OrderScreen = () => {
                 <Button
                   variant="unstyled"
                   colorScheme="coolGray"
-                  onPress={onSubmitOrder}
+                  onPress={() => onSubmitOrder(0)}
                   ref={cancelRef}
                 >
                   Hold Order
                 </Button>
-                <Button colorScheme="success" onPress={onSubmitOrder}>
+                <Button colorScheme="success" onPress={() => onSubmitOrder(1)}>
                   Send to Kitchen
                 </Button>
               </Button.Group>
@@ -631,7 +641,9 @@ const OrderScreen = () => {
             <FlatList
               keyExtractor={(item, index) => item.name + index}
               data={cartItem}
-              renderItem={({ item }) => <CartListItem item={item} />}
+              renderItem={({ item }) => (
+                <CartListItem ref={swipeableRef} item={item} />
+              )}
             />
           </View>
           <OrderDetailComponent
@@ -819,73 +831,147 @@ const OrderScreen = () => {
   );
 };
 
-const CartListItem = ({ item }) => {
+const CartListItem = ({ ref, item }) => {
+  const renderRightAction = (
+    text: string,
+    color: string,
+    x: number,
+    progress: Animated.AnimatedInterpolation,
+    onPressFunction: Function,
+    item: any
+  ) => {
+    const trans = progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [x, 0],
+    });
+    const pressHandler = () => {
+      onPressFunction();
+    };
+
+    return (
+      <Animated.View style={{ flex: 1, transform: [{ translateX: trans }] }}>
+        <RectButton
+          style={{
+            alignItems: "center",
+            flex: 1,
+            justifyContent: "center",
+            backgroundColor: color,
+          }}
+          onPress={pressHandler}
+        >
+          <Text>{text}</Text>
+        </RectButton>
+      </Animated.View>
+    );
+  };
+
   return (
-    <Pressable>
-      {({ isHovered, isFocused, isPressed }) => {
-        return (
-          <Flex
-            w="100%"
-            py={1}
-            bg={isPressed || isHovered ? "dark.100:alpha.30" : "transparent"}
-            direction="row"
-            align="center"
-            justify="space-between"
-          >
-            <HStack flex={3}>
-              <Image
-                size="sm"
-                resizeMode={"cover"}
-                borderRadius="md"
-                mr="10px"
-                bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
-                source={{
-                  uri: item.image?.url,
-                }}
-                fallbackSource={require("./../assets/fallback-img.jpg")}
-                alt="Alternate Text"
-              />
-              <VStack>
-                <Text
-                  fontFamily="sf-pro-text-semibold"
-                  fontWeight="400"
-                  fontSize={15}
-                  isTruncated
-                  noOfLines={2}
-                  maxW={{ base: "150", md: "120" }}
-                >
-                  {item.id}. {item.name}
+    <Swipeable
+      ref={ref}
+      friction={2}
+      enableTrackpadTwoFingerGesture
+      rightThreshold={40}
+      renderRightActions={(
+        progress: Animated.AnimatedInterpolation,
+        _dragAnimatedValue: Animated.AnimatedInterpolation
+      ) => (
+        <Flex w="50%" direction="row">
+          {renderRightAction(
+            "Edit",
+            "#C8C7CD",
+            192,
+            progress,
+            onPressFunction,
+            item
+          )}
+          {renderRightAction(
+            "Discount",
+            "#ffab00",
+            128,
+            progress,
+            onPressFunction,
+            item
+          )}
+          {renderRightAction(
+            "Delete",
+            "#dd2c00",
+            64,
+            progress,
+            onPressFunction,
+            item
+          )}
+        </Flex>
+      )}
+    >
+      <Pressable>
+        {({ isHovered, isFocused, isPressed }) => {
+          return (
+            <Flex
+              w="100%"
+              py={1}
+              bg={isPressed || isHovered ? "dark.100:alpha.30" : "transparent"}
+              direction="row"
+              align="center"
+              justify="space-between"
+            >
+              <HStack flex={3}>
+                <Image
+                  size="sm"
+                  resizeMode={"cover"}
+                  borderRadius="md"
+                  mr="10px"
+                  bg={useColorModeValue(
+                    "dark.500:alpha.20",
+                    "dark.300:alpha.20"
+                  )}
+                  source={{
+                    uri: item.image?.url,
+                  }}
+                  fallbackSource={require("./../assets/fallback-img.jpg")}
+                  alt="Alternate Text"
+                />
+                <VStack>
+                  <Text
+                    fontFamily="sf-pro-text-semibold"
+                    fontWeight="400"
+                    fontSize={15}
+                    isTruncated
+                    noOfLines={2}
+                    maxW={{ base: "150", md: "120" }}
+                  >
+                    {item.id}. {item.name}
+                  </Text>
+                  <Text
+                    fontFamily="sf-pro-text-regular"
+                    fontWeight="400"
+                    fontSize={{ base: 14, md: 12 }}
+                    isTruncated
+                    noOfLines={2}
+                    maxW={{ base: "150", md: "120" }}
+                  >
+                    {item.addons.length > 0 &&
+                      item.addons.map((addon, index) => {
+                        if (index + 1 === item.addons.length) {
+                          return `${addon.name}`;
+                        } else {
+                          return `${addon.name}, `;
+                        }
+                      })}
+                  </Text>
+                </VStack>
+              </HStack>
+              <View flex={2} pr={2}>
+                <Text textAlign="right">
+                  {item.addons.length > 0
+                    ? `RM ${item.calculatedPrice} x ${item.quantity}`
+                    : `RM ${item.price} x ${item.quantity}`}
                 </Text>
-                <Text
-                  fontFamily="sf-pro-text-regular"
-                  fontWeight="400"
-                  fontSize={{ base: 14, md: 12 }}
-                  isTruncated
-                  noOfLines={2}
-                  maxW={{ base: "150", md: "120" }}
-                >
-                  {item.addons.length > 0 &&
-                    item.addons.map((addon, index) => {
-                      if (index + 1 === item.addons.length) {
-                        return `${addon.name}`;
-                      } else {
-                        return `${addon.name}, `;
-                      }
-                    })}
-                </Text>
-              </VStack>
-            </HStack>
-            <View flex={2}>
-              <Text textAlign="right">
-                {item.addons.length > 0
-                  ? `RM ${item.calculatedPrice} x ${item.quantity}`
-                  : `RM ${item.price} x ${item.quantity}`}
-              </Text>
-            </View>
-          </Flex>
-        );
-      }}
-    </Pressable>
+              </View>
+            </Flex>
+          );
+        }}
+      </Pressable>
+    </Swipeable>
   );
 };
 

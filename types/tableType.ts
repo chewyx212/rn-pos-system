@@ -1,12 +1,11 @@
 export interface TableDataType {
   id: number;
-  key: any;
   name: string;
   table_category_id: number;
   table_category: TableCategoryType;
   order: any;
   status: number;
-  pax: string;
+  pax: number;
   total: string;
 }
 

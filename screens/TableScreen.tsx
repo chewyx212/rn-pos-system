@@ -120,20 +120,26 @@ const TableScreen = () => {
       // }
       if (temp.includes(table.id)) {
         let tempOrder = orderTemp.find((order) => order.tableId === table.id);
+        // let tempPrice = 0;
+        // tempOrder.items.forEach((order) => {
+        //   tempPrice += order.detail.total;
+        // });
 
         tableTemp.push({
           ...table,
           status: 1,
-          pax: orderTemp.find((order) => order?.tableId === table.id).pax,
           order: tempOrder,
         });
       } else {
         tableTemp.push(table);
       }
     });
+    tableTemp.forEach((a) => {
+      console.log(a.order.detail?.total);
+    });
     setTableList([...tableTemp]);
   };
-  
+
   const calculateOrderPrice = (items) => {
     let detail = {
       subtotal: 0,
@@ -173,7 +179,7 @@ const TableScreen = () => {
       orderType: items.orderType,
       tableId: items.tableId,
       pax: items.pax,
-      orders:items.items,
+      orders: items.items,
       refresher: orderRefresher,
     });
   };
@@ -391,16 +397,21 @@ const TableScreen = () => {
                             </Text>
 
                             <Flex>
-                              {parseFloat(table.total) > 0 && (
-                                <Text
-                                  fontFamily="sf-pro-text-semibold"
-                                  fontSize="15px"
-                                >
-                                  RM{parseFloat(table.total).toFixed(2)}
-                                </Text>
-                              )}
+                              {table.order &&
+                                table.order.detail &&
+                                parseFloat(table.order.detail.total) > 0 && (
+                                  <Text
+                                    fontFamily="sf-pro-text-semibold"
+                                    fontSize="15px"
+                                  >
+                                    RM
+                                    {parseFloat(
+                                      table.order.detail.total
+                                    ).toFixed(2)}
+                                  </Text>
+                                )}
                               <Flex direction="row" align="center">
-                                {parseInt(table.pax) > 0 && (
+                                {table.order && parseInt(table.order.pax) > 0 && (
                                   <>
                                     <Icon
                                       as={Ionicons}
@@ -421,7 +432,7 @@ const TableScreen = () => {
                                         "muted.400"
                                       )}
                                     >
-                                      {table.pax}
+                                      {table.order.pax}
                                     </Text>
                                   </>
                                 )}
@@ -551,14 +562,29 @@ const TableScreen = () => {
         <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
           <View w="100%" flex={14} px={3} h="100%">
             <Flex direction="row" justify="space-between" align="center" py={4}>
-              <Heading
-                size="md"
-                fontFamily="sf-pro-text-bold"
-                fontWeight="600"
-                fontSize={17}
-              >
-                Current Order
-              </Heading>
+              <Flex direction="row">
+                <Text
+                  fontFamily="sf-pro-text-bold"
+                  fontWeight="600"
+                  fontSize={17}
+                >
+                  Current Order
+                </Text>
+                <Icon
+                  as={Ionicons}
+                  name="people"
+                  size="sm"
+                  mx={3}
+                  color={useColorModeValue("muted.400", "muted.400")}
+                />
+                <Text
+                  fontFamily="sf-pro-text-medium"
+                  fontWeight="500"
+                  fontSize={15}
+                >
+                  {showTableOrder.order?.pax}
+                </Text>
+              </Flex>
               <IconButton
                 icon={<Icon as={AntDesign} name="close" size="sm" />}
                 onPress={() => setOpenCart(false)}

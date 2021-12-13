@@ -18,6 +18,7 @@ import { Provider } from "react-redux";
 import { store } from "./app/store";
 import { Platform } from "react-native";
 import "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const theme = extendTheme({
   fontConfig: {
@@ -103,7 +104,9 @@ export default function App() {
       <NativeBaseProvider theme={theme}>
         <SafeAreaProvider>
           <SSRProvider>
-            <AppNavigator />
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <AppNavigator />
+            </GestureHandlerRootView>
           </SSRProvider>
         </SafeAreaProvider>
       </NativeBaseProvider>
