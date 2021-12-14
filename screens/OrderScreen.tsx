@@ -28,7 +28,12 @@ import PrimaryButton from "../components/Ui/PrimaryButton";
 import SecondaryButton from "../components/Ui/SecondaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { changeCart, clearCart, setCart } from "../app/cart/cartSlice";
+import {
+  changeCart,
+  clearCart,
+  deleteCartItem,
+  setCart,
+} from "../app/cart/cartSlice";
 import { setOrder } from "../app/order/orderSlice";
 import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
@@ -73,6 +78,13 @@ const OrderScreen = () => {
   const [openCart, setOpenCart] = useState(false);
   const [addonForm, setAddonForm] = useState({});
   const [openAddon, setOpenAddon] = useState(false);
+  const [isEditAddon, setIsEditAddon] = useState(false);
+  const [isEditQuantity, setIsEditQuantity] = useState(false);
+  const [selectedEditItem, setSelectedEditItem] = useState();
+  const [selectedEditItemOriginal, setSelectedEditItemOriginal] = useState({});
+  const [selectedEditItemIndex, setSelectedEditItemIndex] = useState<number>();
+  const [selectedEditItemAddon, setSelectedEditItemAddon] = useState({});
+  const [selectedEditAllAddon, setSelectedEditAllAddon] = useState([]);
   const [orderDetail, setOrderDetail] = useState({
     subtotal: 0.0,
     total: 0.0,
@@ -82,7 +94,6 @@ const OrderScreen = () => {
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
-  const swipeableRef = useRef(null);
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
   const route = useRoute<OrderScreenRouteProp>();
@@ -314,14 +325,42 @@ const OrderScreen = () => {
     setSelectedItem({});
     setAddonForm({});
     setOpenAddon(false);
+    setIsEditAddon(false);
   };
 
   const onClearCartHandler = () => {
     dispatch(clearCart());
   };
 
-  const deleteItemHandler = (item) => {
-    console.log("delete");
+  const deleteItemHandler = (item, index) => {
+    console.log(index);
+    if (fixedCartItem.length > 0) {
+      index -= fixedCartItem.length;
+    }
+    dispatch(deleteCartItem({ index }));
+  };
+
+  const editItemHandler = (item, index) => {
+    if (fixedCartItem.length > 0) {
+      setSelectedEditItemIndex(index - fixedCartItem.length);
+    } else {
+      setSelectedEditItemIndex(index);
+    }
+    setSelectedEditItem(item);
+    setSelectedEditItemOriginal(itemList.find((list) => list.id === item.id));
+    console.log("inside");
+    if (item.addons.length > 0) {
+      console.log("insideaaaaaa");
+      setIsEditAddon(true);
+      setIsEditQuantity(false);
+    } else {
+      console.log("insidebbbbb");
+      setIsEditAddon(false);
+      setIsEditQuantity(true);
+    }
+  };
+  const discountItemHandler = (item, index) => {
+    console.log(index);
   };
 
   return (
@@ -552,11 +591,13 @@ const OrderScreen = () => {
               <FlatList
                 keyExtractor={(item, index) => item.name + index}
                 data={fixedCartItem.concat(cartItem)}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                   <CartListItem
-                    ref={swipeableRef}
                     item={item}
+                    index={index}
                     deleteItemHandler={deleteItemHandler}
+                    editItemHandler={editItemHandler}
+                    discountItemHandler={discountItemHandler}
                   />
                 )}
               />
@@ -564,11 +605,13 @@ const OrderScreen = () => {
               <FlatList
                 keyExtractor={(item, index) => item.name + index}
                 data={cartItem}
-                renderItem={({ item }) => (
+                renderItem={({ item, index }) => (
                   <CartListItem
-                    ref={swipeableRef}
                     item={item}
+                    index={index}
                     deleteItemHandler={deleteItemHandler}
+                    editItemHandler={editItemHandler}
+                    discountItemHandler={discountItemHandler}
                   />
                 )}
               />
@@ -678,11 +721,13 @@ const OrderScreen = () => {
             <FlatList
               keyExtractor={(item, index) => item.name + index}
               data={cartItem}
-              renderItem={({ item }) => (
+              renderItem={({ item, index }) => (
                 <CartListItem
-                  ref={swipeableRef}
                   item={item}
+                  index={index}
                   deleteItemHandler={deleteItemHandler}
+                  editItemHandler={editItemHandler}
+                  discountItemHandler={discountItemHandler}
                 />
               )}
             />
@@ -868,25 +913,213 @@ const OrderScreen = () => {
           </View>
         </VStack>
       </SlideFromRight>
+
+      <SlideFromRight
+        isOpen={isEditAddon}
+        h="100%"
+        w={{ base: "100%", lg: "30%" }}
+        right="0 "
+      >
+        <VStack
+          h="100%"
+          bg={useColorModeValue("light.100", "muted.800")}
+          py={5}
+          px={2}
+        >
+          <Pressable bg="transparent" onPress={onCloseModalHandler}>
+            <Flex direction="row" align="center">
+              <Icon
+                color="primary.500"
+                as={Entypo}
+                name="chevron-left"
+                size="xs"
+              />
+              <Text color="primary.500">Cancel</Text>
+            </Flex>
+          </Pressable>
+
+          <HStack pt={4}>
+            <Image
+              size="md"
+              resizeMode={"cover"}
+              borderRadius="md"
+              mr="10px"
+              bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
+              source={{
+                uri: selectedEditItemOriginal.image?.url,
+              }}
+              fallbackSource={require("./../assets/fallback-img.jpg")}
+              alt="Alternate Text"
+            />
+            <VStack>
+              <Text fontSize="md">{selectedEditItemOriginal?.id}</Text>
+              <Text fontSize="md">{selectedEditItemOriginal?.name}</Text>
+              <Text pt={1} color="primary.500" fontSize="lg" bold>
+                RM {selectedEditItemOriginal?.price}
+              </Text>
+            </VStack>
+          </HStack>
+          <View pt={3} flex={1}>
+            {selectedEditItemOriginal?.addons?.length > 0 && (
+              <FlatList
+                data={selectedEditItemOriginal.addons}
+                keyExtractor={(item, index) => item + index}
+                renderItem={({ item }) => {
+                  return (
+                    <>
+                      <Text
+                        py="3"
+                        fontFamily="sf-pro-text-semibold"
+                        fontSize="15"
+                      >
+                        {item.name}
+                      </Text>
+                      {parseInt(item.type) === 1 && (
+                        <>
+                          <Checkbox.Group
+                            onChange={(nextValue) =>
+                              onCheckChange(item.name, nextValue)
+                            }
+                            accessibilityLabel="choose addon"
+                          >
+                            {item.data.map((addon) => {
+                              return (
+                                <Checkbox
+                                  key={addon.id}
+                                  value={addon.id}
+                                  my={2}
+                                  size="md"
+                                >
+                                  <Text
+                                    px={2}
+                                    fontFamily="sf-pro-text-regular"
+                                    fontSize="13"
+                                  >
+                                    {addon.name} RM{addon.price}
+                                  </Text>
+                                </Checkbox>
+                              );
+                            })}
+                          </Checkbox.Group>
+                        </>
+                      )}
+                      {parseInt(item.type) === 2 && (
+                        <Radio.Group
+                          name={item.name}
+                          accessibilityLabel={item.name}
+                          value={addonForm[item.name].id}
+                          onChange={(nextValue) =>
+                            onRadioChange(item.name, nextValue)
+                          }
+                        >
+                          {item.data.map((addon) => {
+                            return (
+                              <Radio
+                                key={addon.id}
+                                value={addon.id}
+                                my={1.5}
+                                size="lg"
+                              >
+                                <Text
+                                  px={2}
+                                  fontFamily="sf-pro-text-regular"
+                                  fontSize="13"
+                                >
+                                  {addon.name} RM{addon.price}
+                                </Text>
+                              </Radio>
+                            );
+                          })}
+                        </Radio.Group>
+                      )}
+                    </>
+                  );
+                }}
+              />
+            )}
+            <HStack py={2}>
+              <Button
+                flex={1}
+                colorScheme="red"
+                leftIcon={
+                  selectedItemQuantity === 0 ? (
+                    <Icon as={Entypo} name="trash" size="xs" />
+                  ) : (
+                    <Icon as={Entypo} name="minus" size="xs" />
+                  )
+                }
+                onPress={() => {
+                  if (selectedItemQuantity === 0) {
+                    onCloseModalHandler();
+                  } else {
+                    setSelectedItemQuantity((prevState) => {
+                      if (prevState > 0) {
+                        return prevState - 1;
+                      }
+                      return prevState;
+                    });
+                  }
+                }}
+              ></Button>
+              <Text flex={1} alignSelf="center" textAlign="center">
+                {selectedItemQuantity}
+              </Text>
+              <Button
+                flex={1}
+                colorScheme="green"
+                py={3}
+                leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
+                onPress={() =>
+                  setSelectedItemQuantity((prevState) => prevState + 1)
+                }
+              ></Button>
+            </HStack>
+            <PrimaryButton
+              mt="auto"
+              mb={1}
+              align="flex-end"
+              p={3}
+              onPress={onAddAddon}
+              disabled={selectedItemQuantity === 0}
+            >
+              Edit
+            </PrimaryButton>
+          </View>
+        </VStack>
+      </SlideFromRight>
     </>
   );
 };
+interface CartListItemProps {
+  item: any;
+  index: number;
+  editItemHandler: Function;
+  discountItemHandler: Function;
+  deleteItemHandler: Function;
+}
 
-const CartListItem = ({ ref, item, deleteItemHandler }) => {
+const CartListItem = ({
+  item,
+  index,
+  editItemHandler,
+  discountItemHandler,
+  deleteItemHandler,
+}: CartListItemProps) => {
   const renderRightAction = (
     text: string,
     color: string,
     x: number,
     progress: Animated.AnimatedInterpolation,
     onPressFunction: Function,
-    item: any
+    item: any,
+    index: number
   ) => {
     const trans = progress.interpolate({
       inputRange: [0, 1],
       outputRange: [x, 0],
     });
     const pressHandler = () => {
-      onPressFunction();
+      onPressFunction(item, index);
     };
 
     return (
@@ -896,11 +1129,10 @@ const CartListItem = ({ ref, item, deleteItemHandler }) => {
             alignItems: "center",
             flex: 1,
             justifyContent: "center",
-            backgroundColor: color,
           }}
           onPress={pressHandler}
         >
-          <Text>{text}</Text>
+          <Icon color={color} as={Ionicons} size="sm" name={text} />
         </RectButton>
       </Animated.View>
     );
@@ -908,39 +1140,43 @@ const CartListItem = ({ ref, item, deleteItemHandler }) => {
 
   return (
     <Swipeable
-      ref={ref}
       friction={2}
       enableTrackpadTwoFingerGesture
-      rightThreshold={40}
+      rightThreshold={30}
       renderRightActions={(
         progress: Animated.AnimatedInterpolation,
         _dragAnimatedValue: Animated.AnimatedInterpolation
       ) => (
-        <Flex w="50%" direction="row">
+        <Flex w={item.orderStatus === 1 ? "54%" : "18%"} direction="row">
+          {item.orderStatus === 1 &&
+            renderRightAction(
+              "ios-pencil",
+              "success.700",
+              192,
+              progress,
+              editItemHandler,
+              item,
+              index
+            )}
           {renderRightAction(
-            "Edit",
-            "#C8C7CD",
-            192,
-            progress,
-            deleteItemHandler,
-            item
-          )}
-          {renderRightAction(
-            "Discount",
-            "#ffab00",
+            "pricetags-outline",
+            "amber.700",
             128,
             progress,
-            deleteItemHandler,
-            item
+            discountItemHandler,
+            item,
+            index
           )}
-          {renderRightAction(
-            "Delete",
-            "#dd2c00",
-            64,
-            progress,
-            deleteItemHandler,
-            item
-          )}
+          {item.orderStatus === 1 &&
+            renderRightAction(
+              "trash",
+              "red.600",
+              64,
+              progress,
+              deleteItemHandler,
+              item,
+              index
+            )}
         </Flex>
       )}
     >
@@ -1033,12 +1269,23 @@ const CartListItem = ({ ref, item, deleteItemHandler }) => {
   );
 };
 
+interface OrderDetailComponentProps {
+  cartItem: any;
+  order: {
+    subtotal: number;
+    total: number;
+    discount: number;
+    tax: number;
+  };
+  setOpenSelectionModal: Function;
+  setIsConfirm: Function;
+}
 const OrderDetailComponent = ({
   cartItem,
   order,
   setOpenSelectionModal,
   setIsConfirm,
-}) => {
+}: OrderDetailComponentProps) => {
   return (
     <Flex
       justify="flex-end"
@@ -1057,7 +1304,7 @@ const OrderDetailComponent = ({
           {order.subtotal.toFixed(2)}
         </Text>
       </Flex>
-      {parseFloat(order.discount) > 0 && (
+      {order.discount > 0 && (
         <Flex direction="row" align="center" justify="space-between">
           <Text
             fontFamily="sf-pro-text-medium"
@@ -1076,7 +1323,7 @@ const OrderDetailComponent = ({
         </Flex>
       )}
 
-      {parseFloat(order.tax) > 0 && (
+      {order.tax > 0 && (
         <Flex direction="row" align="center" justify="space-between">
           <Text
             fontFamily="sf-pro-text-medium"

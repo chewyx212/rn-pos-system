@@ -54,7 +54,7 @@ const mappingItemCategory = () => {
 type TableScreenProp = StackNavigationProp<RootStackParamList, "Table">;
 type TableScreenRouteProp = RouteProp<RootStackParamList, "Table">;
 const TableScreen = () => {
-  const [tableList, setTableList] = useState<TableDataType[]>(tableData);
+  const [tableList, setTableList] = useState<TableDataType[]>([]);
   const [categoryList, setCategoryList] = useState<TableCategoryType[]>(
     mappingItemCategory()
   );
@@ -99,7 +99,7 @@ const TableScreen = () => {
     });
     let tableTemp: TableDataType[] = [];
 
-    tableList.forEach((table) => {
+    tableData.forEach((table) => {
       {
         /* <-------------- This code got huge problem :)---------------------------------> */
       }
@@ -115,11 +115,6 @@ const TableScreen = () => {
       // }
       if (temp.includes(table.id)) {
         let tempOrder = orderTemp.filter((order) => order.tableId === table.id);
-        // let tempPrice = 0;
-        // tempOrder.items.forEach((order) => {
-        //   tempPrice += order.detail.total;
-        // });
-
         tableTemp.push({
           ...table,
           order: tempOrder,
@@ -142,7 +137,7 @@ const TableScreen = () => {
         temp.status = tempStatus;
       }
     });
-    setTableList([...tableTemp]);
+    setTableList(tableTemp);
   };
 
   const calculateOrderPrice = (items) => {
