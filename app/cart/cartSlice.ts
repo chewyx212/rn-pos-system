@@ -50,6 +50,10 @@ const cartSlice = createSlice({
     setCart: (state, action) => {
       state.cartItem = action.payload.item;
     },
+    updateCartItem: (state, action) => {
+      const payloadItem = action.payload.item;
+      state.cartItem.splice(action.payload.index, 1, payloadItem);
+    },
     deleteCartItem: (state, action) => {
       state.cartItem.splice(action.payload.index, 1);
     },
@@ -59,6 +63,11 @@ const cartSlice = createSlice({
   },
 });
 
-export const { changeCart, setCart, clearCart, deleteCartItem } =
-  cartSlice.actions;
+export const {
+  changeCart,
+  setCart,
+  clearCart,
+  deleteCartItem,
+  updateCartItem,
+} = cartSlice.actions;
 export default cartSlice.reducer;

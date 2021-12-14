@@ -20,6 +20,7 @@ import {
   Modal,
   IconButton,
   useToast,
+  FormControl,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -33,6 +34,7 @@ import {
   clearCart,
   deleteCartItem,
   setCart,
+  updateCartItem,
 } from "../app/cart/cartSlice";
 import { setOrder } from "../app/order/orderSlice";
 import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
@@ -68,7 +70,7 @@ const OrderScreen = () => {
     mappingItemCategory()[0].id
   );
   const [selectedItem, setSelectedItem] = useState({});
-  const [selectedItemQuantity, setSelectedItemQuantity] = useState(1);
+  const [selectedItemQuantity, setSelectedItemQuantity] = useState<number>(1);
   const [selectedItemAddon, setSelectedItemAddon] = useState({});
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
   const [fixedCartItem, setFixedCartItem] = useState<any[]>([]);
@@ -80,11 +82,11 @@ const OrderScreen = () => {
   const [openAddon, setOpenAddon] = useState(false);
   const [isEditAddon, setIsEditAddon] = useState(false);
   const [isEditQuantity, setIsEditQuantity] = useState(false);
-  const [selectedEditItem, setSelectedEditItem] = useState();
+  const [selectedEditItem, setSelectedEditItem] = useState({});
+  const [selectedEditItemQuantity, setSelectedEditItemQuantity] =
+    useState<number>(0);
   const [selectedEditItemOriginal, setSelectedEditItemOriginal] = useState({});
   const [selectedEditItemIndex, setSelectedEditItemIndex] = useState<number>();
-  const [selectedEditItemAddon, setSelectedEditItemAddon] = useState({});
-  const [selectedEditAllAddon, setSelectedEditAllAddon] = useState([]);
   const [orderDetail, setOrderDetail] = useState({
     subtotal: 0.0,
     total: 0.0,
@@ -347,12 +349,38 @@ const OrderScreen = () => {
       setSelectedEditItemIndex(index);
     }
     setSelectedEditItem(item);
-    setSelectedEditItemOriginal(itemList.find((list) => list.id === item.id));
+    setSelectedEditItemQuantity(item.quantity);
+    let originalItem = itemList.find((list) => list.id === item.id);
     console.log("inside");
     if (item.addons.length > 0) {
       console.log("insideaaaaaa");
       setIsEditAddon(true);
       setIsEditQuantity(false);
+      console.log(item.addons);
+      let temp: number[] = [];
+      let tempObj = {};
+      item.addons.forEach((item) => {
+        if (!temp.includes(item.addon_category_id)) {
+          temp.push(item.addon_category_id);
+          tempObj = { ...tempObj, [item.addon_category.name]: item };
+          if (parseInt(item.addon_category.type) === 1) {
+            tempObj = {
+              ...tempObj,
+              [item.addon_category.name]: [item],
+            };
+          }
+        } else {
+          if (parseInt(item.addon_category.type) === 1) {
+            // console.log(tempObj);
+          }
+        }
+      });
+      setSelectedItem(itemList.find((list) => list.id === item.id));
+      setSelectedItemQuantity(item.quantity);
+      console.log(tempObj);
+      setAddonForm(tempObj);
+      setOpenAddon(true);
+      mappingAddon(originalItem.addons);
     } else {
       console.log("insidebbbbb");
       setIsEditAddon(false);
@@ -361,6 +389,17 @@ const OrderScreen = () => {
   };
   const discountItemHandler = (item, index) => {
     console.log(index);
+  };
+
+  const onEditedQuantity = () => {
+    const editedItem = {
+      ...selectedEditItem,
+      quantity: selectedEditItemQuantity,
+    };
+    dispatch(
+      updateCartItem({ index: selectedEditItemIndex, item: editedItem })
+    );
+    setIsEditQuantity(false);
   };
 
   return (
@@ -657,7 +696,7 @@ const OrderScreen = () => {
           </AlertDialog.Content>
         </AlertDialog>
 
-        {/* <---------- Cart Function Selection Modal -----------------> */}
+        {/* <----------------------------- Cart Function Selection Modal ------------------------------> */}
         <Modal
           isOpen={openSelectionModal}
           onClose={() => setOpenSelectionModal(false)}
@@ -694,8 +733,81 @@ const OrderScreen = () => {
             </Modal.Body>
           </Modal.Content>
         </Modal>
+
+        {/* <-------------------------------This is quantity modal for edit item ---------------------------------------> */}
+
+        <Modal isOpen={isEditQuantity} onClose={() => setIsEditQuantity(false)}>
+          <Modal.Content maxWidth="400px">
+            <Modal.CloseButton />
+            <Modal.Header>Edit Quantity</Modal.Header>
+            <Modal.Body>
+              <Flex direction="row" align="center" justify="space-between">
+                <Button
+                  flex={1}
+                  colorScheme="red"
+                  leftIcon={
+                    selectedEditItemQuantity === 0 ? (
+                      <Icon as={Entypo} name="trash" size="xs" />
+                    ) : (
+                      <Icon as={Entypo} name="minus" size="xs" />
+                    )
+                  }
+                  onPress={() => {
+                    if (selectedEditItemQuantity === 0) {
+                      deleteItemHandler(
+                        selectedEditItem,
+                        selectedEditItemIndex
+                      );
+                      setIsEditQuantity(false);
+                    } else {
+                      setSelectedEditItemQuantity((prevState) => {
+                        if (prevState > 0) {
+                          return prevState - 1;
+                        }
+                        return prevState;
+                      });
+                    }
+                  }}
+                ></Button>
+                <Text flex={1} alignSelf="center" textAlign="center">
+                  {selectedEditItemQuantity}
+                </Text>
+                <Button
+                  flex={1}
+                  colorScheme="green"
+                  py={3}
+                  leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
+                  onPress={() =>
+                    setSelectedEditItemQuantity((prevState) => prevState + 1)
+                  }
+                ></Button>
+              </Flex>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button.Group space={2}>
+                <Button
+                  variant="ghost"
+                  colorScheme="blueGray"
+                  onPress={() => {
+                    setIsEditQuantity(false);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onPress={() => {
+                    onEditedQuantity();
+                  }}
+                >
+                  Edit
+                </Button>
+              </Button.Group>
+            </Modal.Footer>
+          </Modal.Content>
+        </Modal>
       </Stack>
 
+      {/* <------------------------------- This is cart for mobile -------------------------------------------> */}
       <SlideFromRight
         isOpen={openCart}
         w={{ base: "100%", md: "0%" }}
@@ -740,6 +852,8 @@ const OrderScreen = () => {
           />
         </VStack>
       </SlideFromRight>
+
+      {/* <------------------------------ This is addon page to add addon ---------- --------------------------------> */}
       <SlideFromRight
         isOpen={openAddon}
         h="100%"
@@ -909,180 +1023,6 @@ const OrderScreen = () => {
               disabled={selectedItemQuantity === 0}
             >
               Add
-            </PrimaryButton>
-          </View>
-        </VStack>
-      </SlideFromRight>
-
-      <SlideFromRight
-        isOpen={isEditAddon}
-        h="100%"
-        w={{ base: "100%", lg: "30%" }}
-        right="0 "
-      >
-        <VStack
-          h="100%"
-          bg={useColorModeValue("light.100", "muted.800")}
-          py={5}
-          px={2}
-        >
-          <Pressable bg="transparent" onPress={onCloseModalHandler}>
-            <Flex direction="row" align="center">
-              <Icon
-                color="primary.500"
-                as={Entypo}
-                name="chevron-left"
-                size="xs"
-              />
-              <Text color="primary.500">Cancel</Text>
-            </Flex>
-          </Pressable>
-
-          <HStack pt={4}>
-            <Image
-              size="md"
-              resizeMode={"cover"}
-              borderRadius="md"
-              mr="10px"
-              bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
-              source={{
-                uri: selectedEditItemOriginal.image?.url,
-              }}
-              fallbackSource={require("./../assets/fallback-img.jpg")}
-              alt="Alternate Text"
-            />
-            <VStack>
-              <Text fontSize="md">{selectedEditItemOriginal?.id}</Text>
-              <Text fontSize="md">{selectedEditItemOriginal?.name}</Text>
-              <Text pt={1} color="primary.500" fontSize="lg" bold>
-                RM {selectedEditItemOriginal?.price}
-              </Text>
-            </VStack>
-          </HStack>
-          <View pt={3} flex={1}>
-            {selectedEditItemOriginal?.addons?.length > 0 && (
-              <FlatList
-                data={selectedEditItemOriginal.addons}
-                keyExtractor={(item, index) => item + index}
-                renderItem={({ item }) => {
-                  return (
-                    <>
-                      <Text
-                        py="3"
-                        fontFamily="sf-pro-text-semibold"
-                        fontSize="15"
-                      >
-                        {item.name}
-                      </Text>
-                      {parseInt(item.type) === 1 && (
-                        <>
-                          <Checkbox.Group
-                            onChange={(nextValue) =>
-                              onCheckChange(item.name, nextValue)
-                            }
-                            accessibilityLabel="choose addon"
-                          >
-                            {item.data.map((addon) => {
-                              return (
-                                <Checkbox
-                                  key={addon.id}
-                                  value={addon.id}
-                                  my={2}
-                                  size="md"
-                                >
-                                  <Text
-                                    px={2}
-                                    fontFamily="sf-pro-text-regular"
-                                    fontSize="13"
-                                  >
-                                    {addon.name} RM{addon.price}
-                                  </Text>
-                                </Checkbox>
-                              );
-                            })}
-                          </Checkbox.Group>
-                        </>
-                      )}
-                      {parseInt(item.type) === 2 && (
-                        <Radio.Group
-                          name={item.name}
-                          accessibilityLabel={item.name}
-                          value={addonForm[item.name].id}
-                          onChange={(nextValue) =>
-                            onRadioChange(item.name, nextValue)
-                          }
-                        >
-                          {item.data.map((addon) => {
-                            return (
-                              <Radio
-                                key={addon.id}
-                                value={addon.id}
-                                my={1.5}
-                                size="lg"
-                              >
-                                <Text
-                                  px={2}
-                                  fontFamily="sf-pro-text-regular"
-                                  fontSize="13"
-                                >
-                                  {addon.name} RM{addon.price}
-                                </Text>
-                              </Radio>
-                            );
-                          })}
-                        </Radio.Group>
-                      )}
-                    </>
-                  );
-                }}
-              />
-            )}
-            <HStack py={2}>
-              <Button
-                flex={1}
-                colorScheme="red"
-                leftIcon={
-                  selectedItemQuantity === 0 ? (
-                    <Icon as={Entypo} name="trash" size="xs" />
-                  ) : (
-                    <Icon as={Entypo} name="minus" size="xs" />
-                  )
-                }
-                onPress={() => {
-                  if (selectedItemQuantity === 0) {
-                    onCloseModalHandler();
-                  } else {
-                    setSelectedItemQuantity((prevState) => {
-                      if (prevState > 0) {
-                        return prevState - 1;
-                      }
-                      return prevState;
-                    });
-                  }
-                }}
-              ></Button>
-              <Text flex={1} alignSelf="center" textAlign="center">
-                {selectedItemQuantity}
-              </Text>
-              <Button
-                flex={1}
-                colorScheme="green"
-                py={3}
-                leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
-                onPress={() =>
-                  setSelectedItemQuantity((prevState) => prevState + 1)
-                }
-              ></Button>
-            </HStack>
-            <PrimaryButton
-              mt="auto"
-              mb={1}
-              align="flex-end"
-              p={3}
-              onPress={onAddAddon}
-              disabled={selectedItemQuantity === 0}
-            >
-              Edit
             </PrimaryButton>
           </View>
         </VStack>

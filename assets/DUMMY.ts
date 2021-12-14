@@ -17,22 +17,6 @@ export const itemData: any[] = [
     item_category_id: 3,
     image: {
       id: 32,
-      model_type: "App\\Models\\Item",
-      model_id: 1,
-      uuid: "ca4edf93-5e2b-4548-9f7b-457ef75dae25",
-      collection_name: "image",
-      name: "coffee",
-      file_name: "coffee.jpg",
-      mime_type: "image/jpeg",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 3718843,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 30,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-thumb.jpg",
@@ -48,32 +32,6 @@ export const itemData: any[] = [
       restaurant_id: 1,
     },
     addons: [],
-    media: [
-      {
-        id: 32,
-        model_type: "App\\Models\\Item",
-        model_id: 1,
-        uuid: "ca4edf93-5e2b-4548-9f7b-457ef75dae25",
-        collection_name: "image",
-        name: "coffee",
-        file_name: "coffee.jpg",
-        mime_type: "image/jpeg",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 3718843,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 30,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-preview.jpg",
-      },
-    ],
   },
   {
     id: 2,
@@ -92,22 +50,6 @@ export const itemData: any[] = [
     item_category_id: 2,
     image: {
       id: 252,
-      model_type: "App\\Models\\Item",
-      model_id: 2,
-      uuid: "fe63b642-dfc0-403a-86cc-4867cf0111b9",
-      collection_name: "image",
-      name: "mocha",
-      file_name: "mocha.jpg",
-      mime_type: "image/jpeg",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 27554,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 180,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/252/mocha.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/252/conversions/mocha-thumb.jpg",
@@ -123,32 +65,6 @@ export const itemData: any[] = [
       restaurant_id: 1,
     },
     addons: [],
-    media: [
-      {
-        id: 252,
-        model_type: "App\\Models\\Item",
-        model_id: 2,
-        uuid: "fe63b642-dfc0-403a-86cc-4867cf0111b9",
-        collection_name: "image",
-        name: "mocha",
-        file_name: "mocha.jpg",
-        mime_type: "image/jpeg",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 27554,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 180,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/252/mocha.jpg",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/252/conversions/mocha-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/252/conversions/mocha-preview.jpg",
-      },
-    ],
   },
   {
     id: 3,
@@ -175,7 +91,6 @@ export const itemData: any[] = [
       restaurant_id: 1,
     },
     addons: [],
-    media: [],
   },
   {
     id: 4,
@@ -202,7 +117,6 @@ export const itemData: any[] = [
       restaurant_id: 1,
     },
     addons: [],
-    media: [],
   },
   {
     id: 5,
@@ -221,22 +135,6 @@ export const itemData: any[] = [
     item_category_id: 4,
     image: {
       id: 33,
-      model_type: "App\\Models\\Item",
-      model_id: 5,
-      uuid: "f17165b5-8fdf-4459-a531-3c63dd66c8be",
-      collection_name: "image",
-      name: "meat",
-      file_name: "meat.png",
-      mime_type: "image/png",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 829,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 31,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/33/meat.png",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/33/conversions/meat-thumb.jpg",
@@ -268,33 +166,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
-      },
-    ],
-    media: [
-      {
-        id: 33,
-        model_type: "App\\Models\\Item",
-        model_id: 5,
-        uuid: "f17165b5-8fdf-4459-a531-3c63dd66c8be",
-        collection_name: "image",
-        name: "meat",
-        file_name: "meat.png",
-        mime_type: "image/png",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 829,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 31,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/33/meat.png",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/33/conversions/meat-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/33/conversions/meat-preview.jpg",
       },
     ],
   },
@@ -315,22 +186,6 @@ export const itemData: any[] = [
     item_category_id: 2,
     image: {
       id: 31,
-      model_type: "App\\Models\\Item",
-      model_id: 7,
-      uuid: "07ff921b-06be-4f51-ac0e-9fadb0f185c5",
-      collection_name: "image",
-      name: "mushroom soup 2",
-      file_name: "mushroom-soup-2.jpg",
-      mime_type: "image/jpeg",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 483309,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 29,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/31/mushroom-soup-2.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/31/conversions/mushroom-soup-2-thumb.jpg",
@@ -362,7 +217,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 9,
@@ -380,7 +234,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 10,
@@ -398,33 +251,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
-      },
-    ],
-    media: [
-      {
-        id: 31,
-        model_type: "App\\Models\\Item",
-        model_id: 7,
-        uuid: "07ff921b-06be-4f51-ac0e-9fadb0f185c5",
-        collection_name: "image",
-        name: "mushroom soup 2",
-        file_name: "mushroom-soup-2.jpg",
-        mime_type: "image/jpeg",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 483309,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 29,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/31/mushroom-soup-2.jpg",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/31/conversions/mushroom-soup-2-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/31/conversions/mushroom-soup-2-preview.jpg",
       },
     ],
   },
@@ -445,22 +271,6 @@ export const itemData: any[] = [
     item_category_id: 2,
     image: {
       id: 30,
-      model_type: "App\\Models\\Item",
-      model_id: 8,
-      uuid: "b7d94f48-3efd-47c6-82d3-1708cffc725a",
-      collection_name: "image",
-      name: "image3",
-      file_name: "image3.jpg",
-      mime_type: "image/jpeg",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 42229,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 28,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/image3.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/conversions/image3-thumb.jpg",
@@ -476,32 +286,6 @@ export const itemData: any[] = [
       restaurant_id: 1,
     },
     addons: [],
-    media: [
-      {
-        id: 30,
-        model_type: "App\\Models\\Item",
-        model_id: 8,
-        uuid: "b7d94f48-3efd-47c6-82d3-1708cffc725a",
-        collection_name: "image",
-        name: "image3",
-        file_name: "image3.jpg",
-        mime_type: "image/jpeg",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 42229,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 28,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/image3.jpg",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/conversions/image3-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/conversions/image3-preview.jpg",
-      },
-    ],
   },
   {
     id: 9,
@@ -544,7 +328,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 7,
@@ -562,7 +345,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 8,
@@ -580,7 +362,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 9,
@@ -598,7 +379,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 10,
@@ -616,10 +396,8 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
     ],
-    media: [],
   },
   {
     id: 10,
@@ -646,7 +424,6 @@ export const itemData: any[] = [
       restaurant_id: 1,
     },
     addons: [],
-    media: [],
   },
   {
     id: 11,
@@ -665,22 +442,6 @@ export const itemData: any[] = [
     item_category_id: 1,
     image: {
       id: 44,
-      model_type: "App\\Models\\Item",
-      model_id: 11,
-      uuid: "5dd10e77-546f-4485-aa01-17f7c8794806",
-      collection_name: "image",
-      name: "612ef41e4383c_merchant_product_mcd_happymeal",
-      file_name: "612ef41e4383c_merchant_product_mcd_happymeal.jpg",
-      mime_type: "image/jpeg",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 5295,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 42,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/44/612ef41e4383c_merchant_product_mcd_happymeal.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/44/conversions/612ef41e4383c_merchant_product_mcd_happymeal-thumb.jpg",
@@ -712,33 +473,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
-      },
-    ],
-    media: [
-      {
-        id: 44,
-        model_type: "App\\Models\\Item",
-        model_id: 11,
-        uuid: "5dd10e77-546f-4485-aa01-17f7c8794806",
-        collection_name: "image",
-        name: "612ef41e4383c_merchant_product_mcd_happymeal",
-        file_name: "612ef41e4383c_merchant_product_mcd_happymeal.jpg",
-        mime_type: "image/jpeg",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 5295,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 42,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/44/612ef41e4383c_merchant_product_mcd_happymeal.jpg",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/44/conversions/612ef41e4383c_merchant_product_mcd_happymeal-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/44/conversions/612ef41e4383c_merchant_product_mcd_happymeal-preview.jpg",
       },
     ],
   },
@@ -767,7 +501,6 @@ export const itemData: any[] = [
       restaurant_id: 1,
     },
     addons: [],
-    media: [],
   },
   {
     id: 17,
@@ -786,22 +519,6 @@ export const itemData: any[] = [
     item_category_id: 3,
     image: {
       id: 251,
-      model_type: "App\\Models\\Item",
-      model_id: 17,
-      uuid: "596be2cb-c3f6-4f63-9e9d-7a97e26d8f92",
-      collection_name: "image",
-      name: "photo_2021-05-31_15-59-35",
-      file_name: "photo_2021-05-31_15-59-35.jpg",
-      mime_type: "image/jpeg",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 31302,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 179,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/251/photo_2021-05-31_15-59-35.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/251/conversions/photo_2021-05-31_15-59-35-thumb.jpg",
@@ -817,32 +534,6 @@ export const itemData: any[] = [
       restaurant_id: 1,
     },
     addons: [],
-    media: [
-      {
-        id: 251,
-        model_type: "App\\Models\\Item",
-        model_id: 17,
-        uuid: "596be2cb-c3f6-4f63-9e9d-7a97e26d8f92",
-        collection_name: "image",
-        name: "photo_2021-05-31_15-59-35",
-        file_name: "photo_2021-05-31_15-59-35.jpg",
-        mime_type: "image/jpeg",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 31302,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 179,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/251/photo_2021-05-31_15-59-35.jpg",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/251/conversions/photo_2021-05-31_15-59-35-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/251/conversions/photo_2021-05-31_15-59-35-preview.jpg",
-      },
-    ],
   },
   {
     id: 18,
@@ -861,22 +552,6 @@ export const itemData: any[] = [
     item_category_id: 10,
     image: {
       id: 258,
-      model_type: "App\\Models\\Item",
-      model_id: 18,
-      uuid: "1a5491b6-d914-4005-b356-afe97ddd8fa4",
-      collection_name: "image",
-      name: "meat",
-      file_name: "meat.png",
-      mime_type: "image/png",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 829,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 186,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/258/meat.png",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/258/conversions/meat-thumb.jpg",
@@ -908,7 +583,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 7,
@@ -926,7 +600,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 8,
@@ -944,7 +617,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 22,
@@ -962,33 +634,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
-      },
-    ],
-    media: [
-      {
-        id: 258,
-        model_type: "App\\Models\\Item",
-        model_id: 18,
-        uuid: "1a5491b6-d914-4005-b356-afe97ddd8fa4",
-        collection_name: "image",
-        name: "meat",
-        file_name: "meat.png",
-        mime_type: "image/png",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 829,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 186,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/258/meat.png",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/258/conversions/meat-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/258/conversions/meat-preview.jpg",
       },
     ],
   },
@@ -1009,22 +654,6 @@ export const itemData: any[] = [
     item_category_id: 4,
     image: {
       id: 259,
-      model_type: "App\\Models\\Item",
-      model_id: 19,
-      uuid: "b33d93ce-e409-4c14-9625-765b149cd121",
-      collection_name: "image",
-      name: "photo_2021-05-31_15-59-35",
-      file_name: "photo_2021-05-31_15-59-35.jpg",
-      mime_type: "image/jpeg",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 31302,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 187,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/259/photo_2021-05-31_15-59-35.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/259/conversions/photo_2021-05-31_15-59-35-thumb.jpg",
@@ -1056,7 +685,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 5,
@@ -1074,7 +702,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 6,
@@ -1092,7 +719,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 7,
@@ -1110,7 +736,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 9,
@@ -1128,33 +753,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
-      },
-    ],
-    media: [
-      {
-        id: 259,
-        model_type: "App\\Models\\Item",
-        model_id: 19,
-        uuid: "b33d93ce-e409-4c14-9625-765b149cd121",
-        collection_name: "image",
-        name: "photo_2021-05-31_15-59-35",
-        file_name: "photo_2021-05-31_15-59-35.jpg",
-        mime_type: "image/jpeg",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 31302,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 187,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/259/photo_2021-05-31_15-59-35.jpg",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/259/conversions/photo_2021-05-31_15-59-35-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/259/conversions/photo_2021-05-31_15-59-35-preview.jpg",
       },
     ],
   },
@@ -1175,22 +773,6 @@ export const itemData: any[] = [
     item_category_id: 3,
     image: {
       id: 260,
-      model_type: "App\\Models\\Item",
-      model_id: 20,
-      uuid: "00273e83-155e-4c87-bd9e-e23162308eb1",
-      collection_name: "image",
-      name: "Cul-BabyYoda_mandalorian-thechild-1_af408bfd",
-      file_name: "Cul-BabyYoda_mandalorian-thechild-1_af408bfd.jpg",
-      mime_type: "image/jpeg",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 357163,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 188,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/260/Cul-BabyYoda_mandalorian-thechild-1_af408bfd.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/260/conversions/Cul-BabyYoda_mandalorian-thechild-1_af408bfd-thumb.jpg",
@@ -1222,7 +804,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 3,
@@ -1240,7 +821,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 4,
@@ -1258,7 +838,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 5,
@@ -1276,7 +855,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 6,
@@ -1294,7 +872,6 @@ export const itemData: any[] = [
           remark: "let drink",
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 7,
@@ -1312,7 +889,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 8,
@@ -1330,7 +906,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 9,
@@ -1348,7 +923,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
       },
       {
         id: 10,
@@ -1366,33 +940,6 @@ export const itemData: any[] = [
           remark: null,
           restaurant_id: 1,
         },
-        media: [],
-      },
-    ],
-    media: [
-      {
-        id: 260,
-        model_type: "App\\Models\\Item",
-        model_id: 20,
-        uuid: "00273e83-155e-4c87-bd9e-e23162308eb1",
-        collection_name: "image",
-        name: "Cul-BabyYoda_mandalorian-thechild-1_af408bfd",
-        file_name: "Cul-BabyYoda_mandalorian-thechild-1_af408bfd.jpg",
-        mime_type: "image/jpeg",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 357163,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 188,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/260/Cul-BabyYoda_mandalorian-thechild-1_af408bfd.jpg",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/260/conversions/Cul-BabyYoda_mandalorian-thechild-1_af408bfd-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/260/conversions/Cul-BabyYoda_mandalorian-thechild-1_af408bfd-preview.jpg",
       },
     ],
   },
@@ -1413,23 +960,6 @@ export const itemData: any[] = [
     item_category_id: 24,
     image: {
       id: 326,
-      model_type: "App\\Models\\Item",
-      model_id: 47,
-      uuid: "7d330a15-0a41-4cee-a1cd-f297d5cc21ed",
-      collection_name: "image",
-      name: "Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo",
-      file_name:
-        "Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo.jpg",
-      mime_type: "image/jpeg",
-      disk: "s3",
-      conversions_disk: "s3",
-      size: 286124,
-      manipulations: [],
-      custom_properties: {
-        generated_conversions: { thumb: true, preview: true },
-      },
-      responsive_images: [],
-      order_column: 244,
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/326/Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/326/conversions/Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo-thumb.jpg",
@@ -1445,33 +975,6 @@ export const itemData: any[] = [
       restaurant_id: 1,
     },
     addons: [],
-    media: [
-      {
-        id: 326,
-        model_type: "App\\Models\\Item",
-        model_id: 47,
-        uuid: "7d330a15-0a41-4cee-a1cd-f297d5cc21ed",
-        collection_name: "image",
-        name: "Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo",
-        file_name:
-          "Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo.jpg",
-        mime_type: "image/jpeg",
-        disk: "s3",
-        conversions_disk: "s3",
-        size: 286124,
-        manipulations: [],
-        custom_properties: {
-          generated_conversions: { thumb: true, preview: true },
-        },
-        responsive_images: [],
-        order_column: 244,
-        url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/326/Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo.jpg",
-        thumbnail:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/326/conversions/Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo-thumb.jpg",
-        preview:
-          "https://menuworlds.s3.ap-southeast-1.amazonaws.com/326/conversions/Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo-preview.jpg",
-      },
-    ],
   },
 ];
 
