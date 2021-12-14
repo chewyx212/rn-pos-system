@@ -32,16 +32,20 @@ const cartSlice = createSlice({
   reducers: {
     changeCart: (state, action) => {
       const payloadItem = action.payload.item;
-      let itemIndex = findSameItemInArray(state.cartItem, payloadItem);
-      if (itemIndex >= 0) {
-        state.cartItem[itemIndex].quantity += action.payload.quantity;
-      } else {
-        state.cartItem.push({
-          ...payloadItem,
-          quantity: action.payload.quantity,
-          status : action.payload.status
-        });
-      }
+      // let itemIndex = findSameItemInArray(state.cartItem, payloadItem);
+      // if (itemIndex >= 0) {
+      //   state.cartItem[itemIndex].quantity += action.payload.quantity;
+      // } else {
+      //   state.cartItem.push({
+      //     ...payloadItem,
+      //     quantity: action.payload.quantity,
+      //   });
+      // }
+      state.cartItem.push({
+        ...payloadItem,
+        quantity: action.payload.quantity,
+        orderStatus: 1,
+      });
     },
     setCart: (state, action) => {
       state.cartItem = action.payload.item;

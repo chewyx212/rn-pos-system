@@ -37,6 +37,7 @@ import { RootStackParamList } from "./RootStackParams";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { Animated } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
+import { ItemDataType } from "../types/itemType";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -65,6 +66,7 @@ const OrderScreen = () => {
   const [selectedItemQuantity, setSelectedItemQuantity] = useState(1);
   const [selectedItemAddon, setSelectedItemAddon] = useState({});
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
+  const [fixedCartItem, setFixedCartItem] = useState<any[]>([]);
   const [isConfirm, setIsConfirm] = useState(false);
   const [openSelectionModal, setOpenSelectionModal] = useState(false);
   const [isEditCartMode, setIsEditCartMode] = useState(false);
@@ -128,7 +130,19 @@ const OrderScreen = () => {
   useEffect(() => {
     if (orders && orders.length > 0) {
       setIsEditCartMode(true);
-      dispatch(setCart({ item: orders }));
+      let sentArray: any[] = [];
+      let holdArray: any[] = [];
+      orders.forEach((order) => {
+        order.items.forEach((item) => {
+          if (item.orderStatus === 2) {
+            sentArray.push(item);
+          } else {
+            holdArray.push(item);
+          }
+        });
+      });
+      setFixedCartItem(sentArray);
+      dispatch(setCart({ item: holdArray }));
     } else {
       dispatch(clearCart());
     }
@@ -162,9 +176,9 @@ const OrderScreen = () => {
           calculatedPrice: parseFloat(item.price),
         },
         quantity,
-        status: 0,
       })
     );
+    onCloseModalHandler();
     toast.show({
       description: `${item.name} added into cart.`,
       background: "emerald.500",
@@ -174,9 +188,14 @@ const OrderScreen = () => {
 
   const onSubmitOrder = async (orderStatus: number) => {
     if (cartItem.length > 0) {
+      let tempArray = cartItem.map((item) => ({ ...item, orderStatus }));
       if (isEditCartMode) {
         const orderValue = await fetchOrder();
-        orderValue.find((order) => order.tableId === tableId).items = cartItem;
+        orderValue.find((order) => order.tableId === tableId).items =
+          fixedCartItem.concat(tempArray);
+        orderValue.find((order) => order.tableId === tableId).orderStatus =
+          orderStatus;
+
         await storeOrder(orderValue);
         dispatch(setOrder(orderValue));
         setOpenCart(false);
@@ -191,9 +210,9 @@ const OrderScreen = () => {
           orderType,
           tableId,
           pax,
-          items: cartItem,
+          items: tempArray,
+          orderStatus,
         });
-        console.log(orderValue);
         await storeOrder(orderValue);
         dispatch(setOrder(orderValue));
         setOpenCart(false);
@@ -219,7 +238,6 @@ const OrderScreen = () => {
 
   const onAddAddon = () => {
     let addonsPayload = [];
-    console.log(addonForm);
     Object.values(addonForm).forEach((item) => {
       if (item.length > 0) {
         addonsPayload = [...addonsPayload, ...item];
@@ -245,7 +263,6 @@ const OrderScreen = () => {
           ...payload,
         },
         quantity: selectedItemQuantity,
-        status: 0,
       })
     );
 
@@ -303,7 +320,9 @@ const OrderScreen = () => {
     dispatch(clearCart());
   };
 
-  const deleteItemHandler = (item) => {};
+  const deleteItemHandler = (item) => {
+    console.log("delete");
+  };
 
   return (
     <>
@@ -465,11 +484,11 @@ const OrderScreen = () => {
                                     ? hoverTextColor
                                     : textColor
                                 }
-                                fontFamily="sf-pro-text-medium"
-                                fontWeight="400"
-                                fontSize={{ base: 17, md: 18 }}
+                                fontFamily="sf-pro-display-bold"
+                                fontWeight="600"
+                                fontSize={{ base: 17, md: 22 }}
                               >
-                                RM {item.price}
+                                {item.id}
                               </Text>
                               <Flex>
                                 <Text
@@ -478,11 +497,11 @@ const OrderScreen = () => {
                                       ? hoverTextColor
                                       : textColor
                                   }
-                                  fontFamily="sf-pro-display-bold"
+                                  fontFamily="sf-pro-text-semibold"
                                   fontWeight="600"
-                                  fontSize={{ base: 17, md: 22 }}
+                                  fontSize={{ base: 17, md: 18 }}
                                 >
-                                  {item.id}
+                                  RM {item.price}
                                 </Text>
                                 <Text
                                   color={
@@ -492,7 +511,7 @@ const OrderScreen = () => {
                                   }
                                   fontFamily="sf-pro-text-semibold"
                                   fontWeight="600"
-                                  fontSize={{ base: 17, md: 20 }}
+                                  fontSize={{ base: 17, md: 18 }}
                                 >
                                   {item.name}
                                 </Text>
@@ -529,13 +548,31 @@ const OrderScreen = () => {
                 {orderType === 4 && "Counter"}
               </Text>
             </Flex>
-            <FlatList
-              keyExtractor={(item, index) => item.name + index}
-              data={cartItem}
-              renderItem={({ item }) => (
-                <CartListItem ref={swipeableRef} item={item} />
-              )}
-            />
+            {fixedCartItem.length > 0 ? (
+              <FlatList
+                keyExtractor={(item, index) => item.name + index}
+                data={fixedCartItem.concat(cartItem)}
+                renderItem={({ item }) => (
+                  <CartListItem
+                    ref={swipeableRef}
+                    item={item}
+                    deleteItemHandler={deleteItemHandler}
+                  />
+                )}
+              />
+            ) : (
+              <FlatList
+                keyExtractor={(item, index) => item.name + index}
+                data={cartItem}
+                renderItem={({ item }) => (
+                  <CartListItem
+                    ref={swipeableRef}
+                    item={item}
+                    deleteItemHandler={deleteItemHandler}
+                  />
+                )}
+              />
+            )}
           </View>
           <OrderDetailComponent
             setOpenSelectionModal={setOpenSelectionModal}
@@ -564,12 +601,12 @@ const OrderScreen = () => {
                 <Button
                   variant="unstyled"
                   colorScheme="coolGray"
-                  onPress={() => onSubmitOrder(0)}
+                  onPress={() => onSubmitOrder(1)}
                   ref={cancelRef}
                 >
                   Hold Order
                 </Button>
-                <Button colorScheme="success" onPress={() => onSubmitOrder(1)}>
+                <Button colorScheme="success" onPress={() => onSubmitOrder(2)}>
                   Send to Kitchen
                 </Button>
               </Button.Group>
@@ -642,7 +679,11 @@ const OrderScreen = () => {
               keyExtractor={(item, index) => item.name + index}
               data={cartItem}
               renderItem={({ item }) => (
-                <CartListItem ref={swipeableRef} item={item} />
+                <CartListItem
+                  ref={swipeableRef}
+                  item={item}
+                  deleteItemHandler={deleteItemHandler}
+                />
               )}
             />
           </View>
@@ -831,7 +872,7 @@ const OrderScreen = () => {
   );
 };
 
-const CartListItem = ({ ref, item }) => {
+const CartListItem = ({ ref, item, deleteItemHandler }) => {
   const renderRightAction = (
     text: string,
     color: string,
@@ -881,7 +922,7 @@ const CartListItem = ({ ref, item }) => {
             "#C8C7CD",
             192,
             progress,
-            onPressFunction,
+            deleteItemHandler,
             item
           )}
           {renderRightAction(
@@ -889,7 +930,7 @@ const CartListItem = ({ ref, item }) => {
             "#ffab00",
             128,
             progress,
-            onPressFunction,
+            deleteItemHandler,
             item
           )}
           {renderRightAction(
@@ -897,7 +938,7 @@ const CartListItem = ({ ref, item }) => {
             "#dd2c00",
             64,
             progress,
-            onPressFunction,
+            deleteItemHandler,
             item
           )}
         </Flex>
@@ -932,6 +973,11 @@ const CartListItem = ({ ref, item }) => {
                 />
                 <VStack>
                   <Text
+                    color={
+                      item.orderStatus === 1
+                        ? useColorModeValue("red.400", "red.500")
+                        : useColorModeValue("dark.100", "light.100")
+                    }
                     fontFamily="sf-pro-text-semibold"
                     fontWeight="400"
                     fontSize={15}
@@ -942,6 +988,11 @@ const CartListItem = ({ ref, item }) => {
                     {item.id}. {item.name}
                   </Text>
                   <Text
+                    color={
+                      item.orderStatus === 1
+                        ? useColorModeValue("red.400", "red.500")
+                        : useColorModeValue("dark.100", "light.100")
+                    }
                     fontFamily="sf-pro-text-regular"
                     fontWeight="400"
                     fontSize={{ base: 14, md: 12 }}
@@ -949,9 +1000,9 @@ const CartListItem = ({ ref, item }) => {
                     noOfLines={2}
                     maxW={{ base: "150", md: "120" }}
                   >
-                    {item.addons.length > 0 &&
+                    {item.addons?.length > 0 &&
                       item.addons.map((addon, index) => {
-                        if (index + 1 === item.addons.length) {
+                        if (index + 1 === item.addons?.length) {
                           return `${addon.name}`;
                         } else {
                           return `${addon.name}, `;
@@ -961,8 +1012,15 @@ const CartListItem = ({ ref, item }) => {
                 </VStack>
               </HStack>
               <View flex={2} pr={2}>
-                <Text textAlign="right">
-                  {item.addons.length > 0
+                <Text
+                  color={
+                    item.orderStatus === 1
+                      ? useColorModeValue("red.400", "red.500")
+                      : useColorModeValue("dark.100", "light.100")
+                  }
+                  textAlign="right"
+                >
+                  {item.addons?.length > 0
                     ? `RM ${item.calculatedPrice} x ${item.quantity}`
                     : `RM ${item.price} x ${item.quantity}`}
                 </Text>
@@ -996,7 +1054,7 @@ const OrderDetailComponent = ({
           Subtotal
         </Text>
         <Text fontFamily="sf-pro-text-medium" fontWeight="500" fontSize="15px">
-          {order.subtotal}
+          {order.subtotal.toFixed(2)}
         </Text>
       </Flex>
       {parseFloat(order.discount) > 0 && (
@@ -1013,7 +1071,7 @@ const OrderDetailComponent = ({
             fontWeight="500"
             fontSize="15px"
           >
-            {order.discount}
+            {order.discount.toFixed(2)}
           </Text>
         </Flex>
       )}
@@ -1032,7 +1090,7 @@ const OrderDetailComponent = ({
             fontWeight="500"
             fontSize="15px"
           >
-            {order.tax}
+            {order.tax.toFixed(2)}
           </Text>
         </Flex>
       )}
@@ -1049,7 +1107,7 @@ const OrderDetailComponent = ({
           fontWeight="500"
           fontSize="17px"
         >
-          {order.total}
+          {order.total.toFixed(2)}
         </Text>
       </Flex>
 

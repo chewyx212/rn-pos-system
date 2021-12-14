@@ -69,12 +69,7 @@ const TableScreen = () => {
   );
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
   const [openCart, setOpenCart] = useState<boolean>(false);
-  const [orderDetail, setOrderDetail] = useState({
-    subtotal: 0.0,
-    total: 0.0,
-    discount: 0.0,
-    tax: 0.0,
-  });
+
   const dispatch = useAppDispatch();
   const orderItem = useAppSelector((state) => state.order.orders);
   const cancelRef = useRef(null);
@@ -119,7 +114,7 @@ const TableScreen = () => {
       //   table.total = tempPrice;
       // }
       if (temp.includes(table.id)) {
-        let tempOrder = orderTemp.find((order) => order.tableId === table.id);
+        let tempOrder = orderTemp.filter((order) => order.tableId === table.id);
         // let tempPrice = 0;
         // tempOrder.items.forEach((order) => {
         //   tempPrice += order.detail.total;
@@ -127,15 +122,25 @@ const TableScreen = () => {
 
         tableTemp.push({
           ...table,
-          status: 1,
           order: tempOrder,
         });
       } else {
-        tableTemp.push(table);
+        tableTemp.push({ ...table, status: 0 });
       }
     });
-    tableTemp.forEach((a) => {
-      console.log(a.order.detail?.total);
+    tableTemp.forEach((temp) => {
+      if (temp.order && temp.order.length > 0) {
+        temp.total = "0";
+        let tempStatus = temp.order[0].orderStatus;
+        temp.order.forEach((order) => {
+          temp.total += parseFloat(order.detail.total);
+          if (order.orderStatus < tempStatus) {
+            tempStatus = order.orderStatus;
+          }
+        });
+
+        temp.status = tempStatus;
+      }
     });
     setTableList([...tableTemp]);
   };
@@ -159,6 +164,7 @@ const TableScreen = () => {
   };
 
   const onSelectShowOrder = (table: TableDataType) => {
+    console.log(table.order[0].items.length);
     setShowTableOrder(table);
     setOpenCart(true);
   };
@@ -176,10 +182,10 @@ const TableScreen = () => {
 
   const editOrder = (items) => {
     navigation.navigate("Order", {
-      orderType: items.orderType,
-      tableId: items.tableId,
-      pax: items.pax,
-      orders: items.items,
+      orderType: items[0].orderType,
+      tableId: items[0].tableId,
+      pax: items[0].pax,
+      orders: items,
       refresher: orderRefresher,
     });
   };
@@ -335,17 +341,20 @@ const TableScreen = () => {
                     isAllCategory
                 )
                 .map((table) => {
-                  let statusBgColor = useColorModeValue("red.500", "red.700");
-                  if (table.status === 2) {
-                    statusBgColor = useColorModeValue("green.500", "green.700");
-                  }
-
-                  if (table.status === 3) {
-                    statusBgColor = useColorModeValue("blue.500", "blue.700");
-                  }
-                  if (table.status === 4) {
+                  let statusBgColor = useColorModeValue(
+                    "green.500",
+                    "green.700"
+                  );
+                  if (table.status === 1) {
                     statusBgColor = useColorModeValue("amber.500", "amber.700");
                   }
+                  if (table.status === 2) {
+                    statusBgColor = useColorModeValue("blue.500", "blue.700");
+                  }
+                  if (table.status === 3) {
+                    statusBgColor = useColorModeValue("red.500", "red.700");
+                  }
+
                   return (
                     <Pressable
                       key={table.id}
@@ -355,11 +364,11 @@ const TableScreen = () => {
                       mx={{ base: "2%", md: "1.5", lg: "1%" }}
                       my={{ base: "2%", md: "1.5", lg: "1%" }}
                       onPress={() => {
-                        if (table.status === 1) {
-                          onSelectShowOrder(table);
-                        } else {
+                        if (table.status === 0) {
                           setSelectedTable(table);
                           setShowQuantityModal(true);
+                        } else {
+                          onSelectShowOrder(table);
                         }
                       }}
                     >
@@ -397,45 +406,43 @@ const TableScreen = () => {
                             </Text>
 
                             <Flex>
-                              {table.order &&
-                                table.order.detail &&
-                                parseFloat(table.order.detail.total) > 0 && (
-                                  <Text
-                                    fontFamily="sf-pro-text-semibold"
-                                    fontSize="15px"
-                                  >
-                                    RM
-                                    {parseFloat(
-                                      table.order.detail.total
-                                    ).toFixed(2)}
-                                  </Text>
-                                )}
+                              {table.order && parseFloat(table.total) > 0 && (
+                                <Text
+                                  fontFamily="sf-pro-text-semibold"
+                                  fontSize="15px"
+                                >
+                                  RM
+                                  {parseFloat(table.total).toFixed(2)}
+                                </Text>
+                              )}
                               <Flex direction="row" align="center">
-                                {table.order && parseInt(table.order.pax) > 0 && (
-                                  <>
-                                    <Icon
-                                      as={Ionicons}
-                                      name="people"
-                                      size="sm"
-                                      mr={2}
-                                      color={useColorModeValue(
-                                        "muted.400",
-                                        "muted.400"
-                                      )}
-                                    />
-                                    <Text
-                                      fontFamily="sf-pro-text-medium"
-                                      fontSize="19px"
-                                      textAlign="center"
-                                      color={useColorModeValue(
-                                        "muted.400",
-                                        "muted.400"
-                                      )}
-                                    >
-                                      {table.order.pax}
-                                    </Text>
-                                  </>
-                                )}
+                                {table.order &&
+                                  table.order.length > 0 &&
+                                  parseInt(table.order[0].pax) > 0 && (
+                                    <>
+                                      <Icon
+                                        as={Ionicons}
+                                        name="people"
+                                        size="sm"
+                                        mr={2}
+                                        color={useColorModeValue(
+                                          "muted.400",
+                                          "muted.400"
+                                        )}
+                                      />
+                                      <Text
+                                        fontFamily="sf-pro-text-medium"
+                                        fontSize="19px"
+                                        textAlign="center"
+                                        color={useColorModeValue(
+                                          "muted.400",
+                                          "muted.400"
+                                        )}
+                                      >
+                                        {table.order[0].pax}
+                                      </Text>
+                                    </>
+                                  )}
                               </Flex>
                             </Flex>
                           </Flex>
@@ -582,7 +589,7 @@ const TableScreen = () => {
                   fontWeight="500"
                   fontSize={15}
                 >
-                  {showTableOrder.order?.pax}
+                  {showTableOrder.order?.[0].pax}
                 </Text>
               </Flex>
               <IconButton
@@ -590,16 +597,20 @@ const TableScreen = () => {
                 onPress={() => setOpenCart(false)}
               />
             </Flex>
-            <FlatList
-              keyExtractor={(item, index) => item.name + index}
-              data={showTableOrder.order?.items}
-              renderItem={({ item }) => <CartListItem item={item} />}
-            />
+            {showTableOrder.order &&
+              showTableOrder.order.length > 0 &&
+              showTableOrder.order.map((order) => (
+                <FlatList
+                  key={order}
+                  keyExtractor={(item, index) => `${item.name}${index}`}
+                  data={order.items}
+                  renderItem={({ item }) => <CartListItem item={item} />}
+                />
+              ))}
           </View>
           <OrderDetailComponent
             setIsConfirm={setIsConfirm}
             cartItem={showTableOrder?.order}
-            order={showTableOrder?.order?.detail}
             editOrder={editOrder}
           />
         </VStack>
@@ -635,6 +646,11 @@ const CartListItem = ({ item }) => {
               />
               <VStack>
                 <Text
+                  color={
+                    item.orderStatus === 1
+                      ? useColorModeValue("red.400", "red.500")
+                      : useColorModeValue("dark.100", "light.100")
+                  }
                   fontFamily="sf-pro-text-semibold"
                   fontWeight="400"
                   fontSize={15}
@@ -645,6 +661,11 @@ const CartListItem = ({ item }) => {
                   {item.id}. {item.name}
                 </Text>
                 <Text
+                  color={
+                    item.orderStatus === 1
+                      ? useColorModeValue("red.400", "red.500")
+                      : useColorModeValue("dark.100", "light.100")
+                  }
                   fontFamily="sf-pro-text-regular"
                   fontWeight="400"
                   fontSize={{ base: 14, md: 12 }}
@@ -664,7 +685,14 @@ const CartListItem = ({ item }) => {
               </VStack>
             </HStack>
             <View flex={2}>
-              <Text textAlign="right">
+              <Text
+                textAlign="right"
+                color={
+                  item.orderStatus === 1
+                    ? useColorModeValue("red.400", "red.500")
+                    : useColorModeValue("dark.100", "light.100")
+                }
+              >
                 {item.addons?.length > 0
                   ? `RM ${item.calculatedPrice} x ${item.quantity}`
                   : `RM ${item.price} x ${item.quantity}`}
@@ -677,7 +705,18 @@ const CartListItem = ({ item }) => {
   );
 };
 
-const OrderDetailComponent = ({ cartItem, order, setIsConfirm, editOrder }) => {
+const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
+  let detail = {
+    subtotal: 0,
+    discount: 0,
+    tax: 0,
+    total: 0,
+  };
+  cartItem.forEach((item) => {
+    detail.subtotal += item.detail.subtotal;
+    detail.discount += item.detail.discount;
+    detail.total += item.detail.total;
+  });
   return (
     <Flex
       justify="flex-end"
@@ -694,10 +733,10 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm, editOrder }) => {
           Subtotal
         </Text>
         <Text fontFamily="sf-pro-text-medium" fontWeight="500" fontSize="15px">
-          {order.subtotal.toFixed(2)}
+          {detail.subtotal.toFixed(2)}
         </Text>
       </Flex>
-      {parseFloat(order.discount) > 0 && (
+      {parseFloat(detail.discount) > 0 && (
         <Flex direction="row" align="center" justify="space-between">
           <Text
             fontFamily="sf-pro-text-medium"
@@ -711,12 +750,12 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm, editOrder }) => {
             fontWeight="500"
             fontSize="15px"
           >
-            {order.discount.toFixed(2)}
+            {detail.discount.toFixed(2)}
           </Text>
         </Flex>
       )}
 
-      {parseFloat(order.tax) > 0 && (
+      {parseFloat(detail.tax) > 0 && (
         <Flex direction="row" align="center" justify="space-between">
           <Text
             fontFamily="sf-pro-text-medium"
@@ -730,7 +769,7 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm, editOrder }) => {
             fontWeight="500"
             fontSize="15px"
           >
-            {order.tax.toFixed(2)}
+            {detail.tax.toFixed(2)}
           </Text>
         </Flex>
       )}
@@ -747,7 +786,7 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm, editOrder }) => {
           fontWeight="500"
           fontSize="17px"
         >
-          {order.total.toFixed(2)}
+          {detail.total.toFixed(2)}
         </Text>
       </Flex>
 
@@ -762,9 +801,9 @@ const OrderDetailComponent = ({ cartItem, order, setIsConfirm, editOrder }) => {
         </Button>
         <PrimaryButton
           flex={{ base: 11, lg: 9 }}
-          disabled={cartItem.items.length < 1}
+          disabled={cartItem.length < 1}
           onPress={() => {
-            if (cartItem.items.length > 0) setIsConfirm(true);
+            if (cartItem.length > 0) setIsConfirm(true);
           }}
         >
           Checkout
