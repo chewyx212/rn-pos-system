@@ -89,6 +89,7 @@ const OrderScreen = () => {
   const [showCustomQuantity, setShowCustomQuantity] = useState<boolean>(false);
   const [selectedDiscountType, setSelectedDiscountType] = useState<number>(1);
   const [enteredAmount, setEnteredAmount] = useState<number>(0);
+  const [enteredReference, setEnteredReference] = useState<string>("");
   const [selectedEditItem, setSelectedEditItem] = useState({});
   const [selectedEditItemQuantity, setSelectedEditItemQuantity] =
     useState<number>(0);
@@ -160,11 +161,19 @@ const OrderScreen = () => {
       let sentArray: any[] = [];
       let holdArray: any[] = [];
       orders.forEach((order) => {
-        order.items.forEach((item) => {
+        order.items.forEach((item, index) => {
           if (item.orderStatus === 2) {
-            sentArray.push(item);
+            sentArray.push({
+              ...item,
+              itemIndex: index,
+              orderIndex: order.orderIndex,
+            });
           } else {
-            holdArray.push(item);
+            holdArray.push({
+              ...item,
+              itemIndex: index,
+              orderIndex: order.orderIndex,
+            });
           }
         });
       });
@@ -182,9 +191,43 @@ const OrderScreen = () => {
       tax: 0,
       total: 0,
     };
+    if (fixedCartItem.length > 0) {
+      fixedCartItem.forEach((item) => {
+        if (item.discountType && item.discountType === 1) {
+          detail.subtotal +=
+            (parseFloat(item.calculatedPrice) - item.discountAmount) *
+            item.quantity;
+        } else if (item.discountType && item.discountType === 2) {
+          detail.subtotal +=
+            ((parseFloat(item.calculatedPrice) * (100 - item.discountAmount)) /
+              100) *
+            item.quantity;
+        } else if (item.discountType && item.discountType === 3) {
+          detail.subtotal += item.discountAmount;
+        } else if (item.discountType && item.discountType === 4) {
+        } else {
+          detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
+        }
+      });
+    }
 
     items.forEach((item) => {
-      detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
+      console.log(item.discountType);
+      if (item.discountType && item.discountType === 1) {
+        detail.subtotal +=
+          (parseFloat(item.calculatedPrice) - item.discountAmount) *
+          item.quantity;
+      } else if (item.discountType && item.discountType === 2) {
+        detail.subtotal +=
+          ((parseFloat(item.calculatedPrice) * (100 - item.discountAmount)) /
+            100) *
+          item.quantity;
+      } else if (item.discountType && item.discountType === 3) {
+        detail.subtotal += item.discountAmount;
+      } else if (item.discountType && item.discountType === 4) {
+      } else {
+        detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
+      }
     });
     detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
 
@@ -409,8 +452,12 @@ const OrderScreen = () => {
     }
   };
   const discountItemHandler = (item, index) => {
+    if (fixedCartItem.length > 0 && item.orderStatus !== 2) {
+      setSelectedEditItemIndex(index - fixedCartItem.length);
+    } else {
+      setSelectedEditItemIndex(index);
+    }
     setSelectedEditItem(item);
-    setSelectedEditItemIndex(index);
     setShowDiscountModal(true);
   };
 
@@ -426,14 +473,43 @@ const OrderScreen = () => {
   };
 
   const onSelectAmount = (amount: number) => {
-    console.log(amount);
     setEnteredAmount(amount);
     setShowCustomQuantity(false);
   };
+  const onReferenceChange = (e: any) => {
+    setEnteredReference(e.currentTarget.value);
+  };
 
-  const onApplyDiscount = () => {
-    console.log(selectedDiscountType);
-    console.log(enteredAmount);
+  const onApplyDiscount = async () => {
+    const editedItem = {
+      ...selectedEditItem,
+      discountType: selectedDiscountType,
+      discountAmount: enteredAmount,
+      reference: enteredReference,
+    };
+    if (selectedEditItem?.orderStatus && selectedEditItem.orderStatus === 2) {
+      const orderValue = await fetchOrder();
+      let orderTemp = [...orderValue];
+      orderTemp;
+      setFixedCartItem((pervState) => {
+        pervState.splice(selectedEditItemIndex, 1, editedItem);
+        return pervState;
+      });
+      orderTemp[selectedEditItem.orderIndex].items[selectedEditItem.itemIndex] =
+        editedItem;
+
+      await storeOrder(orderTemp);
+      dispatch(setOrder(orderTemp));
+      refresher();
+    } else {
+      dispatch(
+        updateCartItem({ index: selectedEditItemIndex, item: editedItem })
+      );
+    }
+
+    setEnteredReference("");
+    setEnteredAmount(0);
+    setSelectedDiscountType(1);
     setShowDiscountModal(false);
   };
 
@@ -843,7 +919,10 @@ const OrderScreen = () => {
 
         {/* <-------------------------------This is discount item modal for edit item --------------------discount discount discount discount-------------------> */}
 
-        <Modal isOpen={showDiscountModal} onClose={() => setShowDiscountModal(false)}>
+        <Modal
+          isOpen={showDiscountModal}
+          onClose={() => setShowDiscountModal(false)}
+        >
           <KeyboardAvoidingView
             w="100%"
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -946,6 +1025,8 @@ const OrderScreen = () => {
 
                   <TextArea
                     h={24}
+                    value={enteredReference}
+                    onChange={onReferenceChange}
                     placeholder="Enter reference here..."
                     w="100%"
                   />
@@ -963,12 +1044,7 @@ const OrderScreen = () => {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    onPress={() => {
-                      onApplyDiscount();
-                    }}
-                    size="lg"
-                  >
+                  <Button size="lg" onPress={onApplyDiscount}>
                     Apply
                   </Button>
                 </Button.Group>
@@ -1376,9 +1452,22 @@ const CartListItem = ({
                   }
                   textAlign="right"
                 >
-                  {item.addons?.length > 0
-                    ? `RM ${item.calculatedPrice} x ${item.quantity}`
-                    : `RM ${item.price} x ${item.quantity}`}
+                  {item.discountType && item.discountType === 1
+                    ? `RM ${(
+                        item.calculatedPrice - item.discountAmount
+                      ).toFixed(2)} x ${item.quantity}`
+                    : item.discountType && item.discountType === 2
+                    ? `RM  ${(
+                        (item.calculatedPrice * (100 - item.discountAmount)) /
+                        100
+                      ).toFixed(2)} x ${item.quantity}`
+                    : item.discountType && item.discountType === 3
+                    ? `RM ${item.discountAmount.toFixed(2)} x ${item.quantity}`
+                    : item.discountType && item.discountType === 4
+                    ? `Free x ${item.quantity}`
+                    : `RM ${item.calculatedPrice.toFixed(2)} x ${
+                        item.quantity
+                      }`}
                 </Text>
               </View>
             </Flex>

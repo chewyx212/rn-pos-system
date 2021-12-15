@@ -91,10 +91,13 @@ const TableScreen = () => {
     const orderValue = await fetchOrder();
     let temp: number[] = [];
     let orderTemp = [...orderValue];
-    orderTemp.forEach((order) => {
+    orderTemp.forEach((order, index) => {
       if (order.orderType === 1) {
         temp.push(order.tableId);
       }
+      console.log(index);
+      console.log("this is indexxxxxxxxxxxxxxxxxxxxxx");
+      order.orderIndex = index;
       order.detail = calculateOrderPrice(order.items);
     });
     let tableTemp: TableDataType[] = [];
@@ -113,8 +116,13 @@ const TableScreen = () => {
       //   });
       //   table.total = tempPrice;
       // }
+
       if (temp.includes(table.id)) {
         let tempOrder = orderTemp.filter((order) => order.tableId === table.id);
+        tempOrder.forEach((ord) => {
+          console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+          console.log(ord.orderIndex);
+        });
         tableTemp.push({
           ...table,
           order: tempOrder,
@@ -149,7 +157,22 @@ const TableScreen = () => {
     };
 
     items.forEach((item) => {
-      detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
+      console.log(item.discountType);
+      if (item.discountType && item.discountType === 1) {
+        detail.subtotal +=
+          (parseFloat(item.calculatedPrice) - item.discountAmount) *
+          item.quantity;
+      } else if (item.discountType && item.discountType === 2) {
+        detail.subtotal +=
+          ((parseFloat(item.calculatedPrice) * (100 - item.discountAmount)) /
+            100) *
+          item.quantity;
+      } else if (item.discountType && item.discountType === 3) {
+        detail.subtotal += item.discountAmount;
+      } else if (item.discountType && item.discountType === 4) {
+      } else {
+        detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
+      }
     });
     detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
 
@@ -688,9 +711,20 @@ const CartListItem = ({ item }) => {
                     : useColorModeValue("dark.100", "light.100")
                 }
               >
-                {item.addons?.length > 0
-                  ? `RM ${item.calculatedPrice} x ${item.quantity}`
-                  : `RM ${item.price} x ${item.quantity}`}
+                {item.discountType && item.discountType === 1
+                  ? `RM ${(item.calculatedPrice - item.discountAmount).toFixed(
+                      2
+                    )} x ${item.quantity}`
+                  : item.discountType && item.discountType === 2
+                  ? `RM  ${(
+                      (item.calculatedPrice * (100 - item.discountAmount)) /
+                      100
+                    ).toFixed(2)} x ${item.quantity}`
+                  : item.discountType && item.discountType === 3
+                  ? `RM ${item.discountAmount.toFixed(2)} x ${item.quantity}`
+                  : item.discountType && item.discountType === 4
+                  ? `Free x ${item.quantity}`
+                  : `RM ${item.calculatedPrice.toFixed(2)} x ${item.quantity}`}
               </Text>
             </View>
           </Flex>
