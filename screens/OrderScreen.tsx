@@ -20,7 +20,8 @@ import {
   Modal,
   IconButton,
   useToast,
-  FormControl,
+  TextArea,
+  KeyboardAvoidingView,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -42,9 +43,10 @@ import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "./RootStackParams";
 import Swipeable from "react-native-gesture-handler/Swipeable";
-import { Animated } from "react-native";
+import { Animated, Platform } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import { ItemDataType } from "../types/itemType";
+import NumberPadInput from "../components/NumberPadInput";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -74,14 +76,19 @@ const OrderScreen = () => {
   const [selectedItemAddon, setSelectedItemAddon] = useState({});
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
   const [fixedCartItem, setFixedCartItem] = useState<any[]>([]);
-  const [isConfirm, setIsConfirm] = useState(false);
-  const [openSelectionModal, setOpenSelectionModal] = useState(false);
-  const [isEditCartMode, setIsEditCartMode] = useState(false);
-  const [openCart, setOpenCart] = useState(false);
+  const [isConfirm, setIsConfirm] = useState<boolean>(false);
+  const [openSelectionModal, setOpenSelectionModal] = useState<boolean>(false);
+  const [isEditCartMode, setIsEditCartMode] = useState<boolean>(false);
+  const [openCart, setOpenCart] = useState<boolean>(false);
   const [addonForm, setAddonForm] = useState({});
-  const [openAddon, setOpenAddon] = useState(false);
-  const [isEditAddon, setIsEditAddon] = useState(false);
-  const [isEditQuantity, setIsEditQuantity] = useState(false);
+  const [openAddon, setOpenAddon] = useState<boolean>(false);
+  const [isEditAddon, setIsEditAddon] = useState<boolean>(false);
+  const [isEditQuantity, setIsEditQuantity] = useState<boolean>(false);
+  const [showDiscountModal, setShowDiscountModal] = useState<boolean>(false);
+
+  const [showCustomQuantity, setShowCustomQuantity] = useState<boolean>(false);
+  const [selectedDiscountType, setSelectedDiscountType] = useState<number>(1);
+  const [enteredAmount, setEnteredAmount] = useState<number>(0);
   const [selectedEditItem, setSelectedEditItem] = useState({});
   const [selectedEditItemQuantity, setSelectedEditItemQuantity] =
     useState<number>(0);
@@ -134,6 +141,13 @@ const OrderScreen = () => {
         setOpenSelectionModal(false);
       },
     },
+  ];
+
+  const discountType = [
+    { id: 1, name: "Amount" },
+    { id: 2, name: "Percent" },
+    { id: 3, name: "Fixed Price" },
+    { id: 4, name: "FOC" },
   ];
 
   useEffect(() => {
@@ -343,52 +357,61 @@ const OrderScreen = () => {
   };
 
   const editItemHandler = (item, index) => {
-    if (fixedCartItem.length > 0) {
-      setSelectedEditItemIndex(index - fixedCartItem.length);
-    } else {
-      setSelectedEditItemIndex(index);
+    {
+      /* <-------------------------------------------------------FUCKING Trash Code----------------------------------------- */
     }
-    setSelectedEditItem(item);
-    setSelectedEditItemQuantity(item.quantity);
-    let originalItem = itemList.find((list) => list.id === item.id);
-    console.log("inside");
-    if (item.addons.length > 0) {
-      console.log("insideaaaaaa");
-      setIsEditAddon(true);
-      setIsEditQuantity(false);
-      console.log(item.addons);
-      let temp: number[] = [];
-      let tempObj = {};
-      item.addons.forEach((item) => {
-        if (!temp.includes(item.addon_category_id)) {
-          temp.push(item.addon_category_id);
-          tempObj = { ...tempObj, [item.addon_category.name]: item };
-          if (parseInt(item.addon_category.type) === 1) {
-            tempObj = {
-              ...tempObj,
-              [item.addon_category.name]: [item],
-            };
-          }
-        } else {
-          if (parseInt(item.addon_category.type) === 1) {
-            // console.log(tempObj);
-          }
-        }
-      });
-      setSelectedItem(itemList.find((list) => list.id === item.id));
-      setSelectedItemQuantity(item.quantity);
-      console.log(tempObj);
-      setAddonForm(tempObj);
-      setOpenAddon(true);
-      mappingAddon(originalItem.addons);
-    } else {
-      console.log("insidebbbbb");
-      setIsEditAddon(false);
-      setIsEditQuantity(true);
+    // if (fixedCartItem.length > 0) {
+    //   setSelectedEditItemIndex(index - fixedCartItem.length);
+    // } else {
+    //   setSelectedEditItemIndex(index);
+    // }
+    // setSelectedEditItem(item);
+    // setSelectedEditItemQuantity(item.quantity);
+    // let originalItem = itemList.find((list) => list.id === item.id);
+    // console.log("inside");
+    // if (item.addons.length > 0) {
+    //   console.log("insideaaaaaa");
+    //   setIsEditAddon(true);
+    //   setIsEditQuantity(false);
+    //   console.log(item.addons);
+    //   let temp: number[] = [];
+    //   let tempObj = {};
+    //   item.addons.forEach((item) => {
+    //     if (!temp.includes(item.addon_category_id)) {
+    //       temp.push(item.addon_category_id);
+    //       tempObj = { ...tempObj, [item.addon_category.name]: item };
+    //       if (parseInt(item.addon_category.type) === 1) {
+    //         tempObj = {
+    //           ...tempObj,
+    //           [item.addon_category.name]: [item],
+    //         };
+    //       }
+    //     } else {
+    //       if (parseInt(item.addon_category.type) === 1) {
+    //         // console.log(tempObj);
+    //       }
+    //     }
+    //   });
+    //   setSelectedItem(itemList.find((list) => list.id === item.id));
+    //   setSelectedItemQuantity(item.quantity);
+    //   console.log(tempObj);
+    //   setAddonForm(tempObj);
+    //   setOpenAddon(true);
+    //   mappingAddon(originalItem.addons);
+    // } else {
+    //   console.log("insidebbbbb");
+    //   setIsEditAddon(false);
+    //   setIsEditQuantity(true);
+    // }
+
+    {
+      /* <-------------------------------------------------------Trash Code End-------------------------------------- */
     }
   };
   const discountItemHandler = (item, index) => {
-    console.log(index);
+    setSelectedEditItem(item);
+    setSelectedEditItemIndex(index);
+    setShowDiscountModal(true);
   };
 
   const onEditedQuantity = () => {
@@ -400,6 +423,18 @@ const OrderScreen = () => {
       updateCartItem({ index: selectedEditItemIndex, item: editedItem })
     );
     setIsEditQuantity(false);
+  };
+
+  const onSelectAmount = (amount: number) => {
+    console.log(amount);
+    setEnteredAmount(amount);
+    setShowCustomQuantity(false);
+  };
+
+  const onApplyDiscount = () => {
+    console.log(selectedDiscountType);
+    console.log(enteredAmount);
+    setShowDiscountModal(false);
   };
 
   return (
@@ -805,6 +840,151 @@ const OrderScreen = () => {
             </Modal.Footer>
           </Modal.Content>
         </Modal>
+
+        {/* <-------------------------------This is discount item modal for edit item --------------------discount discount discount discount-------------------> */}
+
+        <Modal isOpen={showDiscountModal} onClose={() => setShowDiscountModal(false)}>
+          <KeyboardAvoidingView
+            w="100%"
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <Modal.Content alignSelf="center" maxWidth="600px">
+              <Modal.CloseButton />
+              <Modal.Header>Item Discount</Modal.Header>
+              <Modal.Body>
+                <Flex p={3}>
+                  <Text
+                    fontFamily="sf-pro-text-semibold"
+                    fontWeight="600"
+                    fontSize={15}
+                    py={2}
+                  >
+                    Discount type
+                  </Text>
+                  <Flex direction="row" justify="space-between">
+                    {discountType.map((type) => {
+                      let bg = useColorModeValue("light.300", "dark.300");
+                      let textColor = useColorModeValue(
+                        "dark.200",
+                        "light.200"
+                      );
+                      const isActive = type.id === selectedDiscountType;
+                      if (isActive) {
+                        bg = useColorModeValue("primary.500", "primary.600");
+                        textColor = useColorModeValue("light.200", "dark.200");
+                      }
+
+                      return (
+                        <Button
+                          h="100px"
+                          flex={1}
+                          mr={1}
+                          disabled={isActive}
+                          bg={bg}
+                          _text={{
+                            color: textColor,
+                            fontFamily: "sf-pro-text-medium",
+                            fontWeight: 600,
+                            fontSize: 17,
+                          }}
+                          _pressed={{
+                            bg: bg,
+                          }}
+                          onPress={() => {
+                            setSelectedDiscountType(type.id);
+                            setEnteredAmount(0);
+                          }}
+                        >
+                          {type.name}
+                        </Button>
+                      );
+                    })}
+                  </Flex>
+                  {selectedDiscountType !== 4 && (
+                    <>
+                      <Text
+                        fontFamily="sf-pro-text-semibold"
+                        fontWeight="600"
+                        fontSize={15}
+                        py={2}
+                        mt={10}
+                      >
+                        Discount Amount
+                      </Text>
+                      <Button
+                        w="100%"
+                        borderRadius={0}
+                        bg="transparent"
+                        borderWidth={1}
+                        py={4}
+                        borderColor={useColorModeValue("light.400", "dark.400")}
+                        _text={{
+                          color: useColorModeValue("light.400", "dark.400"),
+                        }}
+                        _pressed={{
+                          bg: useColorModeValue("light.200", "dark.200"),
+                        }}
+                        onPress={() => setShowCustomQuantity(true)}
+                      >
+                        {selectedDiscountType === 1 ||
+                        selectedDiscountType === 3
+                          ? `RM ${enteredAmount.toFixed(2)}`
+                          : `${enteredAmount}%`}
+                      </Button>
+                    </>
+                  )}
+
+                  <Text
+                    fontFamily="sf-pro-text-semibold"
+                    fontWeight="600"
+                    fontSize={15}
+                    py={2}
+                    mt={10}
+                  >
+                    Reference
+                  </Text>
+
+                  <TextArea
+                    h={24}
+                    placeholder="Enter reference here..."
+                    w="100%"
+                  />
+                </Flex>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button.Group space={2}>
+                  <Button
+                    variant="ghost"
+                    colorScheme="blueGray"
+                    size="lg"
+                    onPress={() => {
+                      setShowDiscountModal(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onPress={() => {
+                      onApplyDiscount();
+                    }}
+                    size="lg"
+                  >
+                    Apply
+                  </Button>
+                </Button.Group>
+              </Modal.Footer>
+            </Modal.Content>
+          </KeyboardAvoidingView>
+        </Modal>
+        {/* <-------------- Custom Quantity Modal when --> */}
+        <NumberPadInput
+          isOpen={showCustomQuantity}
+          onClose={() => setShowCustomQuantity(false)}
+          headerTitle={`Discount Amount`}
+          getInput={onSelectAmount}
+          isDecimal={selectedDiscountType === 1 || selectedDiscountType === 3}
+          maximumInputLength={selectedDiscountType === 2 ? 4 : 8}
+        />
       </Stack>
 
       {/* <------------------------------- This is cart for mobile -------------------------------------------> */}
