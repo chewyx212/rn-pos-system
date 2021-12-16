@@ -559,9 +559,9 @@ const TableScreen = () => {
                   colorScheme="coolGray"
                   ref={cancelRef}
                 >
-                  Hold Order
+                  Cancel
                 </Button>
-                <Button colorScheme="success">Send to Kitchen</Button>
+                <Button colorScheme="success">Proceed to Payment</Button>
               </Button.Group>
             </AlertDialog.Footer>
           </AlertDialog.Content>
@@ -736,10 +736,12 @@ const CartListItem = ({ item }) => {
 
 const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
   let detail = {
-    subtotal: 0,
-    discount: 0,
-    tax: 0,
-    total: 0,
+    subtotal: 0.0,
+    total: 0.0,
+    discountType: 1,
+    discountAmount: 0.0,
+    reference: "",
+    tax: 0.0,
   };
   cartItem.forEach((item) => {
     detail.subtotal += item.detail.subtotal;
@@ -765,7 +767,7 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
           {detail.subtotal.toFixed(2)}
         </Text>
       </Flex>
-      {parseFloat(detail.discount) > 0 && (
+      {parseFloat(detail.discountAmount) > 0 && (
         <Flex direction="row" align="center" justify="space-between">
           <Text
             fontFamily="sf-pro-text-medium"
@@ -779,7 +781,15 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
             fontWeight="500"
             fontSize="15px"
           >
-            {detail.discount.toFixed(2)}
+            {order.discountType === 1
+              ? `- RM ${order.discountAmount.toFixed(2)}`
+              : order.discountType === 2
+              ? `- RM ${(order.subtotal - order.total).toFixed(2)} (${
+                  order.discountAmount
+                }%)`
+              : order.discountType === 3
+              ? `- RM ${(order.subtotal - order.total).toFixed(2)}`
+              : "FOC"}
           </Text>
         </Flex>
       )}

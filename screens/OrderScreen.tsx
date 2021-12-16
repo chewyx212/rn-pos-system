@@ -81,10 +81,12 @@ const OrderScreen = () => {
   const [isEditCartMode, setIsEditCartMode] = useState<boolean>(false);
   const [openCart, setOpenCart] = useState<boolean>(false);
   const [addonForm, setAddonForm] = useState({});
+  const [addonCheckboxForm, setAddonCheckboxForm] = useState<string[]>([]);
   const [openAddon, setOpenAddon] = useState<boolean>(false);
   const [isEditAddon, setIsEditAddon] = useState<boolean>(false);
   const [isEditQuantity, setIsEditQuantity] = useState<boolean>(false);
   const [showDiscountModal, setShowDiscountModal] = useState<boolean>(false);
+  const [applyOnOrder, setApplyOnOrder] = useState<boolean>(false);
 
   const [showCustomQuantity, setShowCustomQuantity] = useState<boolean>(false);
   const [selectedDiscountType, setSelectedDiscountType] = useState<number>(1);
@@ -98,7 +100,9 @@ const OrderScreen = () => {
   const [orderDetail, setOrderDetail] = useState({
     subtotal: 0.0,
     total: 0.0,
-    discount: 0.0,
+    discountType: 1,
+    discountAmount: 0.0,
+    reference: "",
     tax: 0.0,
   });
   const dispatch = useAppDispatch();
@@ -109,27 +113,20 @@ const OrderScreen = () => {
   const route = useRoute<OrderScreenRouteProp>();
   const { orderType, tableId, pax, refresher, orders } = route.params;
   const selectionButtonGroup = [
+    // {
+    //   name: "Add Customer",
+    //   icon: AntDesign,
+    //   iconName: "adduser",
+    //   function: () => {
+    //     setOpenSelectionModal(false);
+    //   },
+    // },
     {
-      name: "Add Customer",
-      icon: AntDesign,
-      iconName: "adduser",
-      function: () => {
-        setOpenSelectionModal(false);
-      },
-    },
-    {
-      name: "Add Promotion",
+      name: "Add Discount",
       icon: Feather,
       iconName: "percent",
       function: () => {
-        setOpenSelectionModal(false);
-      },
-    },
-    {
-      name: "Hold Order",
-      icon: AntDesign,
-      iconName: "shoppingcart",
-      function: () => {
+        discountOrderHandler();
         setOpenSelectionModal(false);
       },
     },
@@ -139,6 +136,15 @@ const OrderScreen = () => {
       iconName: "trash",
       function: () => {
         onClearCartHandler();
+        setOpenSelectionModal(false);
+      },
+    },
+    {
+      name: "Void Order",
+      icon: Entypo,
+      iconName: "block",
+      function: () => {
+        onVoidOrder();
         setOpenSelectionModal(false);
       },
     },
@@ -152,11 +158,12 @@ const OrderScreen = () => {
   ];
 
   useEffect(() => {
-    calculateOrderPrice(cartItem);
+    calculateOrderPrice();
   }, [cartItem]);
 
   useEffect(() => {
     if (orders && orders.length > 0) {
+      console.log(orders);
       setIsEditCartMode(true);
       let sentArray: any[] = [];
       let holdArray: any[] = [];
@@ -184,7 +191,8 @@ const OrderScreen = () => {
     }
   }, []);
 
-  const calculateOrderPrice = (items) => {
+  const calculateOrderPrice = () => {
+    let items = cartItem;
     let detail = {
       subtotal: 0,
       discount: 0,
@@ -212,7 +220,6 @@ const OrderScreen = () => {
     }
 
     items.forEach((item) => {
-      console.log(item.discountType);
       if (item.discountType && item.discountType === 1) {
         detail.subtotal +=
           (parseFloat(item.calculatedPrice) - item.discountAmount) *
@@ -232,6 +239,29 @@ const OrderScreen = () => {
     detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
 
     detail.total = parseFloat(detail.subtotal.toFixed(2));
+
+    if (
+      orders &&
+      orders[0] &&
+      orders[0].discountDetail &&
+      orders[0].discountDetail.discountType
+    ) {
+      const orderDiscountDetail = orders[0].discountDetail;
+      if (orderDiscountDetail.discountType === 1) {
+        detail.total = detail.total - orderDiscountDetail.discountAmount;
+      } else if (orderDiscountDetail.discountType === 2) {
+        detail.total =
+          (detail.total * (100 - orderDiscountDetail.discountAmount)) / 100;
+      } else if (orderDiscountDetail.discountType === 3) {
+        detail.total = orderDiscountDetail.discountAmount;
+      } else if (orderDiscountDetail.discountType === 4) {
+        detail.total = 0;
+      }
+      detail = {
+        ...detail,
+        ...orderDiscountDetail,
+      };
+    }
 
     setOrderDetail(detail);
   };
@@ -257,7 +287,7 @@ const OrderScreen = () => {
   };
 
   const onSubmitOrder = async (orderStatus: number) => {
-    if (cartItem.length > 0) {
+    if (cartItem.length > 0 || fixedCartItem.length > 0) {
       let tempArray = cartItem.map((item) => ({ ...item, orderStatus }));
       if (isEditCartMode) {
         const orderValue = await fetchOrder();
@@ -303,6 +333,7 @@ const OrderScreen = () => {
     let addon = values.map((value) => {
       return selectedAllAddon.find((item) => item.id == value);
     });
+    setAddonCheckboxForm(values);
     setAddonForm((prevState) => ({ ...prevState, [key]: addon }));
   };
 
@@ -315,26 +346,42 @@ const OrderScreen = () => {
         addonsPayload.push(item);
       }
     });
-
     let payload = {
       ...selectedItem,
       calculatedPrice: parseFloat(selectedItem.price),
       addons: addonsPayload,
     };
+    if (isEditAddon) {
+      payload = {
+        ...selectedEditItem,
+        calculatedPrice: parseFloat(selectedItem.price),
+        addons: addonsPayload,
+      };
+    }
     if (payload.addons.length > 0) {
       payload.addons.forEach((addon) => {
         (payload.calculatedPrice += parseFloat(addon.price)).toFixed(2);
       });
     }
 
-    dispatch(
-      changeCart({
-        item: {
-          ...payload,
-        },
+    if (isEditAddon) {
+      const editedItem = {
+        ...payload,
         quantity: selectedItemQuantity,
-      })
-    );
+      };
+      dispatch(
+        updateCartItem({ index: selectedEditItemIndex, item: editedItem })
+      );
+    } else {
+      dispatch(
+        changeCart({
+          item: {
+            ...payload,
+          },
+          quantity: selectedItemQuantity,
+        })
+      );
+    }
 
     toast.show({
       background: "emerald.500",
@@ -344,7 +391,7 @@ const OrderScreen = () => {
     onCloseModalHandler();
   };
 
-  const mappingAddon = (addons: any[]) => {
+  const mappingAddon = (addons: any[], isEdit: boolean) => {
     let temp = [];
     let addonCategory = [];
     let allAddon = [];
@@ -353,7 +400,7 @@ const OrderScreen = () => {
       if (!temp.includes(addon.addon_category_id)) {
         temp.push(addon.addon_category_id);
         addonCategory.push({ ...addon.addon_category, data: [addon] });
-        if (parseInt(addon.addon_category.type) === 2) {
+        if (parseInt(addon.addon_category.type) === 2 && !isEdit) {
           setAddonForm((prevState) => ({
             ...prevState,
             [addon.addon_category.name]: addon,
@@ -373,8 +420,10 @@ const OrderScreen = () => {
     setSelectedItem(item);
     setSelectedItemQuantity(1);
     setAddonForm({});
+    setAddonCheckboxForm([]);
     setOpenAddon(true);
-    mappingAddon(item.addons);
+    mappingAddon(item.addons, false);
+    setIsEditAddon(false);
   };
 
   const onCloseModalHandler = () => {
@@ -383,6 +432,7 @@ const OrderScreen = () => {
     setSelectedItemQuantity(1);
     setSelectedItem({});
     setAddonForm({});
+    setAddonCheckboxForm([]);
     setOpenAddon(false);
     setIsEditAddon(false);
   };
@@ -392,7 +442,6 @@ const OrderScreen = () => {
   };
 
   const deleteItemHandler = (item, index) => {
-    console.log(index);
     if (fixedCartItem.length > 0) {
       index -= fixedCartItem.length;
     }
@@ -400,57 +449,49 @@ const OrderScreen = () => {
   };
 
   const editItemHandler = (item, index) => {
-    {
-      /* <-------------------------------------------------------FUCKING Trash Code----------------------------------------- */
+    if (fixedCartItem.length > 0) {
+      setSelectedEditItemIndex(index - fixedCartItem.length);
+    } else {
+      setSelectedEditItemIndex(index);
     }
-    // if (fixedCartItem.length > 0) {
-    //   setSelectedEditItemIndex(index - fixedCartItem.length);
-    // } else {
-    //   setSelectedEditItemIndex(index);
-    // }
-    // setSelectedEditItem(item);
-    // setSelectedEditItemQuantity(item.quantity);
-    // let originalItem = itemList.find((list) => list.id === item.id);
-    // console.log("inside");
-    // if (item.addons.length > 0) {
-    //   console.log("insideaaaaaa");
-    //   setIsEditAddon(true);
-    //   setIsEditQuantity(false);
-    //   console.log(item.addons);
-    //   let temp: number[] = [];
-    //   let tempObj = {};
-    //   item.addons.forEach((item) => {
-    //     if (!temp.includes(item.addon_category_id)) {
-    //       temp.push(item.addon_category_id);
-    //       tempObj = { ...tempObj, [item.addon_category.name]: item };
-    //       if (parseInt(item.addon_category.type) === 1) {
-    //         tempObj = {
-    //           ...tempObj,
-    //           [item.addon_category.name]: [item],
-    //         };
-    //       }
-    //     } else {
-    //       if (parseInt(item.addon_category.type) === 1) {
-    //         // console.log(tempObj);
-    //       }
-    //     }
-    //   });
-    //   setSelectedItem(itemList.find((list) => list.id === item.id));
-    //   setSelectedItemQuantity(item.quantity);
-    //   console.log(tempObj);
-    //   setAddonForm(tempObj);
-    //   setOpenAddon(true);
-    //   mappingAddon(originalItem.addons);
-    // } else {
-    //   console.log("insidebbbbb");
-    //   setIsEditAddon(false);
-    //   setIsEditQuantity(true);
-    // }
 
-    {
-      /* <-------------------------------------------------------Trash Code End-------------------------------------- */
+    setSelectedEditItem(item);
+    setSelectedEditItemQuantity(item.quantity);
+    let originalItem = itemList.find((list) => list.id === item.id);
+    if (originalItem.addons.length > 0) {
+      setIsEditQuantity(false);
+      let temp: number[] = [];
+      let tempObj = {};
+      let tempArray: string[] = [];
+      item.addons.forEach((item) => {
+        if (!temp.includes(item.addon_category_id)) {
+          temp.push(item.addon_category_id);
+          if (parseInt(item.addon_category.type) === 1) {
+            tempObj = {
+              ...tempObj,
+              [item.addon_category.name]: [item],
+            };
+            tempArray.push(item.id);
+          } else {
+            tempObj = { ...tempObj, [item.addon_category.name]: item };
+          }
+        } else if (parseInt(item.addon_category.type) === 1) {
+          tempArray.push(item.id);
+          tempObj[item.addon_category.name].push(item);
+        }
+      });
+      setIsEditAddon(true);
+      setSelectedItem(originalItem);
+      setSelectedItemQuantity(item.quantity);
+      setAddonCheckboxForm(tempArray);
+      setAddonForm(tempObj);
+      setOpenAddon(true);
+      mappingAddon(originalItem.addons, true);
+    } else {
+      setIsEditQuantity(true);
     }
   };
+
   const discountItemHandler = (item, index) => {
     if (fixedCartItem.length > 0 && item.orderStatus !== 2) {
       setSelectedEditItemIndex(index - fixedCartItem.length);
@@ -476,6 +517,7 @@ const OrderScreen = () => {
     setEnteredAmount(amount);
     setShowCustomQuantity(false);
   };
+
   const onReferenceChange = (e: any) => {
     setEnteredReference(e.currentTarget.value);
   };
@@ -513,6 +555,57 @@ const OrderScreen = () => {
     setShowDiscountModal(false);
   };
 
+  const onVoidOrder = async () => {
+    onClearCartHandler();
+    if (isEditCartMode) {
+      const orderValue = await fetchOrder();
+      let orderTemp = [...orderValue];
+      if (orders && orders[0]) {
+        let orderIndex = orders[0]?.orderIndex;
+        orderTemp.splice(orderIndex, 1);
+
+        await storeOrder(orderTemp);
+        dispatch(setOrder(orderTemp));
+        refresher();
+        navigation.navigate("Table");
+      }
+    }
+  };
+  const discountOrderHandler = () => {
+    setApplyOnOrder(true);
+    setShowDiscountModal(true);
+  };
+
+  const onDiscountOrder = async () => {
+    const discountDetail = {
+      discountType: selectedDiscountType,
+      discountAmount: enteredAmount,
+      reference: enteredReference,
+    };
+    if (isEditCartMode) {
+      const orderValue = await fetchOrder();
+      let orderTemp = [...orderValue];
+      if (orders && orders[0]) {
+        let orderIndex = orders[0]?.orderIndex;
+        console.log(orderTemp[orderIndex]);
+        orderTemp[orderIndex] = {
+          ...orderTemp[orderIndex],
+          discountDetail,
+        };
+        orders[0] = orderTemp[orderIndex];
+        calculateOrderPrice();
+        await storeOrder(orderTemp);
+        dispatch(setOrder(orderTemp));
+        refresher();
+      }
+    }
+
+    setEnteredReference("");
+    setEnteredAmount(0);
+    setSelectedDiscountType(1);
+    setApplyOnOrder(false);
+    setShowDiscountModal(false);
+  };
   return (
     <>
       <Stack
@@ -772,6 +865,8 @@ const OrderScreen = () => {
             setIsConfirm={setIsConfirm}
             cartItem={cartItem}
             order={orderDetail}
+            fixedCartItem={fixedCartItem}
+            onSubmitOrder={onSubmitOrder}
           />
         </Box>
 
@@ -921,7 +1016,10 @@ const OrderScreen = () => {
 
         <Modal
           isOpen={showDiscountModal}
-          onClose={() => setShowDiscountModal(false)}
+          onClose={() => {
+            setApplyOnOrder(false);
+            setShowDiscountModal(false);
+          }}
         >
           <KeyboardAvoidingView
             w="100%"
@@ -1044,7 +1142,10 @@ const OrderScreen = () => {
                   >
                     Cancel
                   </Button>
-                  <Button size="lg" onPress={onApplyDiscount}>
+                  <Button
+                    size="lg"
+                    onPress={applyOnOrder ? onDiscountOrder : onApplyDiscount}
+                  >
                     Apply
                   </Button>
                 </Button.Group>
@@ -1105,6 +1206,8 @@ const OrderScreen = () => {
             setIsConfirm={setIsConfirm}
             cartItem={cartItem}
             order={orderDetail}
+            fixedCartItem={fixedCartItem}
+            onSubmitOrder={onSubmitOrder}
           />
         </VStack>
       </SlideFromRight>
@@ -1176,6 +1279,7 @@ const OrderScreen = () => {
                             onChange={(nextValue) =>
                               onCheckChange(item.name, nextValue)
                             }
+                            value={addonCheckboxForm}
                             accessibilityLabel="choose addon"
                           >
                             {item.data.map((addon) => {
@@ -1221,6 +1325,8 @@ const OrderScreen = () => {
                                   fontFamily="sf-pro-text-regular"
                                   fontSize="13"
                                 >
+                                  {addonForm[item.name].id}
+                                  {addon.id}
                                   {addon.name} RM{addon.price}
                                 </Text>
                               </Radio>
@@ -1286,6 +1392,7 @@ const OrderScreen = () => {
     </>
   );
 };
+
 interface CartListItemProps {
   item: any;
   index: number;
@@ -1483,18 +1590,26 @@ interface OrderDetailComponentProps {
   order: {
     subtotal: number;
     total: number;
-    discount: number;
+    discountType: number;
+    discountAmount: number;
+    reference: string;
     tax: number;
   };
   setOpenSelectionModal: Function;
   setIsConfirm: Function;
+  fixedCartItem: any[];
+  onSubmitOrder: Function;
 }
+
 const OrderDetailComponent = ({
   cartItem,
   order,
   setOpenSelectionModal,
   setIsConfirm,
+  fixedCartItem,
+  onSubmitOrder,
 }: OrderDetailComponentProps) => {
+  console.log(order);
   return (
     <Flex
       justify="flex-end"
@@ -1510,27 +1625,36 @@ const OrderDetailComponent = ({
           Subtotal
         </Text>
         <Text fontFamily="sf-pro-text-medium" fontWeight="500" fontSize="15px">
-          {order.subtotal.toFixed(2)}
+          RM {order.subtotal.toFixed(2)}
         </Text>
       </Flex>
-      {order.discount > 0 && (
-        <Flex direction="row" align="center" justify="space-between">
-          <Text
-            fontFamily="sf-pro-text-medium"
-            fontWeight="500"
-            fontSize="15px"
-          >
-            Discount
-          </Text>
-          <Text
-            fontFamily="sf-pro-text-medium"
-            fontWeight="500"
-            fontSize="15px"
-          >
-            {order.discount.toFixed(2)}
-          </Text>
-        </Flex>
-      )}
+      {order.discountAmount > 0 ||
+        (order.discountType === 4 && (
+          <Flex direction="row" align="center" justify="space-between">
+            <Text
+              fontFamily="sf-pro-text-medium"
+              fontWeight="500"
+              fontSize="15px"
+            >
+              Discount
+            </Text>
+            <Text
+              fontFamily="sf-pro-text-medium"
+              fontWeight="500"
+              fontSize="15px"
+            >
+              {order.discountType === 1
+                ? `- RM ${order.discountAmount.toFixed(2)}`
+                : order.discountType === 2
+                ? `- RM ${(order.subtotal - order.total).toFixed(2)} (${
+                    order.discountAmount
+                  }%)`
+                : order.discountType === 3
+                ? `- RM ${(order.subtotal - order.total).toFixed(2)}`
+                : "FOC"}
+            </Text>
+          </Flex>
+        ))}
 
       {order.tax > 0 && (
         <Flex direction="row" align="center" justify="space-between">
@@ -1563,7 +1687,7 @@ const OrderDetailComponent = ({
           fontWeight="500"
           fontSize="17px"
         >
-          {order.total.toFixed(2)}
+          RM {order.total.toFixed(2)}
         </Text>
       </Flex>
 
@@ -1577,9 +1701,14 @@ const OrderDetailComponent = ({
         ></Button>
         <PrimaryButton
           flex={{ base: 11, lg: 9 }}
-          disabled={cartItem.length < 1}
+          disabled={cartItem.length < 1 && fixedCartItem.length < 1}
           onPress={() => {
-            if (cartItem.length > 0) setIsConfirm(true);
+            console.log(fixedCartItem.length);
+            if (cartItem.length > 0) {
+              setIsConfirm(true);
+            } else if (fixedCartItem.length > 0) {
+              onSubmitOrder(2);
+            }
           }}
         >
           Checkout
