@@ -194,10 +194,12 @@ const OrderScreen = () => {
   const calculateOrderPrice = () => {
     let items = cartItem;
     let detail = {
-      subtotal: 0,
-      discount: 0,
-      tax: 0,
-      total: 0,
+      subtotal: 0.0,
+      total: 0.0,
+      discountType: 1,
+      discountAmount: 0.0,
+      reference: "",
+      tax: 0.0,
     };
     if (fixedCartItem.length > 0) {
       fixedCartItem.forEach((item) => {
@@ -289,6 +291,7 @@ const OrderScreen = () => {
   const onSubmitOrder = async (orderStatus: number) => {
     if (cartItem.length > 0 || fixedCartItem.length > 0) {
       let tempArray = cartItem.map((item) => ({ ...item, orderStatus }));
+
       if (isEditCartMode) {
         const orderValue = await fetchOrder();
         orderValue.find((order) => order.tableId === tableId).items =
@@ -312,6 +315,7 @@ const OrderScreen = () => {
           pax,
           items: tempArray,
           orderStatus,
+          detail: orderDetail,
         });
         await storeOrder(orderValue);
         dispatch(setOrder(orderValue));
@@ -1325,9 +1329,10 @@ const OrderScreen = () => {
                                   fontFamily="sf-pro-text-regular"
                                   fontSize="13"
                                 >
-                                  {addonForm[item.name].id}
-                                  {addon.id}
-                                  {addon.name} RM{addon.price}
+                                  {addon.name}
+                                  {parseFloat(addon.price) > 0
+                                    ? ` RM ${addon.price}`
+                                    : ""}
                                 </Text>
                               </Radio>
                             );
@@ -1711,7 +1716,7 @@ const OrderDetailComponent = ({
             }
           }}
         >
-          Checkout
+          Send to Kitchen
         </PrimaryButton>
       </HStack>
     </Flex>

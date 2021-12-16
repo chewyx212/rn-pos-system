@@ -95,34 +95,13 @@ const TableScreen = () => {
       if (order.orderType === 1) {
         temp.push(order.tableId);
       }
-      console.log(index);
-      console.log("this is indexxxxxxxxxxxxxxxxxxxxxx");
       order.orderIndex = index;
-      order.detail = calculateOrderPrice(order.items);
     });
     let tableTemp: TableDataType[] = [];
 
     tableData.forEach((table) => {
-      {
-        /* <-------------- This code got huge problem :)---------------------------------> */
-      }
-      // if (temp.includes(ta ble.id)) {
-      //   table.status = 1;
-      //   table.pax = orderTemp.find((order) => order?.tableId === table.id).pax;
-      //   table.order = orderTemp.filter((order) => order.tableId === table.id);
-      //   let tempPrice = 0;
-      //   table.order.forEach((order) => {
-      //     tempPrice += order.detail.total;
-      //   });
-      //   table.total = tempPrice;
-      // }
-
       if (temp.includes(table.id)) {
         let tempOrder = orderTemp.filter((order) => order.tableId === table.id);
-        tempOrder.forEach((ord) => {
-          console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-          console.log(ord.orderIndex);
-        });
         tableTemp.push({
           ...table,
           order: tempOrder,
@@ -136,11 +115,35 @@ const TableScreen = () => {
         temp.total = "0";
         let tempStatus = temp.order[0].orderStatus;
         temp.order.forEach((order) => {
-          temp.total += parseFloat(order.detail.total);
           if (order.orderStatus < tempStatus) {
             tempStatus = order.orderStatus;
           }
         });
+        const [orderDetail] = temp.order;
+        console.log(orderDetail);
+        orderDetail.detail.subtotal = orderDetail.detail.subtotal;
+        orderDetail.detail.total = orderDetail.detail.total;
+        if (orderDetail.discountDetail) {
+          orderDetail.detail.discountAmount =
+            orderDetail.discountDetail.discountAmount;
+          orderDetail.detail.discountType =
+            orderDetail.discountDetail.discountType;
+          orderDetail.detail.reference = orderDetail.discountDetail.reference;
+          if (orderDetail.detail.discountType === 1) {
+            orderDetail.detail.total =
+              orderDetail.detail.total - orderDetail.detail.discountAmount;
+          } else if (orderDetail.detail.discountType === 2) {
+            orderDetail.detail.total =
+              (orderDetail.detail.total *
+                (100 - orderDetail.detail.discountAmount)) /
+              100;
+          } else if (orderDetail.detail.discountType === 3) {
+            orderDetail.detail.total = orderDetail.detail.discountAmount;
+          } else if (orderDetail.detail.discountType === 4) {
+            orderDetail.detail.total = 0;
+          }
+        }
+        temp.total = orderDetail.detail.total;
 
         temp.status = tempStatus;
       }
@@ -148,16 +151,17 @@ const TableScreen = () => {
     setTableList(tableTemp);
   };
 
-  const calculateOrderPrice = (items) => {
+  const calculateOrderPrice = (order) => {
     let detail = {
-      subtotal: 0,
-      discount: 0,
-      tax: 0,
-      total: 0,
+      subtotal: 0.0,
+      total: 0.0,
+      discountType: 1,
+      discountAmount: 0.0,
+      reference: "",
+      tax: 0.0,
     };
 
-    items.forEach((item) => {
-      console.log(item.discountType);
+    order.items.forEach((item) => {
       if (item.discountType && item.discountType === 1) {
         detail.subtotal +=
           (parseFloat(item.calculatedPrice) - item.discountAmount) *
@@ -177,12 +181,27 @@ const TableScreen = () => {
     detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
 
     detail.total = parseFloat(detail.subtotal.toFixed(2));
-
+    if (order && order.detail && order.detail) {
+      const orderDiscountDetail = order.detail;
+      if (orderDiscountDetail.discountType === 1) {
+        detail.total = detail.total - orderDiscountDetail.discountAmount;
+      } else if (orderDiscountDetail.discountType === 2) {
+        detail.total =
+          (detail.total * (100 - orderDiscountDetail.discountAmount)) / 100;
+      } else if (orderDiscountDetail.discountType === 3) {
+        detail.total = orderDiscountDetail.discountAmount;
+      } else if (orderDiscountDetail.discountType === 4) {
+        detail.total = 0;
+      }
+      detail = {
+        ...detail,
+        ...orderDiscountDetail,
+      };
+    }
     return detail;
   };
 
   const onSelectShowOrder = (table: TableDataType) => {
-    console.log(table.order[0].items.length);
     setShowTableOrder(table);
     setOpenCart(true);
   };
@@ -424,10 +443,11 @@ const TableScreen = () => {
                             </Text>
 
                             <Flex>
-                              {table.order && parseFloat(table.total) > 0 && (
+                              {table.order && table.order.length > 0 && (
                                 <Text
                                   fontFamily="sf-pro-text-semibold"
                                   fontSize="15px"
+                                  
                                 >
                                   RM
                                   {parseFloat(table.total).toFixed(2)}
@@ -743,11 +763,25 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
     reference: "",
     tax: 0.0,
   };
-  cartItem.forEach((item) => {
-    detail.subtotal += item.detail.subtotal;
-    detail.discount += item.detail.discount;
-    detail.total += item.detail.total;
-  });
+  const [orderDetail] = cartItem;
+  console.log(orderDetail);
+  detail.subtotal = orderDetail.detail.subtotal;
+  detail.total = orderDetail.detail.total;
+  if (orderDetail.discountDetail) {
+    detail.discountAmount = orderDetail.discountDetail.discountAmount;
+    detail.discountType = orderDetail.discountDetail.discountType;
+    detail.reference = orderDetail.discountDetail.reference;
+    if (detail.discountType === 1) {
+      detail.total = detail.total - detail.discountAmount;
+    } else if (detail.discountType === 2) {
+      detail.total = (detail.total * (100 - detail.discountAmount)) / 100;
+    } else if (detail.discountType === 3) {
+      detail.total = detail.discountAmount;
+    } else if (detail.discountType === 4) {
+      detail.total = 0;
+    }
+  }
+
   return (
     <Flex
       justify="flex-end"
@@ -767,32 +801,33 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
           {detail.subtotal.toFixed(2)}
         </Text>
       </Flex>
-      {parseFloat(detail.discountAmount) > 0 && (
-        <Flex direction="row" align="center" justify="space-between">
-          <Text
-            fontFamily="sf-pro-text-medium"
-            fontWeight="500"
-            fontSize="15px"
-          >
-            Discount
-          </Text>
-          <Text
-            fontFamily="sf-pro-text-medium"
-            fontWeight="500"
-            fontSize="15px"
-          >
-            {order.discountType === 1
-              ? `- RM ${order.discountAmount.toFixed(2)}`
-              : order.discountType === 2
-              ? `- RM ${(order.subtotal - order.total).toFixed(2)} (${
-                  order.discountAmount
-                }%)`
-              : order.discountType === 3
-              ? `- RM ${(order.subtotal - order.total).toFixed(2)}`
-              : "FOC"}
-          </Text>
-        </Flex>
-      )}
+      {detail.discountAmount > 0 ||
+        (detail.discountType === 4 && (
+          <Flex direction="row" align="center" justify="space-between">
+            <Text
+              fontFamily="sf-pro-text-medium"
+              fontWeight="500"
+              fontSize="15px"
+            >
+              Discount
+            </Text>
+            <Text
+              fontFamily="sf-pro-text-medium"
+              fontWeight="500"
+              fontSize="15px"
+            >
+              {detail.discountType === 1
+                ? `- RM ${detail.discountAmount.toFixed(2)}`
+                : detail.discountType === 2
+                ? `- RM ${(detail.subtotal - detail.total).toFixed(2)} (${
+                    detail.discountAmount
+                  }%)`
+                : detail.discountType === 3
+                ? `- RM ${(detail.subtotal - detail.total).toFixed(2)}`
+                : "FOC"}
+            </Text>
+          </Flex>
+        ))}
 
       {parseFloat(detail.tax) > 0 && (
         <Flex direction="row" align="center" justify="space-between">
