@@ -1,12 +1,7 @@
-import React, { useEffect } from "react";
+import React, from "react";
 import {
-  Text,
-  Link,
-  HStack,
-  Center,
   NativeBaseProvider,
   extendTheme,
-  VStack,
 } from "native-base";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AppNavigator from "./navigation/AppNavigator";
