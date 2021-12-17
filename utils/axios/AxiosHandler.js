@@ -1,6 +1,8 @@
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
+import ENV from '../../env';
+axios.defaults.baseURL = ENV.API_URL
 // Request interceptor for API calls
 axios.interceptors.request.use(
   async config => {
@@ -10,13 +12,13 @@ axios.interceptors.request.use(
       Accept: "application/json;multipart/form-data",
     };
 
-		// const token = await localStorage.getItem("user_token");
-    // if (token) {
-    //   config.headers = {
-    //     'Authorization': `Bearer ${token}`,
-    //     'Accept': 'application/json;multipart/form-data',
-    //   }
-    // }
+		const token = await AsyncStorage.getItem("user_token");
+    if (token) {
+      config.headers = {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json;multipart/form-data',
+      }
+    }
     
     return config;
   },

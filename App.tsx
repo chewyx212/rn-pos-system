@@ -1,8 +1,5 @@
-import React, from "react";
-import {
-  NativeBaseProvider,
-  extendTheme,
-} from "native-base";
+import React from "react";
+import { NativeBaseProvider, extendTheme } from "native-base";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AppNavigator from "./navigation/AppNavigator";
 import { useFonts } from "expo-font";

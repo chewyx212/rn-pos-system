@@ -3,21 +3,20 @@ import {
   Image,
   Box,
   Text,
-  VStack,
-  FormControl,
   Button,
-  InputGroup,
-  InputLeftAddon,
   Input,
-  View,
   KeyboardAvoidingView,
 } from "native-base";
-import React from "react";
+import React, { useEffect } from "react";
 import { Platform } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../RootStackParams";
+import { AuthApi } from "../../api/AuthApi";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { login } from "../../app/auth/authSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Inputs = {
   email: string;
@@ -33,10 +32,40 @@ const LoginScreen = () => {
   } = useForm<Inputs>();
 
   const navigation = useNavigation<loginScreenProp>();
+  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
+  const dispatch = useAppDispatch();
 
-  const onSubmit = (data) => {
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigation.navigate("Passcode");
+    } else {
+      getTokenFromAsyncStorage();
+    }
+  }, []);
+
+  const getTokenFromAsyncStorage = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (token) {
+      console.log('got token')
+      dispatch(login({ token, user: {} }));
+      navigation.navigate("Passcode");
+    }
+  };
+
+  const onSubmit = async (field) => {
+    const payload = {
+      input: field.email,
+      password: field.password,
+    };
+    const { data } = await AuthApi.merchantLogin(payload);
     console.log(data);
-    navigation.navigate("Passcode");
+    if (data.status === 707) {
+      await AsyncStorage.setItem("token", data.response.token);
+      dispatch(login({ token: data.response.token, user: data.response.user }));
+      console.log("loiggggg in ");
+      navigation.navigate("Passcode");
+    }
+    // navigation.navigate("Passcode");
   };
   return (
     <KeyboardAvoidingView
