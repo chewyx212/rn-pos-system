@@ -43,15 +43,15 @@ const PasscodeScreen = () => {
   };
   const numberButtonHandler = (number) => {
     console.log(number);
-    if (!firstNumber) {
+    if (!firstNumber && parseInt(firstNumber) !== 0) {
       setFirstNumber(number);
-    } else if (!secondNumber) {
+    } else if (!secondNumber && parseInt(secondNumber) !== 0) {
       setSecondNumber(number);
-    } else if (!thirdNumber) {
+    } else if (!thirdNumber && parseInt(thirdNumber) !== 0) {
       setThirdNumber(number);
-    } else if (!forthNumber) {
+    } else if (!forthNumber && parseInt(forthNumber) !== 0) {
       setForthNumber(number);
-      onSubmitPasscode();
+      onSubmitPasscode(number);
     }
   };
 
@@ -62,11 +62,12 @@ const PasscodeScreen = () => {
     setForthNumber("");
   };
 
-  const onSubmitPasscode = () => {
-    console.log(firstNumber.concat(secondNumber, thirdNumber, forthNumber));
-    console.log(secondNumber);
-    console.log(thirdNumber);
-    console.log(forthNumber);
+  const onSubmitPasscode = (number: number) => {
+    console.log("INSIDE");
+    console.log(
+      `${firstNumber}` + `${secondNumber}` + `${thirdNumber}` + `${number}`
+    );
+    onDeleteHandler();
   };
   return (
     <KeyboardAvoidingView
@@ -115,7 +116,7 @@ const PasscodeScreen = () => {
               maxW="140px"
               align="center"
             >
-              {firstNumber ? (
+              {firstNumber || parseInt(firstNumber) === 0 ? (
                 <Circle size={4} bg="light.100" />
               ) : (
                 <Circle
@@ -125,7 +126,7 @@ const PasscodeScreen = () => {
                   borderWidth={1}
                 />
               )}
-              {secondNumber ? (
+              {secondNumber || parseInt(secondNumber) === 0 ? (
                 <Circle size={4} bg="light.100" />
               ) : (
                 <Circle
@@ -135,7 +136,7 @@ const PasscodeScreen = () => {
                   borderWidth={1}
                 />
               )}
-              {thirdNumber ? (
+              {thirdNumber || parseInt(thirdNumber) === 0 ? (
                 <Circle size={4} bg="light.100" />
               ) : (
                 <Circle
@@ -145,7 +146,7 @@ const PasscodeScreen = () => {
                   borderWidth={1}
                 />
               )}
-              {forthNumber ? (
+              {forthNumber || parseInt(forthNumber) === 0 ? (
                 <Circle size={4} bg="light.100" />
               ) : (
                 <Circle

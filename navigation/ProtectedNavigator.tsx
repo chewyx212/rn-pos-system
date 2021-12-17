@@ -21,7 +21,7 @@ const ProtectedNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: isLargeScreen ? false : true,
+        headerShown: false,
         cardShadowEnabled: false,
         cardOverlayEnabled: false,
         presentation: "card",

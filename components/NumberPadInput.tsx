@@ -121,7 +121,7 @@ const NumberPadInput: React.FC<IProps> = ({
       >
         <Modal.CloseButton />
         <Modal.Header>{headerTitle}</Modal.Header>
-        <Modal.Body>
+        <Modal.Body _scrollview={{ scrollEnabled: false }}>
           <Flex justify="center" align="center">
             <Flex
               direction="row"

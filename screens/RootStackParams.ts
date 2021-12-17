@@ -14,4 +14,8 @@ export type RootStackParamList = {
   TableEdit: undefined;
   Printer: undefined;
   Camera: undefined;
+  Member: undefined;
+  Menu: undefined;
+  Transaction: undefined;
+  Setting: undefined;
 };
