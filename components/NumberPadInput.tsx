@@ -33,14 +33,21 @@ const NumberPadInput: React.FC<IProps> = ({
   const toast = useToast();
 
   const onPressInput = (value) => {
-    
     if (isDecimal) {
-      if (enteredDecimalValue.length >= maximumInputLength) {
+      console.log(value);
+      console.log("this");
+      console.log(enteredDecimalValue);
+      console.log(countDecimals(Number(enteredDecimalValue)));
+      if (enteredDecimalValue.length >= maximumInputLength + 1) {
+        console.log("1");
         toast.show({
           background: "red.500",
           description: `Maximum length is ${maximumInputLength} digits.`,
         });
-      } else if (countDecimals(Number(enteredDecimalValue)) === 2) {
+      } else if (
+        countDecimals(Number(enteredDecimalValue)) >= 1 ||
+        Number(enteredDecimalValue) >= 1
+      ) {
         console.log(2);
         console.log(Number(enteredDecimalValue) * 10);
         setEnteredDecimalValue(
@@ -83,8 +90,9 @@ const NumberPadInput: React.FC<IProps> = ({
   const onSubmitHandler = () => {
     if (isDecimal) {
       if (Number(enteredDecimalValue) > 0) {
-        getInput(Number(enteredDecimalValue));
-        onCloseHandler();
+        console.log(Number(enteredDecimalValue));
+        // getInput(Number(enteredDecimalValue));
+        // onCloseHandler();
       } else {
         toast.show({
           background: "red.500",
@@ -93,8 +101,9 @@ const NumberPadInput: React.FC<IProps> = ({
       }
     } else {
       if (Number(enteredValue) > 0) {
-        getInput(enteredValue);
-        onCloseHandler();
+        console.log(enteredValue);
+        // getInput(enteredValue);
+        // onCloseHandler();
       } else {
         toast.show({
           background: "red.500",
