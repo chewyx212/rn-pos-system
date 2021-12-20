@@ -163,7 +163,6 @@ const OrderScreen = () => {
 
   useEffect(() => {
     if (orders && orders.length > 0) {
-      console.log(orders);
       setIsEditCartMode(true);
       let sentArray: any[] = [];
       let holdArray: any[] = [];
@@ -280,11 +279,12 @@ const OrderScreen = () => {
         quantity,
       })
     );
-    onCloseModalHandler();
+
     toast.show({
-      description: `${item.name} added into cart.`,
       background: "emerald.500",
+      description: `${item.name} added into cart.`,
       placement: "top",
+      isClosable: true,
     });
   };
 
@@ -391,6 +391,7 @@ const OrderScreen = () => {
       background: "emerald.500",
       description: `${payload.name} added into cart.`,
       placement: "top",
+      isClosable: true,
     });
     onCloseModalHandler();
   };
@@ -591,7 +592,6 @@ const OrderScreen = () => {
       let orderTemp = [...orderValue];
       if (orders && orders[0]) {
         let orderIndex = orders[0]?.orderIndex;
-        console.log(orderTemp[orderIndex]);
         orderTemp[orderIndex] = {
           ...orderTemp[orderIndex],
           discountDetail,
@@ -1614,7 +1614,6 @@ const OrderDetailComponent = ({
   fixedCartItem,
   onSubmitOrder,
 }: OrderDetailComponentProps) => {
-  console.log(order);
   return (
     <Flex
       justify="flex-end"
@@ -1708,7 +1707,6 @@ const OrderDetailComponent = ({
           flex={{ base: 11, lg: 9 }}
           disabled={cartItem.length < 1 && fixedCartItem.length < 1}
           onPress={() => {
-            console.log(fixedCartItem.length);
             if (cartItem.length > 0) {
               setIsConfirm(true);
             } else if (fixedCartItem.length > 0) {

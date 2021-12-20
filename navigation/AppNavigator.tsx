@@ -4,7 +4,7 @@ import AuthNavigator from "./AuthNavigator";
 import ProtectedNavigator from "./ProtectedNavigator";
 import Sidenav from "../components/Sidenav";
 const AppNavigator = () => {
-  let isAuth = false;
+  let isAuth = true;
   return (
     <NavigationContainer>
       {!isAuth && <AuthNavigator />}
