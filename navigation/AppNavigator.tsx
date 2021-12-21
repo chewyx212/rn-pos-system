@@ -2,13 +2,19 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthNavigator from "./AuthNavigator";
 import ProtectedNavigator from "./ProtectedNavigator";
-import Sidenav from "../components/Sidenav";
+import { useAppSelector } from "../app/hooks";
 const AppNavigator = () => {
-  let isAuth = true;
+  let isAuth = false;
+
+  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
+  const isPasscodeVerified = useAppSelector(
+    (state) => state.auth.isPasscodeVerified
+  );
+  console.log(!isLoggedIn || !isPasscodeVerified);
   return (
     <NavigationContainer>
-      {!isAuth && <AuthNavigator />}
-      {isAuth && <ProtectedNavigator />}
+      {(!isLoggedIn || !isPasscodeVerified) && <AuthNavigator />}
+      {isLoggedIn && isPasscodeVerified && <ProtectedNavigator />}
     </NavigationContainer>
   );
 };

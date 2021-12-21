@@ -49,11 +49,15 @@ const PasscodeInput = ({
     setThirdNumber("");
     setForthNumber("");
   };
+  const onBackHandler = () => {
+    onDeleteHandler();
+    backFunction();
+  };
 
   const onSubmitPasscode = (number: string) => {
     const passcode =
       `${firstNumber}` + `${secondNumber}` + `${thirdNumber}` + `${number}`;
-    console.log(passcode);
+    submitHandler(passcode);
     onDeleteHandler();
   };
   return (
@@ -172,6 +176,7 @@ const PasscodeInput = ({
               fontSize: 20,
             }}
             mb={12}
+            onPress={() => onBackHandler()}
           >
             {canBack && "BACK"}
           </Button>

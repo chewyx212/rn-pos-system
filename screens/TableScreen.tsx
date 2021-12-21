@@ -19,24 +19,20 @@ import {
   IconButton,
   useToast,
   Menu,
-  useContrastText,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import { tableData, tableCategoryData } from "../assets/DUMMY";
 import PrimaryButton from "../components/Ui/PrimaryButton";
-import SecondaryButton from "../components/Ui/SecondaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
+import PasscodeVerification from "../components/PasscodeVerification";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { changeCart, clearCart } from "../app/cart/cartSlice";
-import { setOrder } from "../app/order/orderSlice";
-import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
+import { fetchOrder } from "../helpers/fetchOrder";
 import NumberPadInput from "../components/NumberPadInput";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "./RootStackParams";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { TableCategoryType, TableDataType } from "../types/tableType";
+import { RouteProp, useNavigation } from "@react-navigation/native";
+import { OrderType, TableCategoryType, TableDataType } from "../types/tableType";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 
 const mappingItemCategory = () => {
   // let category: TableCategoryType[] = [];
@@ -51,24 +47,28 @@ const mappingItemCategory = () => {
   return tableCategoryData;
 };
 
-type TableScreenProp = StackNavigationProp<RootStackParamList, "Table">;
+type TableScreenProp = DrawerNavigationProp<RootStackParamList, "Table">;
 type TableScreenRouteProp = RouteProp<RootStackParamList, "Table">;
 const TableScreen = () => {
   const [tableList, setTableList] = useState<TableDataType[]>([]);
   const [categoryList, setCategoryList] = useState<TableCategoryType[]>(
     mappingItemCategory()
   );
+  const [orderList, setOrderList] = useState<any[]>([]);
   const [isAllCategory, setIsAllCategory] = useState<boolean>(true);
   const [showQuantityModal, setShowQuantityModal] = useState<boolean>(false);
   const [showCustomQuantityModal, setShowCustomQuantityModal] =
     useState<boolean>(false);
   const [selectedTable, setSelectedTable] = useState<TableDataType>({});
+  const [showOrder, setShowOrder] = useState<OrderType>({});
   const [showTableOrder, setShowTableOrder] = useState<TableDataType>({});
   const [selectedCategory, setSelectedCategory] = useState<number>(
     mappingItemCategory()[0].id
   );
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
   const [openCart, setOpenCart] = useState<boolean>(false);
+  const [openTableCart, setOpenTableCart] = useState<boolean>(false);
+  const [togglePasscode, setTogglePasscode] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
   const orderItem = useAppSelector((state) => state.order.orders);
@@ -84,6 +84,7 @@ const TableScreen = () => {
   }, [orderItem]);
 
   const orderRefresher = () => {
+    setOpenTableCart(false);
     setOpenCart(false);
     orderItemMapping();
   };
@@ -91,14 +92,18 @@ const TableScreen = () => {
     const orderValue = await fetchOrder();
     let temp: number[] = [];
     let orderTemp = [...orderValue];
+    let otherOrder: any[] = [];
     orderTemp.forEach((order, index) => {
       if (order.orderType === 1) {
         temp.push(order.tableId);
+      } else {
+        console.log(order);
+        otherOrder.push(order);
       }
       order.orderIndex = index;
     });
     let tableTemp: TableDataType[] = [];
-
+    setOrderList(otherOrder);
     tableData.forEach((table) => {
       if (temp.includes(table.id)) {
         let tempOrder = orderTemp.filter((order) => order.tableId === table.id);
@@ -151,59 +156,16 @@ const TableScreen = () => {
     setTableList(tableTemp);
   };
 
-  const calculateOrderPrice = (order) => {
-    let detail = {
-      subtotal: 0.0,
-      total: 0.0,
-      discountType: 1,
-      discountAmount: 0.0,
-      reference: "",
-      tax: 0.0,
-    };
-
-    order.items.forEach((item) => {
-      if (item.discountType && item.discountType === 1) {
-        detail.subtotal +=
-          (parseFloat(item.calculatedPrice) - item.discountAmount) *
-          item.quantity;
-      } else if (item.discountType && item.discountType === 2) {
-        detail.subtotal +=
-          ((parseFloat(item.calculatedPrice) * (100 - item.discountAmount)) /
-            100) *
-          item.quantity;
-      } else if (item.discountType && item.discountType === 3) {
-        detail.subtotal += item.discountAmount;
-      } else if (item.discountType && item.discountType === 4) {
-      } else {
-        detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
-      }
-    });
-    detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
-
-    detail.total = parseFloat(detail.subtotal.toFixed(2));
-    if (order && order.detail && order.detail) {
-      const orderDiscountDetail = order.detail;
-      if (orderDiscountDetail.discountType === 1) {
-        detail.total = detail.total - orderDiscountDetail.discountAmount;
-      } else if (orderDiscountDetail.discountType === 2) {
-        detail.total =
-          (detail.total * (100 - orderDiscountDetail.discountAmount)) / 100;
-      } else if (orderDiscountDetail.discountType === 3) {
-        detail.total = orderDiscountDetail.discountAmount;
-      } else if (orderDiscountDetail.discountType === 4) {
-        detail.total = 0;
-      }
-      detail = {
-        ...detail,
-        ...orderDiscountDetail,
-      };
-    }
-    return detail;
-  };
-
-  const onSelectShowOrder = (table: TableDataType) => {
-    setShowTableOrder(table);
+  const onSelectShowOrder = (order: OrderType) => {
+    setShowOrder(order);
+    setOpenTableCart(false);
     setOpenCart(true);
+  };
+  
+  const onSelectShowTableOrder = (table: TableDataType) => {
+    setShowTableOrder(table);
+    setOpenTableCart(true);
+    setOpenCart(false);
   };
   const onSelectQuantity = (quantity: number) => {
     navigation.navigate("Order", {
@@ -223,6 +185,33 @@ const TableScreen = () => {
       tableId: items[0].tableId,
       pax: items[0].pax,
       orders: items,
+      refresher: orderRefresher,
+    });
+  };
+
+  const openPasscode = () => {
+    navigation.setOptions({
+      drawerType: "front",
+    });
+    navigation.closeDrawer();
+    setTogglePasscode(true);
+  };
+  const closePasscode = () => {
+    navigation.setOptions({
+      drawerType: "permanent",
+    });
+    setTogglePasscode(false);
+  };
+
+  const submitHandler = (result) => {
+    console.log("heihei");
+    console.log(result);
+  };
+
+  const onSelectOrderType = (type: number) => {
+    navigation.navigate("Order", {
+      orderType: type,
+      orders: [],
       refresher: orderRefresher,
     });
   };
@@ -271,9 +260,15 @@ const TableScreen = () => {
               }}
               placement="bottom right"
             >
-              <Menu.Item>Take Away</Menu.Item>
-              <Menu.Item>Delivery</Menu.Item>
-              <Menu.Item>Counter</Menu.Item>
+              <Menu.Item onPress={() => onSelectOrderType(2)}>
+                Take Away
+              </Menu.Item>
+              <Menu.Item onPress={() => onSelectOrderType(3)}>
+                Delivery
+              </Menu.Item>
+              <Menu.Item onPress={() => onSelectOrderType(4)}>
+                Counter
+              </Menu.Item>
             </Menu>
           </Flex>
           <Stack maxH={{ md: "12%" }}>
@@ -371,6 +366,87 @@ const TableScreen = () => {
             }}
           >
             <Flex flex="1" direction="row" wrap="wrap" justify="flex-start">
+              {isAllCategory &&
+                orderList.map((order, index) => {
+                  let statusBgColor = useColorModeValue(
+                    "green.500",
+                    "green.700"
+                  );
+                  if (order.orderStatus === 1) {
+                    statusBgColor = useColorModeValue("amber.500", "amber.700");
+                  }
+                  if (order.orderStatus === 2) {
+                    statusBgColor = useColorModeValue("blue.500", "blue.700");
+                  }
+                  if (order.orderStatus === 3) {
+                    statusBgColor = useColorModeValue("red.500", "red.700");
+                  }
+
+                  return (
+                    <Pressable
+                      key={order.id}
+                      flexBasis={{ base: "46%", lg: "18%" }}
+                      h={{ base: "150px", md: "165px" }}
+                      borderRadius="lg"
+                      mx={{ base: "2%", md: "1.5", lg: "1%" }}
+                      my={{ base: "2%", md: "1.5", lg: "1%" }}
+                      onPress={() => {
+                        onSelectShowOrder(order);
+                      }}
+                    >
+                      <Flex
+                        w="100%"
+                        h="100%"
+                        bg={useColorModeValue("white", "dark.200")}
+                        shadow={2}
+                        borderRadius="lg"
+                        justify="space-between"
+                        direction="row"
+                      >
+                        <Box
+                          borderLeftRadius="lg"
+                          bg={statusBgColor}
+                          w={{ base: "7%", md: "5%", lg: "9%" }}
+                          h="100%"
+                        ></Box>
+
+                        <Flex
+                          borderRightRadius="lg"
+                          w="90%"
+                          h="100%"
+                          direction="row"
+                          justify="space-between"
+                          py={2}
+                          pl={1}
+                        >
+                          <Flex h="100%" justify="space-between" pl={2}>
+                            <Text
+                              fontFamily="sf-pro-display-bold"
+                              fontSize="22px"
+                            >
+                              {order.name}
+                              {order.orderType === 2 && "TA" + 0 + order.id}
+                              {order.orderType === 3 && "DO" + 0 + order.id}
+                              {order.orderType === 4 && "CO" + 0 + order.id}
+                            </Text>
+
+                            <Flex>
+                              {order && order.items.length > 0 && (
+                                <Text
+                                  fontFamily="sf-pro-text-semibold"
+                                  fontSize="15px"
+                                >
+                                  RM
+                                  {parseFloat(order.detail.total).toFixed(2)}
+                                </Text>
+                              )}
+                            </Flex>
+                          </Flex>
+                        </Flex>
+                      </Flex>
+                    </Pressable>
+                  );
+                })}
               {tableList
                 .filter(
                   (table) =>
@@ -405,7 +481,7 @@ const TableScreen = () => {
                           setSelectedTable(table);
                           setShowQuantityModal(true);
                         } else {
-                          onSelectShowOrder(table);
+                          onSelectShowTableOrder(table);
                         }
                       }}
                     >
@@ -447,7 +523,6 @@ const TableScreen = () => {
                                 <Text
                                   fontFamily="sf-pro-text-semibold"
                                   fontSize="15px"
-                                  
                                 >
                                   RM
                                   {parseFloat(table.total).toFixed(2)}
@@ -587,6 +662,15 @@ const TableScreen = () => {
           </AlertDialog.Content>
         </AlertDialog>
       </Stack>
+      {openTableCart && (
+        <Pressable
+          position="absolute"
+          w="100%"
+          h="100%"
+          bg={useColorModeValue("muted.600:alpha.40", "muted.800")}
+          onPress={() => setOpenTableCart(false)}
+        ></Pressable>
+      )}
       {openCart && (
         <Pressable
           position="absolute"
@@ -596,8 +680,18 @@ const TableScreen = () => {
           onPress={() => setOpenCart(false)}
         ></Pressable>
       )}
+      <PasscodeVerification
+        isOpen={togglePasscode}
+        onClose={closePasscode}
+        submitHandler={submitHandler}
+        w="100%"
+        top="0"
+        right="0"
+        bottom="0"
+        h="100%"
+      />
       <SlideFromRight
-        isOpen={openCart}
+        isOpen={openTableCart}
         w={{ base: "100%", md: "50%" }}
         top="0"
         right="0"
@@ -632,7 +726,7 @@ const TableScreen = () => {
               </Flex>
               <IconButton
                 icon={<Icon as={AntDesign} name="close" size="sm" />}
-                onPress={() => setOpenCart(false)}
+                onPress={() => setOpenTableCart(false)}
               />
             </Flex>
             {showTableOrder.order &&
@@ -649,6 +743,44 @@ const TableScreen = () => {
           <OrderDetailComponent
             setIsConfirm={setIsConfirm}
             cartItem={showTableOrder?.order}
+            editOrder={editOrder}
+          />
+        </VStack>
+      </SlideFromRight>
+      <SlideFromRight
+        isOpen={openCart}
+        w={{ base: "100%", md: "50%" }}
+        top="0"
+        right="0"
+        bottom="0"
+        h="100%"
+      >
+        <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
+          <View w="100%" flex={14} px={3} h="100%">
+            <Flex direction="row" justify="space-between" align="center" py={4}>
+              <Flex direction="row">
+                <Text
+                  fontFamily="sf-pro-text-bold"
+                  fontWeight="600"
+                  fontSize={17}
+                >
+                  Current Order
+                </Text>
+              </Flex>
+              <IconButton
+                icon={<Icon as={AntDesign} name="close" size="sm" />}
+                onPress={() => setOpenCart(false)}
+              />
+            </Flex>
+            <FlatList
+              keyExtractor={(item, index) => `${item.name}${index}`}
+              data={showOrder.items}
+              renderItem={({ item }) => <CartListItem item={item} />}
+            />
+          </View>
+          <OrderDetailComponent
+            setIsConfirm={setIsConfirm}
+            cartItem={[showOrder]}
             editOrder={editOrder}
           />
         </VStack>

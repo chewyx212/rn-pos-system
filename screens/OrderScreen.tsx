@@ -47,6 +47,7 @@ import { Animated, Platform } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import { ItemDataType } from "../types/itemType";
 import NumberPadInput from "../components/NumberPadInput";
+import PasscodeVerification from "../components/PasscodeVerification";
 
 const mappingItemCategory = () => {
   let category = [];
@@ -87,6 +88,7 @@ const OrderScreen = () => {
   const [isEditQuantity, setIsEditQuantity] = useState<boolean>(false);
   const [showDiscountModal, setShowDiscountModal] = useState<boolean>(false);
   const [applyOnOrder, setApplyOnOrder] = useState<boolean>(false);
+  const [togglePasscode, setTogglePasscode] = useState<boolean>(false);
 
   const [showCustomQuantity, setShowCustomQuantity] = useState<boolean>(false);
   const [selectedDiscountType, setSelectedDiscountType] = useState<number>(1);
@@ -95,7 +97,6 @@ const OrderScreen = () => {
   const [selectedEditItem, setSelectedEditItem] = useState({});
   const [selectedEditItemQuantity, setSelectedEditItemQuantity] =
     useState<number>(0);
-  const [selectedEditItemOriginal, setSelectedEditItemOriginal] = useState({});
   const [selectedEditItemIndex, setSelectedEditItemIndex] = useState<number>();
   const [orderDetail, setOrderDetail] = useState({
     subtotal: 0.0,
@@ -156,6 +157,18 @@ const OrderScreen = () => {
     { id: 3, name: "Fixed Price" },
     { id: 4, name: "FOC" },
   ];
+  const openPasscode = () => {
+    setTogglePasscode(true);
+  };
+  const closePasscode = () => {
+    setTogglePasscode(false);
+  };
+
+  const submitHandler = (result) => {
+    console.log("heihei");
+    console.log(result);
+    onVerifiedVoidOrder()
+  };
 
   useEffect(() => {
     calculateOrderPrice();
@@ -269,7 +282,7 @@ const OrderScreen = () => {
 
   const onCloseConfirm = () => setIsConfirm(false);
 
-  const sendCartHandler = (item, quantity) => {
+  const sendCartHandler = async (item, quantity) => {
     dispatch(
       changeCart({
         item: {
@@ -279,7 +292,7 @@ const OrderScreen = () => {
         quantity,
       })
     );
-
+    await toast.closeAll();
     toast.show({
       background: "emerald.500",
       description: `${item.name} added into cart.`,
@@ -341,7 +354,7 @@ const OrderScreen = () => {
     setAddonForm((prevState) => ({ ...prevState, [key]: addon }));
   };
 
-  const onAddAddon = () => {
+  const onAddAddon = async () => {
     let addonsPayload = [];
     Object.values(addonForm).forEach((item) => {
       if (item.length > 0) {
@@ -386,7 +399,7 @@ const OrderScreen = () => {
         })
       );
     }
-
+    await toast.closeAll();
     toast.show({
       background: "emerald.500",
       description: `${payload.name} added into cart.`,
@@ -561,21 +574,28 @@ const OrderScreen = () => {
   };
 
   const onVoidOrder = async () => {
-    onClearCartHandler();
     if (isEditCartMode) {
-      const orderValue = await fetchOrder();
-      let orderTemp = [...orderValue];
-      if (orders && orders[0]) {
-        let orderIndex = orders[0]?.orderIndex;
-        orderTemp.splice(orderIndex, 1);
-
-        await storeOrder(orderTemp);
-        dispatch(setOrder(orderTemp));
-        refresher();
-        navigation.navigate("Table");
-      }
+      openPasscode();
+    } else {
+      onClearCartHandler();
     }
   };
+
+  const onVerifiedVoidOrder = async () => {
+    onClearCartHandler();
+    const orderValue = await fetchOrder();
+    let orderTemp = [...orderValue];
+    if (orders && orders[0]) {
+      let orderIndex = orders[0]?.orderIndex;
+      orderTemp.splice(orderIndex, 1);
+
+      await storeOrder(orderTemp);
+      dispatch(setOrder(orderTemp));
+      refresher();
+      navigation.navigate("Table");
+    }
+  };
+
   const discountOrderHandler = () => {
     setApplyOnOrder(true);
     setShowDiscountModal(true);
@@ -610,6 +630,7 @@ const OrderScreen = () => {
     setApplyOnOrder(false);
     setShowDiscountModal(false);
   };
+  
   return (
     <>
       <Stack
@@ -1167,6 +1188,17 @@ const OrderScreen = () => {
           maximumInputLength={selectedDiscountType === 2 ? 4 : 8}
         />
       </Stack>
+
+      <PasscodeVerification
+        isOpen={togglePasscode}
+        onClose={closePasscode}
+        submitHandler={submitHandler}
+        w="100%"
+        top="0"
+        right="0"
+        bottom="0"
+        h="100%"
+      />
 
       {/* <------------------------------- This is cart for mobile -------------------------------------------> */}
       <SlideFromRight

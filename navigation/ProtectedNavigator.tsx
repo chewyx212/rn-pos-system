@@ -12,6 +12,7 @@ import TableTabNavigator from "./TableTabNaivgator";
 import { Flex } from "native-base";
 import DrawerNavigator from "./DrawerNavigator";
 import { useWindowDimensions } from "react-native";
+import PaymentScreen from "../screens/PaymentScreen";
 
 const Stack = createStackNavigator();
 
@@ -32,6 +33,7 @@ const ProtectedNavigator = () => {
       <Stack.Screen name="Home" component={DrawerNavigator} />
       <Stack.Screen name="TableEdit" component={TableTabNavigator} />
       <Stack.Screen name="Order" component={OrderScreen} />
+      <Stack.Screen name="Payment" component={PaymentScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />
       <Stack.Screen name="Printer" component={PrinterScreen} />
     </Stack.Navigator>

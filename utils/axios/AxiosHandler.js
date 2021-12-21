@@ -12,7 +12,7 @@ axios.interceptors.request.use(
       Accept: "application/json;multipart/form-data",
     };
 
-		const token = await AsyncStorage.getItem("user_token");
+		const token = await AsyncStorage.getItem("token");
     if (token) {
       config.headers = {
         'Authorization': `Bearer ${token}`,
