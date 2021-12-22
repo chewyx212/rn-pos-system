@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Box, PresenceTransition, View, Image, useToast } from "native-base";
 import React from "react";
 import PasscodeInput from "./PasscodeInput";
@@ -10,7 +11,8 @@ interface IProps {
 const PasscodeVerification = (props: IProps) => {
   const toast = useToast();
   const submitHandler = async (passcode: string) => {
-    if (parseInt(passcode) === 1234) {
+    const savedPasscode = await AsyncStorage.getItem("passcode");
+    if (savedPasscode && parseInt(passcode) === parseInt(savedPasscode)) {
       props.submitHandler(true);
       onCloseHandler();
     } else {

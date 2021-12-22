@@ -8,7 +8,10 @@ export const AuthApi = {
   counterLogin: async (payload: { pos_password: string }) => {
     return axios.post("/api/pos/login-counter", payload);
   },
-  updatePasscode: async (payload: string) => {
-    return axios.post("/api/pos/update-passcode", payload);
+  updatePasscode: async (payload: {
+    user_id: string;
+    pos_password: string;
+  }) => {
+    return axios.post("/api/pos/update-password", payload);
   },
 };

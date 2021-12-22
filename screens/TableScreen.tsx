@@ -933,8 +933,8 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
           {detail.subtotal.toFixed(2)}
         </Text>
       </Flex>
-      {detail.discountAmount > 0 ||
-        (detail.discountType === 4 && (
+      {(detail.discountAmount > 0 ||
+        detail.discountType === 4) && (
           <Flex direction="row" align="center" justify="space-between">
             <Text
               fontFamily="sf-pro-text-medium"
@@ -959,7 +959,7 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
                 : "FOC"}
             </Text>
           </Flex>
-        ))}
+        )}
 
       {parseFloat(detail.tax) > 0 && (
         <Flex direction="row" align="center" justify="space-between">

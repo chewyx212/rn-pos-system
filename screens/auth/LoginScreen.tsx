@@ -6,6 +6,7 @@ import {
   Button,
   Input,
   KeyboardAvoidingView,
+  useToast,
 } from "native-base";
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
@@ -34,6 +35,7 @@ const LoginScreen = () => {
   const navigation = useNavigation<loginScreenProp>();
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const dispatch = useAppDispatch();
+  const toast = useToast();
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -45,9 +47,18 @@ const LoginScreen = () => {
 
   const getTokenFromAsyncStorage = async () => {
     const token = await AsyncStorage.getItem("token");
-    if (token) {
-      console.log('got token')
-      dispatch(login({ token, user: {} }));
+    const user = await AsyncStorage.getItem("user");
+    const loginpass = await AsyncStorage.getItem("loginpass");
+    if (token && user && loginpass) {
+      console.log("got token");
+      console.log(loginpass)
+      dispatch(
+        login({
+          token,
+          user: JSON.parse(user),
+          loginpass: JSON.parse(loginpass),
+        })
+      );
       navigation.navigate("Passcode");
     }
   };
@@ -60,12 +71,36 @@ const LoginScreen = () => {
     const { data } = await AuthApi.merchantLogin(payload);
     console.log(data);
     if (data.status === 707) {
-      await AsyncStorage.setItem("token", data.response.token);
-      dispatch(login({ token: data.response.token, user: data.response.user }));
-      console.log("loiggggg in ");
+      AsyncStorage.setItem("token", data.response.token);
+      AsyncStorage.setItem("user", JSON.stringify(data.response.user));
+      AsyncStorage.setItem(
+        "loginpass",
+        JSON.stringify(data.response.login_pass)
+      );
+      dispatch(
+        login({
+          token: data.response.token,
+          user: data.response.user,
+          loginpass: data.response.login_pass,
+        })
+      );
       navigation.navigate("Passcode");
+    } else if (data.status === 701) {
+      await toast.closeAll();
+      toast.show({
+        title: "Email or password is wrong!",
+        status: "error",
+        placement: "top",
+      });
+    } else {
+      await toast.closeAll();
+      toast.show({
+        title: "Try again later!",
+        description: "Something wrong...",
+        status: "warning",
+        placement: "top",
+      });
     }
-    // navigation.navigate("Passcode");
   };
   return (
     <KeyboardAvoidingView

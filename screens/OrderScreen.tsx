@@ -167,7 +167,7 @@ const OrderScreen = () => {
   const submitHandler = (result) => {
     console.log("heihei");
     console.log(result);
-    onVerifiedVoidOrder()
+    onVerifiedVoidOrder();
   };
 
   useEffect(() => {
@@ -305,12 +305,18 @@ const OrderScreen = () => {
     if (cartItem.length > 0 || fixedCartItem.length > 0) {
       let tempArray = cartItem.map((item) => ({ ...item, orderStatus }));
 
-      if (isEditCartMode) {
+      if (isEditCartMode && orders) {
         const orderValue = await fetchOrder();
-        orderValue.find((order) => order.tableId === tableId).items =
-          fixedCartItem.concat(tempArray);
-        orderValue.find((order) => order.tableId === tableId).orderStatus =
-          orderStatus;
+        if (orderType === 1) {
+          orderValue.find((order) => order.tableId === tableId).items =
+            fixedCartItem.concat(tempArray);
+          orderValue.find((order) => order.tableId === tableId).orderStatus =
+            orderStatus;
+        } else {
+          let orderIndex = orders[0].orderIndex;
+          orderValue[orderIndex].items = fixedCartItem.concat(tempArray);
+          orderValue[orderIndex].orderStatus = orderStatus;
+        }
 
         await storeOrder(orderValue);
         dispatch(setOrder(orderValue));
@@ -630,7 +636,7 @@ const OrderScreen = () => {
     setApplyOnOrder(false);
     setShowDiscountModal(false);
   };
-  
+
   return (
     <>
       <Stack
@@ -1646,6 +1652,9 @@ const OrderDetailComponent = ({
   fixedCartItem,
   onSubmitOrder,
 }: OrderDetailComponentProps) => {
+  console.log(order);
+  console.log(order.discountAmount > 0);
+  console.log("hahahahhahah");
   return (
     <Flex
       justify="flex-end"
@@ -1664,33 +1673,32 @@ const OrderDetailComponent = ({
           RM {order.subtotal.toFixed(2)}
         </Text>
       </Flex>
-      {order.discountAmount > 0 ||
-        (order.discountType === 4 && (
-          <Flex direction="row" align="center" justify="space-between">
-            <Text
-              fontFamily="sf-pro-text-medium"
-              fontWeight="500"
-              fontSize="15px"
-            >
-              Discount
-            </Text>
-            <Text
-              fontFamily="sf-pro-text-medium"
-              fontWeight="500"
-              fontSize="15px"
-            >
-              {order.discountType === 1
-                ? `- RM ${order.discountAmount.toFixed(2)}`
-                : order.discountType === 2
-                ? `- RM ${(order.subtotal - order.total).toFixed(2)} (${
-                    order.discountAmount
-                  }%)`
-                : order.discountType === 3
-                ? `- RM ${(order.subtotal - order.total).toFixed(2)}`
-                : "FOC"}
-            </Text>
-          </Flex>
-        ))}
+      {(order.discountAmount > 0 || order.discountType === 4) && (
+        <Flex direction="row" align="center" justify="space-between">
+          <Text
+            fontFamily="sf-pro-text-medium"
+            fontWeight="500"
+            fontSize="15px"
+          >
+            Discount
+          </Text>
+          <Text
+            fontFamily="sf-pro-text-medium"
+            fontWeight="500"
+            fontSize="15px"
+          >
+            {order.discountType === 1
+              ? `- RM ${order.discountAmount.toFixed(2)}`
+              : order.discountType === 2
+              ? `- RM ${(order.subtotal - order.total).toFixed(2)} (${
+                  order.discountAmount
+                }%)`
+              : order.discountType === 3
+              ? `- RM ${(order.subtotal - order.total).toFixed(2)}`
+              : "FOC"}
+          </Text>
+        </Flex>
+      )}
 
       {order.tax > 0 && (
         <Flex direction="row" align="center" justify="space-between">
