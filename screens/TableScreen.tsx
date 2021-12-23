@@ -31,7 +31,11 @@ import { fetchOrder } from "../helpers/fetchOrder";
 import NumberPadInput from "../components/NumberPadInput";
 import { RootStackParamList } from "./RootStackParams";
 import { RouteProp, useNavigation } from "@react-navigation/native";
-import { OrderType, TableCategoryType, TableDataType } from "../types/tableType";
+import {
+  OrderType,
+  TableCategoryType,
+  TableDataType,
+} from "../types/tableType";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 
 const mappingItemCategory = () => {
@@ -97,7 +101,6 @@ const TableScreen = () => {
       if (order.orderType === 1) {
         temp.push(order.tableId);
       } else {
-        console.log(order);
         otherOrder.push(order);
       }
       order.orderIndex = index;
@@ -125,29 +128,28 @@ const TableScreen = () => {
           }
         });
         const [orderDetail] = temp.order;
-        console.log(orderDetail);
-        orderDetail.detail.subtotal = orderDetail.detail.subtotal;
-        orderDetail.detail.total = orderDetail.detail.total;
-        if (orderDetail.discountDetail) {
-          orderDetail.detail.discountAmount =
-            orderDetail.discountDetail.discountAmount;
-          orderDetail.detail.discountType =
-            orderDetail.discountDetail.discountType;
-          orderDetail.detail.reference = orderDetail.discountDetail.reference;
-          if (orderDetail.detail.discountType === 1) {
-            orderDetail.detail.total =
-              orderDetail.detail.total - orderDetail.detail.discountAmount;
-          } else if (orderDetail.detail.discountType === 2) {
-            orderDetail.detail.total =
-              (orderDetail.detail.total *
-                (100 - orderDetail.detail.discountAmount)) /
-              100;
-          } else if (orderDetail.detail.discountType === 3) {
-            orderDetail.detail.total = orderDetail.detail.discountAmount;
-          } else if (orderDetail.detail.discountType === 4) {
-            orderDetail.detail.total = 0;
-          }
-        }
+        // orderDetail.detail.subtotal = orderDetail.detail.subtotal;
+        // orderDetail.detail.total = orderDetail.detail.total;
+        // if (orderDetail.discountDetail) {
+        //   orderDetail.detail.discountAmount =
+        //     orderDetail.discountDetail.discountAmount;
+        //   orderDetail.detail.discountType =
+        //     orderDetail.discountDetail.discountType;
+        //   orderDetail.detail.reference = orderDetail.discountDetail.reference;
+        //   if (orderDetail.detail.discountType === 1) {
+        //     orderDetail.detail.total =
+        //       orderDetail.detail.total - orderDetail.detail.discountAmount;
+        //   } else if (orderDetail.detail.discountType === 2) {
+        //     orderDetail.detail.total =
+        //       (orderDetail.detail.total *
+        //         (100 - orderDetail.detail.discountAmount)) /
+        //       100;
+        //   } else if (orderDetail.detail.discountType === 3) {
+        //     orderDetail.detail.total = orderDetail.detail.discountAmount;
+        //   } else if (orderDetail.detail.discountType === 4) {
+        //     orderDetail.detail.total = 0;
+        //   }
+        // }
         temp.total = orderDetail.detail.total;
 
         temp.status = tempStatus;
@@ -161,7 +163,7 @@ const TableScreen = () => {
     setOpenTableCart(false);
     setOpenCart(true);
   };
-  
+
   const onSelectShowTableOrder = (table: TableDataType) => {
     setShowTableOrder(table);
     setOpenTableCart(true);
@@ -205,7 +207,6 @@ const TableScreen = () => {
 
   const submitHandler = (result) => {
     console.log("heihei");
-    console.log(result);
   };
 
   const onSelectOrderType = (type: number) => {
@@ -896,23 +897,24 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
     tax: 0.0,
   };
   const [orderDetail] = cartItem;
-  console.log(orderDetail);
-  detail.subtotal = orderDetail.detail.subtotal;
-  detail.total = orderDetail.detail.total;
-  if (orderDetail.discountDetail) {
-    detail.discountAmount = orderDetail.discountDetail.discountAmount;
-    detail.discountType = orderDetail.discountDetail.discountType;
-    detail.reference = orderDetail.discountDetail.reference;
-    if (detail.discountType === 1) {
-      detail.total = detail.total - detail.discountAmount;
-    } else if (detail.discountType === 2) {
-      detail.total = (detail.total * (100 - detail.discountAmount)) / 100;
-    } else if (detail.discountType === 3) {
-      detail.total = detail.discountAmount;
-    } else if (detail.discountType === 4) {
-      detail.total = 0;
-    }
-  }
+  // console.log('hjere')
+  // console.log(orderDetail.detail);
+  detail = orderDetail.detail;
+  console.log(orderDetail.detail);
+  // if (orderDetail.discountDetail) {
+  //   detail.discountAmount = orderDetail.discountDetail.discountAmount;
+  //   detail.discountType = orderDetail.discountDetail.discountType;
+  //   detail.reference = orderDetail.discountDetail.reference;
+  //   if (detail.discountType === 1) {
+  //     detail.total = detail.subtotal - detail.discountAmount;
+  //   } else if (detail.discountType === 2) {
+  //     detail.total = (detail.subtotal * (100 - detail.discountAmount)) / 100;
+  //   } else if (detail.discountType === 3) {
+  //     detail.total = detail.discountAmount;
+  //   } else if (detail.discountType === 4) {
+  //     detail.total = 0;
+  //   }
+  // }
 
   return (
     <Flex
@@ -933,35 +935,36 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
           {detail.subtotal.toFixed(2)}
         </Text>
       </Flex>
-      {(detail.discountAmount > 0 ||
-        detail.discountType === 4) && (
-          <Flex direction="row" align="center" justify="space-between">
-            <Text
-              fontFamily="sf-pro-text-medium"
-              fontWeight="500"
-              fontSize="15px"
-            >
-              Discount
-            </Text>
-            <Text
-              fontFamily="sf-pro-text-medium"
-              fontWeight="500"
-              fontSize="15px"
-            >
-              {detail.discountType === 1
-                ? `- RM ${detail.discountAmount.toFixed(2)}`
-                : detail.discountType === 2
-                ? `- RM ${(detail.subtotal - detail.total).toFixed(2)} (${
-                    detail.discountAmount
-                  }%)`
-                : detail.discountType === 3
-                ? `- RM ${(detail.subtotal - detail.total).toFixed(2)}`
-                : "FOC"}
-            </Text>
-          </Flex>
-        )}
+      {(detail.discountAmount > 0 || detail.discountType === 4) && (
+        <Flex direction="row" align="center" justify="space-between">
+          <Text
+            fontFamily="sf-pro-text-medium"
+            fontWeight="500"
+            fontSize="15px"
+          >
+            Discount
+          </Text>
+          <Text
+            fontFamily="sf-pro-text-medium"
+            fontWeight="500"
+            fontSize="15px"
+          >
+            {detail.discountType === 1
+              ? `- RM ${detail.discountAmount.toFixed(2)}`
+              : detail.discountType === 2
+              ? `- RM ${(detail.subtotal - detail.total + detail.tax).toFixed(
+                  2
+                )} (${detail.discountAmount}%)`
+              : detail.discountType === 3
+              ? `- RM ${(detail.subtotal - detail.total + detail.tax).toFixed(
+                  2
+                )}`
+              : "FOC"}
+          </Text>
+        </Flex>
+      )}
 
-      {parseFloat(detail.tax) > 0 && (
+      {detail.tax > 0 && detail.discountType !== 4 && (
         <Flex direction="row" align="center" justify="space-between">
           <Text
             fontFamily="sf-pro-text-medium"

@@ -27,7 +27,7 @@ const NumberPadInput: React.FC<IProps> = ({
   isDecimal,
   maximumInputLength,
 }) => {
-  const [enteredValue, setEnteredValue] = useState<String>("0");
+  const [enteredValue, setEnteredValue] = useState<string>("0");
   const [enteredDecimalValue, setEnteredDecimalValue] =
     useState<String>("0.00");
   const toast = useToast();
@@ -94,7 +94,7 @@ const NumberPadInput: React.FC<IProps> = ({
       }
     } else {
       if (Number(enteredValue) > 0) {
-        getInput(enteredValue);
+        getInput(parseFloat(enteredValue));
         onCloseHandler();
       } else {
         toast.show({

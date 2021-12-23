@@ -81,6 +81,12 @@ const OrderScreen = () => {
   const [openSelectionModal, setOpenSelectionModal] = useState<boolean>(false);
   const [isEditCartMode, setIsEditCartMode] = useState<boolean>(false);
   const [openCart, setOpenCart] = useState<boolean>(false);
+  const [discountInCart, setDiscountInCart] = useState<boolean>(false);
+  const [discountDetailInCart, setDiscountDetailInCart] = useState({
+    discountType: 1,
+    discountAmount: 0.0,
+    reference: "",
+  });
   const [addonForm, setAddonForm] = useState({});
   const [addonCheckboxForm, setAddonCheckboxForm] = useState<string[]>([]);
   const [openAddon, setOpenAddon] = useState<boolean>(false);
@@ -109,6 +115,7 @@ const OrderScreen = () => {
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
+  const swipeRef = useRef(Swipeable);
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
   const route = useRoute<OrderScreenRouteProp>();
@@ -203,7 +210,7 @@ const OrderScreen = () => {
     }
   }, []);
 
-  const calculateOrderPrice = () => {
+  const calculateOrderPrice = (discountInCartDetail) => {
     let items = cartItem;
     let detail = {
       subtotal: 0.0,
@@ -213,6 +220,7 @@ const OrderScreen = () => {
       reference: "",
       tax: 0.0,
     };
+
     if (fixedCartItem.length > 0) {
       fixedCartItem.forEach((item) => {
         if (item.discountType && item.discountType === 1) {
@@ -254,6 +262,24 @@ const OrderScreen = () => {
 
     detail.total = parseFloat(detail.subtotal.toFixed(2));
 
+    if (discountInCartDetail) {
+      detail = {
+        ...detail,
+        ...discountInCartDetail,
+      };
+      if (detail.discountType === 1) {
+        detail.total = detail.total - detail.discountAmount;
+      } else if (detail.discountType === 2) {
+        let discountFunc = ((100 - detail.discountAmount) / 100).toFixed(2);
+        detail.total = parseFloat(
+          (detail.total * parseFloat(discountFunc)).toFixed(2)
+        );
+      } else if (detail.discountType === 3) {
+        detail.total = detail.discountAmount;
+      } else if (detail.discountType === 4) {
+        detail.total = 0;
+      }
+    }
     if (
       orders &&
       orders[0] &&
@@ -264,17 +290,30 @@ const OrderScreen = () => {
       if (orderDiscountDetail.discountType === 1) {
         detail.total = detail.total - orderDiscountDetail.discountAmount;
       } else if (orderDiscountDetail.discountType === 2) {
-        detail.total =
-          (detail.total * (100 - orderDiscountDetail.discountAmount)) / 100;
+        let discountFunc = (
+          (100 - orderDiscountDetail.discountAmount) /
+          100
+        ).toFixed(2);
+        detail.total = parseFloat(
+          (detail.total * parseFloat(discountFunc)).toFixed(2)
+        );
       } else if (orderDiscountDetail.discountType === 3) {
         detail.total = orderDiscountDetail.discountAmount;
       } else if (orderDiscountDetail.discountType === 4) {
         detail.total = 0;
       }
+
       detail = {
         ...detail,
         ...orderDiscountDetail,
       };
+    }
+
+    console.log("inside");
+    console.log(orderDetail);
+    if (detail.discountType !== 3 && detail.discountType !== 4) {
+      detail.tax = parseFloat(((detail.subtotal * 6) / 100).toFixed(2));
+      detail.total += detail.tax;
     }
 
     setOrderDetail(detail);
@@ -306,16 +345,22 @@ const OrderScreen = () => {
       let tempArray = cartItem.map((item) => ({ ...item, orderStatus }));
 
       if (isEditCartMode && orders) {
+        console.log(true);
+        console.log("qweqweqweqweqwe");
+        console.log(tempArray);
         const orderValue = await fetchOrder();
         if (orderType === 1) {
           orderValue.find((order) => order.tableId === tableId).items =
             fixedCartItem.concat(tempArray);
           orderValue.find((order) => order.tableId === tableId).orderStatus =
             orderStatus;
+          orderValue.find((order) => order.tableId === tableId).detail =
+            orderDetail;
         } else {
           let orderIndex = orders[0].orderIndex;
           orderValue[orderIndex].items = fixedCartItem.concat(tempArray);
           orderValue[orderIndex].orderStatus = orderStatus;
+          orderValue[orderIndex].detail = orderDetail;
         }
 
         await storeOrder(orderValue);
@@ -572,7 +617,7 @@ const OrderScreen = () => {
         updateCartItem({ index: selectedEditItemIndex, item: editedItem })
       );
     }
-
+    calculateOrderPrice();
     setEnteredReference("");
     setEnteredAmount(0);
     setSelectedDiscountType(1);
@@ -623,11 +668,14 @@ const OrderScreen = () => {
           discountDetail,
         };
         orders[0] = orderTemp[orderIndex];
-        calculateOrderPrice();
         await storeOrder(orderTemp);
         dispatch(setOrder(orderTemp));
         refresher();
       }
+
+      calculateOrderPrice();
+    } else {
+      calculateOrderPrice(discountDetail);
     }
 
     setEnteredReference("");
@@ -867,6 +915,7 @@ const OrderScreen = () => {
                 data={fixedCartItem.concat(cartItem)}
                 renderItem={({ item, index }) => (
                   <CartListItem
+                    swipeRef={swipeRef}
                     item={item}
                     index={index}
                     deleteItemHandler={deleteItemHandler}
@@ -881,6 +930,7 @@ const OrderScreen = () => {
                 data={cartItem}
                 renderItem={({ item, index }) => (
                   <CartListItem
+                    swipeRef={swipeRef}
                     item={item}
                     index={index}
                     deleteItemHandler={deleteItemHandler}
@@ -1442,6 +1492,7 @@ interface CartListItemProps {
   editItemHandler: Function;
   discountItemHandler: Function;
   deleteItemHandler: Function;
+  swipeRef: any;
 }
 
 const CartListItem = ({
@@ -1450,6 +1501,7 @@ const CartListItem = ({
   editItemHandler,
   discountItemHandler,
   deleteItemHandler,
+  swipeRef,
 }: CartListItemProps) => {
   const renderRightAction = (
     text: string,
@@ -1483,11 +1535,12 @@ const CartListItem = ({
       </Animated.View>
     );
   };
-
   return (
     <Swipeable
+      ref={swipeRef}
       friction={2}
       enableTrackpadTwoFingerGesture
+      overshootRight={false}
       rightThreshold={30}
       renderRightActions={(
         progress: Animated.AnimatedInterpolation,
@@ -1652,9 +1705,6 @@ const OrderDetailComponent = ({
   fixedCartItem,
   onSubmitOrder,
 }: OrderDetailComponentProps) => {
-  console.log(order);
-  console.log(order.discountAmount > 0);
-  console.log("hahahahhahah");
   return (
     <Flex
       justify="flex-end"
@@ -1690,9 +1740,9 @@ const OrderDetailComponent = ({
             {order.discountType === 1
               ? `- RM ${order.discountAmount.toFixed(2)}`
               : order.discountType === 2
-              ? `- RM ${(order.subtotal - order.total).toFixed(2)} (${
-                  order.discountAmount
-                }%)`
+              ? `- RM ${(order.subtotal - order.total + order.tax).toFixed(
+                  2
+                )} (${order.discountAmount}%)`
               : order.discountType === 3
               ? `- RM ${(order.subtotal - order.total).toFixed(2)}`
               : "FOC"}
