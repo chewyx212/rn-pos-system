@@ -1,53 +1,62 @@
-import {
-  useColorModeValue,
-  Button,
-} from "native-base";
+import { useColorModeValue, Button, Spinner } from "native-base";
 import React from "react";
 
 const PrimaryButton = (props) => {
-    return (
-      <Button
-        bg={
-          props.disabled
-            ? useColorModeValue("gray.400", "gray.600")
-            : useColorModeValue("primaryButton.lightBg", "primaryButton.darkBg")
-        }
-        _text={{
+  return (
+    <Button
+      bg={
+        props.disabled
+          ? useColorModeValue("gray.400", "gray.600")
+          : useColorModeValue("primaryButton.lightBg", "primaryButton.darkBg")
+      }
+      _text={{
+        color: useColorModeValue(
+          "primaryButton.lightText",
+          "primaryButton.darkText"
+        ),
+      }}
+      _hover={{
+        _text: {
           color: useColorModeValue(
-            "primaryButton.lightText",
-            "primaryButton.darkText"
+            "primaryButton.lightPressText",
+            "primaryButton.darkPressText"
           ),
-        }}
-        _hover={{
-          _text: {
-            color: useColorModeValue(
-              "primaryButton.lightPressText",
-              "primaryButton.darkPressText"
-            ),
-          },
-          bg: useColorModeValue(
-            "primaryButton.lightPressBg",
-            "primaryButton.darkPressBg"
+        },
+        bg: useColorModeValue(
+          "primaryButton.lightPressBg",
+          "primaryButton.darkPressBg"
+        ),
+      }}
+      _pressed={{
+        _text: {
+          color: useColorModeValue(
+            "primaryButton.lightPressText",
+            "primaryButton.darkPressText"
           ),
-        }}
-        _pressed={{
-          _text: {
-            color: useColorModeValue(
-              "primaryButton.lightPressText",
-              "primaryButton.darkPressText"
-            ),
-          },
-          bg: useColorModeValue(
-            "primaryButton.lightPressBg",
-            "primaryButton.darkPressBg"
+        },
+        bg: useColorModeValue(
+          "primaryButton.lightPressBg",
+          "primaryButton.darkPressBg"
+        ),
+      }}
+      {...props}
+      spinner={<Spinner accessibilityLabel="Loading" />}
+      _loading={{
+        _text: {
+          color: useColorModeValue(
+            "primaryButton.lightPressText",
+            "primaryButton.darkPressText"
           ),
-        }}
-        {...props}
-        onPress={props.onPress}
-      >
-        {props.children}
-      </Button>
-    );
-}
-export default PrimaryButton
-    
+        },
+        bg: useColorModeValue(
+          "primaryButton.lightPressBg",
+          "primaryButton.darkPressBg"
+        ),
+      }}
+      onPress={props.onPress}
+    >
+      {props.children}
+    </Button>
+  );
+};
+export default PrimaryButton;

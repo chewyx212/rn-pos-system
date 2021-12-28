@@ -1,10 +1,12 @@
+import { ItemDataType } from "./../types/itemType";
 import { TableCategoryType, TableDataType } from "./../types/tableType";
-export const itemData: any[] = [
+export const itemData: ItemDataType[] = [
   {
     id: 1,
     name: "Coffee",
     price: "10.50",
     stock: null,
+    orderStatus: 1,
     description: "Give Me Five",
     order_number: 2,
     is_recommended: 0,
@@ -26,8 +28,6 @@ export const itemData: any[] = [
     item_category: {
       id: 3,
       name: "item category 3",
-      remark: null,
-      order_number: 3,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -38,6 +38,7 @@ export const itemData: any[] = [
     name: "Cofeeeeee",
     price: "10.50",
     stock: null,
+    orderStatus: 1,
     description: "",
     order_number: 1,
     is_recommended: 1,
@@ -59,8 +60,6 @@ export const itemData: any[] = [
     item_category: {
       id: 2,
       name: "item category 2",
-      remark: null,
-      order_number: 5,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -71,7 +70,8 @@ export const itemData: any[] = [
     name: "Item 3",
     price: "10.50",
     stock: null,
-    description: null,
+    orderStatus: 1,
+    description: "",
     order_number: 5,
     is_recommended: 0,
     is_active: 1,
@@ -85,7 +85,6 @@ export const itemData: any[] = [
     item_category: {
       id: 2,
       name: "item category 2",
-      remark: null,
       order_number: 5,
       is_enabled: 1,
       restaurant_id: 1,
@@ -97,7 +96,8 @@ export const itemData: any[] = [
     name: "Item 4",
     price: "10.50",
     stock: null,
-    description: null,
+    orderStatus: 1,
+    description: "",
     order_number: 4,
     is_recommended: 0,
     is_active: 1,
@@ -111,8 +111,6 @@ export const itemData: any[] = [
     item_category: {
       id: 3,
       name: "item category 3",
-      remark: null,
-      order_number: 3,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -123,6 +121,7 @@ export const itemData: any[] = [
     name: "Item 5",
     price: "10.50",
     stock: null,
+    orderStatus: 1,
     description: "",
     order_number: 0,
     is_recommended: 0,
@@ -144,8 +143,6 @@ export const itemData: any[] = [
     item_category: {
       id: 4,
       name: "item category 4",
-      remark: null,
-      order_number: 4,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -174,6 +171,7 @@ export const itemData: any[] = [
     name: "mushroom soup",
     price: "12.00",
     stock: null,
+    orderStatus: 1,
     description: "nice",
     order_number: 2,
     is_recommended: 1,
@@ -195,8 +193,6 @@ export const itemData: any[] = [
     item_category: {
       id: 2,
       name: "item category 2",
-      remark: null,
-      order_number: 5,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -259,6 +255,7 @@ export const itemData: any[] = [
     name: "213",
     price: "123.00",
     stock: null,
+    orderStatus: 1,
     description: "123",
     order_number: 3,
     is_recommended: 1,
@@ -280,8 +277,6 @@ export const itemData: any[] = [
     item_category: {
       id: 2,
       name: "item category 2",
-      remark: null,
-      order_number: 5,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -292,6 +287,7 @@ export const itemData: any[] = [
     name: "Testiing no image",
     price: "12.00",
     stock: null,
+    orderStatus: 1,
     description: "123",
     order_number: 5,
     is_recommended: 1,
@@ -306,8 +302,6 @@ export const itemData: any[] = [
     item_category: {
       id: 3,
       name: "item category 3",
-      remark: null,
-      order_number: 3,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -404,7 +398,8 @@ export const itemData: any[] = [
     name: "23",
     price: "1.97",
     stock: null,
-    description: "3",
+    orderStatus: 1,
+    description: "",
     order_number: 4,
     is_recommended: 1,
     is_active: 1,
@@ -418,8 +413,6 @@ export const itemData: any[] = [
     item_category: {
       id: 2,
       name: "item category 2",
-      remark: null,
-      order_number: 5,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -430,6 +423,8 @@ export const itemData: any[] = [
     name: "Happy Meal",
     price: "9.99",
     stock: 123,
+
+    orderStatus: 1,
     description: "<p>Happy meal with no toy :)</p>",
     order_number: 0,
     is_recommended: 1,
@@ -451,8 +446,6 @@ export const itemData: any[] = [
     item_category: {
       id: 1,
       name: "item category 1 haha",
-      remark: null,
-      order_number: 1,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -481,7 +474,9 @@ export const itemData: any[] = [
     name: "Testname",
     price: "12.50",
     stock: null,
-    description: "TestDescription",
+
+    orderStatus: 1,
+    description: "Test",
     order_number: 1,
     is_recommended: 1,
     is_active: 1,
@@ -495,8 +490,6 @@ export const itemData: any[] = [
     item_category: {
       id: 3,
       name: "item category 3",
-      remark: null,
-      order_number: 3,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -507,6 +500,8 @@ export const itemData: any[] = [
     name: "TestName",
     price: "12.50",
     stock: null,
+
+    orderStatus: 1,
     description: "Test Description",
     order_number: 2,
     is_recommended: 1,
@@ -528,8 +523,6 @@ export const itemData: any[] = [
     item_category: {
       id: 3,
       name: "item category 3",
-      remark: null,
-      order_number: 3,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -540,8 +533,10 @@ export const itemData: any[] = [
     name: "asd",
     price: "12.00",
     stock: null,
+
+    orderStatus: 1,
     description: "123123",
-    order_number: null,
+    order_number: 1,
     is_recommended: 0,
     is_active: 1,
     is_popular: 0,
@@ -561,8 +556,6 @@ export const itemData: any[] = [
     item_category: {
       id: 10,
       name: "A Testing Category",
-      remark: "teesting",
-      order_number: 2,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -642,6 +635,8 @@ export const itemData: any[] = [
     name: "Item Name",
     price: "10.00",
     stock: null,
+
+    orderStatus: 1,
     description: "test addon",
     order_number: 1,
     is_recommended: 1,
@@ -663,8 +658,6 @@ export const itemData: any[] = [
     item_category: {
       id: 4,
       name: "item category 4",
-      remark: null,
-      order_number: 4,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -761,6 +754,8 @@ export const itemData: any[] = [
     name: "Final Item",
     price: "99.99",
     stock: null,
+
+    orderStatus: 1,
     description: "final description",
     order_number: 3,
     is_recommended: 1,
@@ -782,8 +777,6 @@ export const itemData: any[] = [
     item_category: {
       id: 3,
       name: "item category 3",
-      remark: null,
-      order_number: 3,
       is_enabled: 1,
       restaurant_id: 1,
     },
@@ -948,8 +941,10 @@ export const itemData: any[] = [
     name: "hi",
     price: "0.00",
     stock: null,
+
+    orderStatus: 1,
     description: "",
-    order_number: null,
+    order_number: 1,
     is_recommended: 0,
     is_active: 1,
     is_popular: 0,
@@ -969,8 +964,6 @@ export const itemData: any[] = [
     item_category: {
       id: 24,
       name: "i",
-      remark: null,
-      order_number: null,
       is_enabled: 1,
       restaurant_id: 1,
     },

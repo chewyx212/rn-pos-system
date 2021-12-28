@@ -1,24 +1,29 @@
 export interface ItemDataType {
   id: number;
   name: string;
+  price: string | number;
+  stock: null | number;
   image: any;
-  desription: string;
-  is_active: boolean;
-  is_charity: boolean;
-  is_new: boolean;
-  is_popular: boolean;
-  is_recommended: boolean;
-  is_veg: boolean;
+  description: string;
+  order_number: number;
+  is_active: boolean | number;
+  is_charity: boolean | number;
+  is_new: boolean | number;
+  is_popular: boolean | number;
+  is_recommended: boolean | number;
+  is_veg: boolean | number;
   orderStatus: number;
-  addon_category_id: number;
-  addon_category: ItemCategoryType;
-  addon: any[];
-  status: number;
-  pax: string;
-  total: string;
+  restaurant_id: number;
+  item_category_id: number;
+  item_category: ItemCategoryType;
+  addons: any[];
+  orderIndex?: number;
+  itemIndex?: number;
 }
 
 export interface ItemCategoryType {
   id: number;
   name: string;
+  is_enabled: boolean | number;
+  restaurant_id: number;
 }

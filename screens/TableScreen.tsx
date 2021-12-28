@@ -37,6 +37,7 @@ import {
   TableDataType,
 } from "../types/tableType";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const mappingItemCategory = () => {
   // let category: TableCategoryType[] = [];
@@ -94,6 +95,8 @@ const TableScreen = () => {
   };
   const orderItemMapping = async () => {
     const orderValue = await fetchOrder();
+    console.log(orderValue);
+    // await AsyncStorage.removeItem('orders');
     let temp: number[] = [];
     let orderTemp = [...orderValue];
     let otherOrder: any[] = [];
@@ -120,7 +123,6 @@ const TableScreen = () => {
     });
     tableTemp.forEach((temp) => {
       if (temp.order && temp.order.length > 0) {
-        temp.total = "0";
         let tempStatus = temp.order[0].orderStatus;
         temp.order.forEach((order) => {
           if (order.orderStatus < tempStatus) {
@@ -150,6 +152,9 @@ const TableScreen = () => {
         //     orderDetail.detail.total = 0;
         //   }
         // }
+        console.log(orderDetail);
+        console.log("im hereeee");
+        console.log(orderDetail.detail.detail);
         temp.total = orderDetail.detail.total;
 
         temp.status = tempStatus;
@@ -859,7 +864,9 @@ const CartListItem = ({ item }) => {
               <Text
                 textAlign="right"
                 color={
-                  item.orderStatus === 1
+                  item.discountType && item.discountAmount !== 0
+                    ? useColorModeValue("green.400", "green.500")
+                    : item.orderStatus === 1
                     ? useColorModeValue("red.400", "red.500")
                     : useColorModeValue("dark.100", "light.100")
                 }
@@ -897,10 +904,7 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
     tax: 0.0,
   };
   const [orderDetail] = cartItem;
-  // console.log('hjere')
-  // console.log(orderDetail.detail);
   detail = orderDetail.detail;
-  console.log(orderDetail.detail);
   // if (orderDetail.discountDetail) {
   //   detail.discountAmount = orderDetail.discountDetail.discountAmount;
   //   detail.discountType = orderDetail.discountDetail.discountType;

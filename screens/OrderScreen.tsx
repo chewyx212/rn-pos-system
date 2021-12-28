@@ -27,7 +27,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import { itemData } from "../assets/DUMMY";
 import PrimaryButton from "../components/Ui/PrimaryButton";
-import SecondaryButton from "../components/Ui/SecondaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
@@ -45,12 +44,12 @@ import { RootStackParamList } from "./RootStackParams";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { Animated, Platform } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
-import { ItemDataType } from "../types/itemType";
 import NumberPadInput from "../components/NumberPadInput";
 import PasscodeVerification from "../components/PasscodeVerification";
+import { ItemCategoryType, ItemDataType } from "../types/itemType";
 
-const mappingItemCategory = () => {
-  let category = [];
+const mappingItemCategory = (): ItemCategoryType[] => {
+  let category: ItemCategoryType[] = [];
   let idList: number[] = [];
   itemData.forEach((item) => {
     if (!idList.includes(item.item_category.id)) {
@@ -67,12 +66,14 @@ type OrderScreenNavigationProp = StackNavigationProp<
 >;
 type OrderScreenRouteProp = RouteProp<RootStackParamList, "Order">;
 const OrderScreen = () => {
-  const [itemList, setItemList] = useState(itemData);
-  const [categoryList, setCategoryList] = useState(mappingItemCategory());
-  const [selectedCategory, setSelectedCategory] = useState(
+  const [itemList, setItemList] = useState<ItemDataType[]>(itemData);
+  const [categoryList, setCategoryList] = useState<ItemCategoryType[]>(
+    mappingItemCategory()
+  );
+  const [selectedCategory, setSelectedCategory] = useState<number>(
     mappingItemCategory()[0].id
   );
-  const [selectedItem, setSelectedItem] = useState({});
+  const [selectedItem, setSelectedItem] = useState<ItemDataType>({});
   const [selectedItemQuantity, setSelectedItemQuantity] = useState<number>(1);
   const [selectedItemAddon, setSelectedItemAddon] = useState({});
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
@@ -100,10 +101,10 @@ const OrderScreen = () => {
   const [selectedDiscountType, setSelectedDiscountType] = useState<number>(1);
   const [enteredAmount, setEnteredAmount] = useState<number>(0);
   const [enteredReference, setEnteredReference] = useState<string>("");
-  const [selectedEditItem, setSelectedEditItem] = useState({});
+  const [selectedEditItem, setSelectedEditItem] = useState<ItemDataType>({});
   const [selectedEditItemQuantity, setSelectedEditItemQuantity] =
     useState<number>(0);
-  const [selectedEditItemIndex, setSelectedEditItemIndex] = useState<number>();
+  const [selectedEditItemIndex, setSelectedEditItemIndex] = useState<number>(0);
   const [orderDetail, setOrderDetail] = useState({
     subtotal: 0.0,
     total: 0.0,
@@ -115,7 +116,6 @@ const OrderScreen = () => {
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
-  const swipeRef = useRef(Swipeable);
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
   const route = useRoute<OrderScreenRouteProp>();
@@ -210,7 +210,7 @@ const OrderScreen = () => {
     }
   }, []);
 
-  const calculateOrderPrice = (discountInCartDetail) => {
+  const calculateOrderPrice = (discountInCartDetail?) => {
     let items = cartItem;
     let detail = {
       subtotal: 0.0,
@@ -309,8 +309,6 @@ const OrderScreen = () => {
       };
     }
 
-    console.log("inside");
-    console.log(orderDetail);
     if (detail.discountType !== 3 && detail.discountType !== 4) {
       detail.tax = parseFloat(((detail.subtotal * 6) / 100).toFixed(2));
       detail.total += detail.tax;
@@ -358,6 +356,7 @@ const OrderScreen = () => {
             orderDetail;
         } else {
           let orderIndex = orders[0].orderIndex;
+          console.log(orderIndex);
           orderValue[orderIndex].items = fixedCartItem.concat(tempArray);
           orderValue[orderIndex].orderStatus = orderStatus;
           orderValue[orderIndex].detail = orderDetail;
@@ -378,6 +377,7 @@ const OrderScreen = () => {
           tableId,
           pax,
           items: tempArray,
+          orderIndex: orderValue.length,
           orderStatus,
           detail: orderDetail,
         });
@@ -510,9 +510,14 @@ const OrderScreen = () => {
     dispatch(clearCart());
   };
 
-  const deleteItemHandler = (item, index) => {
+  const deleteItemHandler = (item, index: number) => {
     if (fixedCartItem.length > 0) {
       index -= fixedCartItem.length;
+    }
+    console.log(index);
+    console.log(fixedCartItem.length);
+    if (fixedCartItem.length === 0 && index === 0) {
+      voidCreatedOrder();
     }
     dispatch(deleteCartItem({ index }));
   };
@@ -523,45 +528,48 @@ const OrderScreen = () => {
     } else {
       setSelectedEditItemIndex(index);
     }
-
     setSelectedEditItem(item);
     setSelectedEditItemQuantity(item.quantity);
-    let originalItem = itemList.find((list) => list.id === item.id);
-    if (originalItem.addons.length > 0) {
-      setIsEditQuantity(false);
-      let temp: number[] = [];
-      let tempObj = {};
-      let tempArray: string[] = [];
-      item.addons.forEach((item) => {
-        if (!temp.includes(item.addon_category_id)) {
-          temp.push(item.addon_category_id);
-          if (parseInt(item.addon_category.type) === 1) {
-            tempObj = {
-              ...tempObj,
-              [item.addon_category.name]: [item],
-            };
+    let originalItem = itemList.find(
+      (list: ItemDataType) => list.id === item.id
+    );
+    if (originalItem) {
+      if (originalItem.addons.length > 0) {
+        setIsEditQuantity(false);
+        let temp: number[] = [];
+        let tempObj = {};
+        let tempArray: string[] = [];
+        item.addons.forEach((item) => {
+          if (!temp.includes(item.addon_category_id)) {
+            temp.push(item.addon_category_id);
+            if (parseInt(item.addon_category.type) === 1) {
+              tempObj = {
+                ...tempObj,
+                [item.addon_category.name]: [item],
+              };
+              tempArray.push(item.id);
+            } else {
+              tempObj = { ...tempObj, [item.addon_category.name]: item };
+            }
+          } else if (parseInt(item.addon_category.type) === 1) {
             tempArray.push(item.id);
-          } else {
-            tempObj = { ...tempObj, [item.addon_category.name]: item };
+            tempObj[item.addon_category.name].push(item);
           }
-        } else if (parseInt(item.addon_category.type) === 1) {
-          tempArray.push(item.id);
-          tempObj[item.addon_category.name].push(item);
-        }
-      });
-      setIsEditAddon(true);
-      setSelectedItem(originalItem);
-      setSelectedItemQuantity(item.quantity);
-      setAddonCheckboxForm(tempArray);
-      setAddonForm(tempObj);
-      setOpenAddon(true);
-      mappingAddon(originalItem.addons, true);
-    } else {
-      setIsEditQuantity(true);
+        });
+        setIsEditAddon(true);
+        setSelectedItem(originalItem);
+        setSelectedItemQuantity(item.quantity);
+        setAddonCheckboxForm(tempArray);
+        setAddonForm(tempObj);
+        setOpenAddon(true);
+        mappingAddon(originalItem.addons, true);
+      } else {
+        setIsEditQuantity(true);
+      }
     }
   };
 
-  const discountItemHandler = (item, index) => {
+  const discountItemHandler = (item: ItemDataType, index: number) => {
     if (fixedCartItem.length > 0 && item.orderStatus !== 2) {
       setSelectedEditItemIndex(index - fixedCartItem.length);
     } else {
@@ -606,12 +614,31 @@ const OrderScreen = () => {
         pervState.splice(selectedEditItemIndex, 1, editedItem);
         return pervState;
       });
-      orderTemp[selectedEditItem.orderIndex].items[selectedEditItem.itemIndex] =
-        editedItem;
+      if (
+        selectedEditItem.orderIndex !== undefined &&
+        selectedEditItem.orderIndex >= 0 &&
+        selectedEditItem.itemIndex !== undefined &&
+        selectedEditItem.itemIndex >= 0
+      ) {
+        orderTemp[selectedEditItem.orderIndex].items[
+          selectedEditItem.itemIndex
+        ] = editedItem;
+      }
 
       await storeOrder(orderTemp);
       dispatch(setOrder(orderTemp));
       refresher();
+    } else if (isEditCartMode) {
+      console.log("here");
+      console.log(selectedEditItemIndex);
+      console.log(selectedEditItem);
+      // console.log(orders[0])
+      console.log(
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      );
+      dispatch(
+        updateCartItem({ index: selectedEditItemIndex, item: editedItem })
+      );
     } else {
       dispatch(
         updateCartItem({ index: selectedEditItemIndex, item: editedItem })
@@ -625,8 +652,11 @@ const OrderScreen = () => {
   };
 
   const onVoidOrder = async () => {
-    if (isEditCartMode) {
+    if (isEditCartMode && fixedCartItem.length > 0) {
       openPasscode();
+    } else if (isEditCartMode) {
+      voidCreatedOrder();
+      navigation.navigate("Table");
     } else {
       onClearCartHandler();
     }
@@ -634,6 +664,11 @@ const OrderScreen = () => {
 
   const onVerifiedVoidOrder = async () => {
     onClearCartHandler();
+    voidCreatedOrder();
+    navigation.navigate("Table");
+  };
+
+  const voidCreatedOrder = async () => {
     const orderValue = await fetchOrder();
     let orderTemp = [...orderValue];
     if (orders && orders[0]) {
@@ -643,7 +678,6 @@ const OrderScreen = () => {
       await storeOrder(orderTemp);
       dispatch(setOrder(orderTemp));
       refresher();
-      navigation.navigate("Table");
     }
   };
 
@@ -663,19 +697,26 @@ const OrderScreen = () => {
       let orderTemp = [...orderValue];
       if (orders && orders[0]) {
         let orderIndex = orders[0]?.orderIndex;
+        console.log(orderTemp[orderIndex]);
         orderTemp[orderIndex] = {
           ...orderTemp[orderIndex],
-          discountDetail,
+          detail: { ...orderTemp[orderIndex].detail, ...discountDetail },
         };
+        console.log(
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        );
+        console.log(orderTemp[orderIndex]);
         orders[0] = orderTemp[orderIndex];
         await storeOrder(orderTemp);
         dispatch(setOrder(orderTemp));
         refresher();
       }
-
-      calculateOrderPrice();
+      if (fixedCartItem.length > 0) {
+        calculateOrderPrice();
+      } else {
+        calculateOrderPrice(discountDetail);
+      }
     } else {
-      calculateOrderPrice(discountDetail);
     }
 
     setEnteredReference("");
@@ -915,7 +956,6 @@ const OrderScreen = () => {
                 data={fixedCartItem.concat(cartItem)}
                 renderItem={({ item, index }) => (
                   <CartListItem
-                    swipeRef={swipeRef}
                     item={item}
                     index={index}
                     deleteItemHandler={deleteItemHandler}
@@ -930,7 +970,6 @@ const OrderScreen = () => {
                 data={cartItem}
                 renderItem={({ item, index }) => (
                   <CartListItem
-                    swipeRef={swipeRef}
                     item={item}
                     index={index}
                     deleteItemHandler={deleteItemHandler}
@@ -1045,6 +1084,7 @@ const OrderScreen = () => {
                         selectedEditItem,
                         selectedEditItemIndex
                       );
+
                       setIsEditQuantity(false);
                     } else {
                       setSelectedEditItemQuantity((prevState) => {
@@ -1083,7 +1123,16 @@ const OrderScreen = () => {
                 </Button>
                 <Button
                   onPress={() => {
-                    onEditedQuantity();
+                    if (selectedEditItemQuantity === 0) {
+                      deleteItemHandler(
+                        selectedEditItem,
+                        selectedEditItemIndex
+                      );
+
+                      setIsEditQuantity(false);
+                    } else {
+                      onEditedQuantity();
+                    }
                   }}
                 >
                   Edit
@@ -1492,7 +1541,6 @@ interface CartListItemProps {
   editItemHandler: Function;
   discountItemHandler: Function;
   deleteItemHandler: Function;
-  swipeRef: any;
 }
 
 const CartListItem = ({
@@ -1501,7 +1549,6 @@ const CartListItem = ({
   editItemHandler,
   discountItemHandler,
   deleteItemHandler,
-  swipeRef,
 }: CartListItemProps) => {
   const renderRightAction = (
     text: string,
@@ -1509,7 +1556,7 @@ const CartListItem = ({
     x: number,
     progress: Animated.AnimatedInterpolation,
     onPressFunction: Function,
-    item: any,
+    item: ItemDataType,
     index: number
   ) => {
     const trans = progress.interpolate({
@@ -1537,7 +1584,6 @@ const CartListItem = ({
   };
   return (
     <Swipeable
-      ref={swipeRef}
       friction={2}
       enableTrackpadTwoFingerGesture
       overshootRight={false}
@@ -1649,7 +1695,9 @@ const CartListItem = ({
               <View flex={2} pr={2}>
                 <Text
                   color={
-                    item.orderStatus === 1
+                    item.discountType && item.discountAmount !== 0
+                      ? useColorModeValue("green.400", "green.500")
+                      : item.orderStatus === 1
                       ? useColorModeValue("red.400", "red.500")
                       : useColorModeValue("dark.100", "light.100")
                   }
