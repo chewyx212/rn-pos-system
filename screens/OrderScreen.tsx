@@ -211,6 +211,7 @@ const OrderScreen = () => {
   }, []);
 
   const calculateOrderPrice = (discountInCartDetail?) => {
+    console.log("recalculating");
     let items = cartItem;
     let detail = {
       subtotal: 0.0,
@@ -261,32 +262,36 @@ const OrderScreen = () => {
     detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
 
     detail.total = parseFloat(detail.subtotal.toFixed(2));
-
+    console.log(orders[0]);
     if (discountInCartDetail) {
+      console.log("calculating here");
       detail = {
         ...detail,
         ...discountInCartDetail,
       };
       if (detail.discountType === 1) {
-        detail.total = detail.total - detail.discountAmount;
+        detail.total = detail.subtotal - detail.discountAmount;
       } else if (detail.discountType === 2) {
         let discountFunc = ((100 - detail.discountAmount) / 100).toFixed(2);
         detail.total = parseFloat(
-          (detail.total * parseFloat(discountFunc)).toFixed(2)
+          (detail.subtotal * parseFloat(discountFunc)).toFixed(2)
         );
       } else if (detail.discountType === 3) {
         detail.total = detail.discountAmount;
       } else if (detail.discountType === 4) {
         detail.total = 0;
       }
-    }
-    if (
+      if (orders && orders[0]) {
+        orders[0].detail = detail;
+      }
+    } else if (
       orders &&
       orders[0] &&
-      orders[0].discountDetail &&
-      orders[0].discountDetail.discountType
+      orders[0].detail &&
+      orders[0].detail.discountType
     ) {
-      const orderDiscountDetail = orders[0].discountDetail;
+      console.log("calculating htertetetere");
+      const orderDiscountDetail = orders[0].detail;
       if (orderDiscountDetail.discountType === 1) {
         detail.total = detail.total - orderDiscountDetail.discountAmount;
       } else if (orderDiscountDetail.discountType === 2) {
@@ -343,9 +348,6 @@ const OrderScreen = () => {
       let tempArray = cartItem.map((item) => ({ ...item, orderStatus }));
 
       if (isEditCartMode && orders) {
-        console.log(true);
-        console.log("qweqweqweqweqwe");
-        console.log(tempArray);
         const orderValue = await fetchOrder();
         if (orderType === 1) {
           orderValue.find((order) => order.tableId === tableId).items =
@@ -356,7 +358,6 @@ const OrderScreen = () => {
             orderDetail;
         } else {
           let orderIndex = orders[0].orderIndex;
-          console.log(orderIndex);
           orderValue[orderIndex].items = fixedCartItem.concat(tempArray);
           orderValue[orderIndex].orderStatus = orderStatus;
           orderValue[orderIndex].detail = orderDetail;
@@ -372,7 +373,10 @@ const OrderScreen = () => {
       } else {
         const orderValue = await fetchOrder();
         orderValue.push({
-          id: orderValue.length + 1,
+          id:
+            orderValue.length > 0
+              ? orderValue[orderValue.length - 1].id + 1
+              : 1,
           orderType,
           tableId,
           pax,
@@ -514,8 +518,6 @@ const OrderScreen = () => {
     if (fixedCartItem.length > 0) {
       index -= fixedCartItem.length;
     }
-    console.log(index);
-    console.log(fixedCartItem.length);
     if (fixedCartItem.length === 0 && index === 0) {
       voidCreatedOrder();
     }
@@ -629,9 +631,6 @@ const OrderScreen = () => {
       dispatch(setOrder(orderTemp));
       refresher();
     } else if (isEditCartMode) {
-      console.log("here");
-      console.log(selectedEditItemIndex);
-      console.log(selectedEditItem);
       // console.log(orders[0])
       console.log(
         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -688,15 +687,36 @@ const OrderScreen = () => {
 
   const onDiscountOrder = async () => {
     const discountDetail = {
+      subtotal: orderDetail.subtotal,
+      total: orderDetail.total,
+      tax: orderDetail.tax,
       discountType: selectedDiscountType,
       discountAmount: enteredAmount,
       reference: enteredReference,
     };
+    if (discountDetail.discountType === 1) {
+      discountDetail.total =
+        discountDetail.subtotal - discountDetail.discountAmount;
+    } else if (discountDetail.discountType === 2) {
+      let discountFunc = ((100 - discountDetail.discountAmount) / 100).toFixed(
+        2
+      );
+      discountDetail.total = parseFloat(
+        (discountDetail.subtotal * parseFloat(discountFunc)).toFixed(2)
+      );
+    } else if (discountDetail.discountType === 3) {
+      discountDetail.total = discountDetail.discountAmount;
+    } else if (discountDetail.discountType === 4) {
+      discountDetail.total = 0;
+    }
+    console.log(discountDetail);
+    console.log("inside hereeeeeeeeeeeeeeeeee");
     if (isEditCartMode) {
       const orderValue = await fetchOrder();
       let orderTemp = [...orderValue];
+      console.log(orderTemp);
       if (orders && orders[0]) {
-        let orderIndex = orders[0]?.orderIndex;
+        let orderIndex = orders[0].orderIndex;
         console.log(orderTemp[orderIndex]);
         orderTemp[orderIndex] = {
           ...orderTemp[orderIndex],
@@ -705,18 +725,15 @@ const OrderScreen = () => {
         console.log(
           "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         );
-        console.log(orderTemp[orderIndex]);
+        console.log(orderTemp[orderIndex].detail);
         orders[0] = orderTemp[orderIndex];
         await storeOrder(orderTemp);
         dispatch(setOrder(orderTemp));
         refresher();
       }
-      if (fixedCartItem.length > 0) {
-        calculateOrderPrice();
-      } else {
-        calculateOrderPrice(discountDetail);
-      }
+      calculateOrderPrice(discountDetail);
     } else {
+      console.log("should do something");
     }
 
     setEnteredReference("");

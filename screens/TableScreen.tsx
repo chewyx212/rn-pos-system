@@ -27,7 +27,7 @@ import PrimaryButton from "../components/Ui/PrimaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
 import PasscodeVerification from "../components/PasscodeVerification";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { fetchOrder } from "../helpers/fetchOrder";
+import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
 import NumberPadInput from "../components/NumberPadInput";
 import { RootStackParamList } from "./RootStackParams";
 import { RouteProp, useNavigation } from "@react-navigation/native";
@@ -38,6 +38,7 @@ import {
 } from "../types/tableType";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setOrder } from "../app/order/orderSlice";
 
 const mappingItemCategory = () => {
   // let category: TableCategoryType[] = [];
@@ -95,7 +96,6 @@ const TableScreen = () => {
   };
   const orderItemMapping = async () => {
     const orderValue = await fetchOrder();
-    console.log(orderValue);
     // await AsyncStorage.removeItem('orders');
     let temp: number[] = [];
     let orderTemp = [...orderValue];
@@ -106,8 +106,12 @@ const TableScreen = () => {
       } else {
         otherOrder.push(order);
       }
+      console.log(index);
+      console.log("this is indexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
       order.orderIndex = index;
     });
+    await storeOrder(orderTemp);
+    dispatch(setOrder(orderTemp));
     let tableTemp: TableDataType[] = [];
     setOrderList(otherOrder);
     tableData.forEach((table) => {
@@ -152,9 +156,6 @@ const TableScreen = () => {
         //     orderDetail.detail.total = 0;
         //   }
         // }
-        console.log(orderDetail);
-        console.log("im hereeee");
-        console.log(orderDetail.detail.detail);
         temp.total = orderDetail.detail.total;
 
         temp.status = tempStatus;
