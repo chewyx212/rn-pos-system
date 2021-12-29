@@ -1,7 +1,7 @@
 export interface ItemDataType {
   id: number;
   name: string;
-  price: string | number;
+  price: number;
   stock: null | number;
   image: any;
   description: string;
@@ -17,8 +17,16 @@ export interface ItemDataType {
   item_category_id: number;
   item_category: ItemCategoryType;
   addons: any[];
+}
+
+export interface ItemInCartType extends ItemDataType {
+  quantity: number;
   orderIndex?: number;
-  itemIndex?: number;
+  calculatedPrice: number;
+  itemIndex: number;
+  discountType: number;
+  discountAmount: number;
+  reference: string;
 }
 
 export interface ItemCategoryType {
@@ -26,4 +34,13 @@ export interface ItemCategoryType {
   name: string;
   is_enabled: boolean | number;
   restaurant_id: number;
+}
+
+export interface OrderDetailType {
+  subtotal: number;
+  total: number;
+  discountType: number;
+  discountAmount: number;
+  reference: string;
+  tax: number;
 }

@@ -1,19 +1,8 @@
+import { ItemInCartType } from "./../../types/itemType";
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  cartItem: [],
-};
-const item = {
-  id: "",
-  name: "",
-  price: "",
-  stock: "",
-  restaurant_id: "",
-  item_category_id: "",
-  image: {},
-  item_category: {},
-  addons: [],
-  quantity: 0,
+  cartItem: [] as ItemInCartType[],
 };
 
 const findSameItemInArray = (cartItemSlice, payloadItem) => {

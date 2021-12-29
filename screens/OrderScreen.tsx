@@ -46,7 +46,12 @@ import { Animated, Platform } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import NumberPadInput from "../components/NumberPadInput";
 import PasscodeVerification from "../components/PasscodeVerification";
-import { ItemCategoryType, ItemDataType } from "../types/itemType";
+import {
+  ItemCategoryType,
+  ItemDataType,
+  ItemInCartType,
+  OrderDetailType,
+} from "../types/itemType";
 
 const mappingItemCategory = (): ItemCategoryType[] => {
   let category: ItemCategoryType[] = [];
@@ -66,6 +71,14 @@ type OrderScreenNavigationProp = StackNavigationProp<
 >;
 type OrderScreenRouteProp = RouteProp<RootStackParamList, "Order">;
 const OrderScreen = () => {
+  const initialOrderDetail: OrderDetailType = {
+    subtotal: 0.0,
+    total: 0.0,
+    discountType: 1,
+    discountAmount: 0.0,
+    reference: "",
+    tax: 0.0,
+  };
   const [itemList, setItemList] = useState<ItemDataType[]>(itemData);
   const [categoryList, setCategoryList] = useState<ItemCategoryType[]>(
     mappingItemCategory()
@@ -77,17 +90,11 @@ const OrderScreen = () => {
   const [selectedItemQuantity, setSelectedItemQuantity] = useState<number>(1);
   const [selectedItemAddon, setSelectedItemAddon] = useState({});
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
-  const [fixedCartItem, setFixedCartItem] = useState<any[]>([]);
+  const [fixedCartItem, setFixedCartItem] = useState<ItemInCartType[]>([]);
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
   const [openSelectionModal, setOpenSelectionModal] = useState<boolean>(false);
   const [isEditCartMode, setIsEditCartMode] = useState<boolean>(false);
   const [openCart, setOpenCart] = useState<boolean>(false);
-  const [discountInCart, setDiscountInCart] = useState<boolean>(false);
-  const [discountDetailInCart, setDiscountDetailInCart] = useState({
-    discountType: 1,
-    discountAmount: 0.0,
-    reference: "",
-  });
   const [addonForm, setAddonForm] = useState({});
   const [addonCheckboxForm, setAddonCheckboxForm] = useState<string[]>([]);
   const [openAddon, setOpenAddon] = useState<boolean>(false);
@@ -105,14 +112,8 @@ const OrderScreen = () => {
   const [selectedEditItemQuantity, setSelectedEditItemQuantity] =
     useState<number>(0);
   const [selectedEditItemIndex, setSelectedEditItemIndex] = useState<number>(0);
-  const [orderDetail, setOrderDetail] = useState({
-    subtotal: 0.0,
-    total: 0.0,
-    discountType: 1,
-    discountAmount: 0.0,
-    reference: "",
-    tax: 0.0,
-  });
+  const [orderDetail, setOrderDetail] =
+    useState<OrderDetailType>(initialOrderDetail);
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const cancelRef = useRef(null);
@@ -212,7 +213,12 @@ const OrderScreen = () => {
 
   const calculateOrderPrice = (discountInCartDetail?) => {
     console.log("recalculating");
+
     let items = cartItem;
+    if (fixedCartItem.length > 0) {
+      // this will combine "SENT TO KITCHEN" item with "IN THE KITCHEN" item
+      items = fixedCartItem.concat(cartItem);
+    }
     let detail = {
       subtotal: 0.0,
       total: 0.0,
@@ -221,27 +227,6 @@ const OrderScreen = () => {
       reference: "",
       tax: 0.0,
     };
-
-    if (fixedCartItem.length > 0) {
-      fixedCartItem.forEach((item) => {
-        if (item.discountType && item.discountType === 1) {
-          detail.subtotal +=
-            (parseFloat(item.calculatedPrice) - item.discountAmount) *
-            item.quantity;
-        } else if (item.discountType && item.discountType === 2) {
-          detail.subtotal +=
-            ((parseFloat(item.calculatedPrice) * (100 - item.discountAmount)) /
-              100) *
-            item.quantity;
-        } else if (item.discountType && item.discountType === 3) {
-          detail.subtotal += item.discountAmount;
-        } else if (item.discountType && item.discountType === 4) {
-        } else {
-          detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
-        }
-      });
-    }
-
     items.forEach((item) => {
       if (item.discountType && item.discountType === 1) {
         detail.subtotal +=
@@ -259,6 +244,7 @@ const OrderScreen = () => {
         detail.subtotal += parseFloat(item.calculatedPrice) * item.quantity;
       }
     });
+
     detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
 
     detail.total = parseFloat(detail.subtotal.toFixed(2));
@@ -344,56 +330,57 @@ const OrderScreen = () => {
   };
 
   const onSubmitOrder = async (orderStatus: number) => {
-    if (cartItem.length > 0 || fixedCartItem.length > 0) {
-      let tempArray = cartItem.map((item) => ({ ...item, orderStatus }));
+    console.log(cartItem)
+    // if (cartItem.length > 0 || fixedCartItem.length > 0) {
+    //   let tempArray = cartItem.map((item) => ({ ...item, orderStatus }));
 
-      if (isEditCartMode && orders) {
-        const orderValue = await fetchOrder();
-        if (orderType === 1) {
-          orderValue.find((order) => order.tableId === tableId).items =
-            fixedCartItem.concat(tempArray);
-          orderValue.find((order) => order.tableId === tableId).orderStatus =
-            orderStatus;
-          orderValue.find((order) => order.tableId === tableId).detail =
-            orderDetail;
-        } else {
-          let orderIndex = orders[0].orderIndex;
-          orderValue[orderIndex].items = fixedCartItem.concat(tempArray);
-          orderValue[orderIndex].orderStatus = orderStatus;
-          orderValue[orderIndex].detail = orderDetail;
-        }
+    //   if (isEditCartMode && orders) {
+    //     const orderValue = await fetchOrder();
+    //     if (orderType === 1) {
+    //       orderValue.find((order) => order.tableId === tableId).items =
+    //         fixedCartItem.concat(tempArray);
+    //       orderValue.find((order) => order.tableId === tableId).orderStatus =
+    //         orderStatus;
+    //       orderValue.find((order) => order.tableId === tableId).detail =
+    //         orderDetail;
+    //     } else {
+    //       let orderIndex = orders[0].orderIndex;
+    //       orderValue[orderIndex].items = fixedCartItem.concat(tempArray);
+    //       orderValue[orderIndex].orderStatus = orderStatus;
+    //       orderValue[orderIndex].detail = orderDetail;
+    //     }
 
-        await storeOrder(orderValue);
-        dispatch(setOrder(orderValue));
-        setOpenCart(false);
-        onCloseConfirm();
-        onClearCartHandler();
-        refresher();
-        navigation.navigate("Table");
-      } else {
-        const orderValue = await fetchOrder();
-        orderValue.push({
-          id:
-            orderValue.length > 0
-              ? orderValue[orderValue.length - 1].id + 1
-              : 1,
-          orderType,
-          tableId,
-          pax,
-          items: tempArray,
-          orderIndex: orderValue.length,
-          orderStatus,
-          detail: orderDetail,
-        });
-        await storeOrder(orderValue);
-        dispatch(setOrder(orderValue));
-        setOpenCart(false);
-        onCloseConfirm();
-        onClearCartHandler();
-        refresher();
-        navigation.navigate("Table");
-      }
-    }
+    //     await storeOrder(orderValue);
+    //     dispatch(setOrder(orderValue));
+    //     setOpenCart(false);
+    //     onCloseConfirm();
+    //     onClearCartHandler();
+    //     refresher();
+    //     navigation.navigate("Table");
+    //   } else {
+    //     const orderValue = await fetchOrder();
+    //     orderValue.push({
+    //       id:
+    //         orderValue.length > 0
+    //           ? orderValue[orderValue.length - 1].id + 1
+    //           : 1,
+    //       orderType,
+    //       tableId,
+    //       pax,
+    //       items: tempArray,
+    //       orderIndex: orderValue.length,
+    //       orderStatus,
+    //       detail: orderDetail,
+    //     });
+    //     await storeOrder(orderValue);
+    //     dispatch(setOrder(orderValue));
+    //     setOpenCart(false);
+    //     onCloseConfirm();
+    //     onClearCartHandler();
+    //     refresher();
+    //     navigation.navigate("Table");
+    //   }
+    // }
   };
 
   const onRadioChange = (key: string, addonId: number) => {
@@ -410,26 +397,28 @@ const OrderScreen = () => {
   };
 
   const onAddAddon = async () => {
-    let addonsPayload = [];
-    Object.values(addonForm).forEach((item) => {
+    let addonsPayload: any[] = [];
+    Object.values(addonForm).forEach((item: any | any[]) => {
       if (item.length > 0) {
         addonsPayload = [...addonsPayload, ...item];
       } else if (item.length === undefined) {
         addonsPayload.push(item);
       }
     });
-    let payload = {
+    let payload: ItemInCartType = {
       ...selectedItem,
-      calculatedPrice: parseFloat(selectedItem.price),
+      calculatedPrice: selectedItem.price,
       addons: addonsPayload,
+      discountType: 1,
+      discountAmount: 0,
+      reference: "",
+      quantity: selectedItemQuantity,
+      itemIndex: cartItem.length,
     };
-    if (isEditAddon) {
-      payload = {
-        ...selectedEditItem,
-        calculatedPrice: parseFloat(selectedItem.price),
-        addons: addonsPayload,
-      };
-    }
+    console.log(payload);
+    console.log(
+      "aaaaaaaaaaaaaaaasasdasdasfasdfagagegerrgegeblkerfbmepfvepfv,lmp"
+    );
     if (payload.addons.length > 0) {
       payload.addons.forEach((addon) => {
         (payload.calculatedPrice += parseFloat(addon.price)).toFixed(2);
@@ -437,13 +426,13 @@ const OrderScreen = () => {
     }
 
     if (isEditAddon) {
-      const editedItem = {
+      payload = {
         ...payload,
+        ...selectedEditItem,
         quantity: selectedItemQuantity,
+        itemIndex: selectedEditItemIndex,
       };
-      dispatch(
-        updateCartItem({ index: selectedEditItemIndex, item: editedItem })
-      );
+      dispatch(updateCartItem({ index: selectedEditItemIndex, item: payload }));
     } else {
       dispatch(
         changeCart({
@@ -631,13 +620,33 @@ const OrderScreen = () => {
       dispatch(setOrder(orderTemp));
       refresher();
     } else if (isEditCartMode) {
-      // console.log(orders[0])
+      console.log(orders[0].orderIndex);
+      const orderValue = await fetchOrder();
+      let orderTemp = [...orderValue];
+      if (
+        selectedEditItem.orderIndex !== undefined &&
+        selectedEditItem.orderIndex >= 0 &&
+        selectedEditItem.itemIndex !== undefined &&
+        selectedEditItem.itemIndex >= 0
+      ) {
+        orderTemp[selectedEditItem.orderIndex].items[
+          selectedEditItem.itemIndex
+        ] = editedItem;
+      }
+
+      await storeOrder(orderTemp);
+      dispatch(setOrder(orderTemp));
+      refresher();
       console.log(
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       );
       dispatch(
         updateCartItem({ index: selectedEditItemIndex, item: editedItem })
       );
+
+      await storeOrder(orderTemp);
+      dispatch(setOrder(orderTemp));
+      refresher();
     } else {
       dispatch(
         updateCartItem({ index: selectedEditItemIndex, item: editedItem })
