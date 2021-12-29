@@ -1,3 +1,4 @@
+import { OrderDetailType, ItemInCartType } from "./itemType";
 export interface TableDataType {
   id: number;
   name: string;
@@ -17,16 +18,10 @@ export interface TableCategoryType {
 export interface OrderType {
   id: number;
   orderType: number;
-  tableId: number;
-  pax: number;
-  items: any[];
+  tableId?: number;
+  pax?: number;
+  items: ItemInCartType[];
+  orderIndex: number;
   orderStatus: number;
-  detail: {
-    subtotal: number;
-    total: number;
-    discountType: number;
-    discountAmount: number;
-    reference: string;
-    tax: number;
-  };
+  detail: OrderDetailType;
 }
