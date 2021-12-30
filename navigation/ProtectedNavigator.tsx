@@ -4,21 +4,14 @@ import {
   TransitionPresets,
 } from "@react-navigation/stack";
 import OrderScreen from "../screens/OrderScreen";
-import TableScreen from "../screens/TableScreen";
 import CameraScreen from "../screens/CameraScreen";
 import PrinterScreen from "../screens/PrinterScreen";
-import TableListScreen from "../screens/TableListScreen";
-import TableTabNavigator from "./TableTabNaivgator";
-import { Flex } from "native-base";
 import DrawerNavigator from "./DrawerNavigator";
-import { useWindowDimensions } from "react-native";
 import PaymentScreen from "../screens/PaymentScreen";
 
 const Stack = createStackNavigator();
 
 const ProtectedNavigator = () => {
-  const dimensions = useWindowDimensions();
-  const isLargeScreen = dimensions.width >= 768;
   return (
     <Stack.Navigator
       screenOptions={{
@@ -31,7 +24,6 @@ const ProtectedNavigator = () => {
       initialRouteName="Table"
     >
       <Stack.Screen name="Home" component={DrawerNavigator} />
-      <Stack.Screen name="TableEdit" component={TableTabNavigator} />
       <Stack.Screen name="Order" component={OrderScreen} />
       <Stack.Screen name="Payment" component={PaymentScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />

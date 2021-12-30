@@ -11,7 +11,6 @@ export type RootStackParamList = {
     refresher: Function;
   };
   Table: undefined;
-  TableEdit: undefined;
   Printer: undefined;
   Camera: undefined;
   Member: undefined;
@@ -19,4 +18,9 @@ export type RootStackParamList = {
   Transaction: undefined;
   Setting: undefined;
   Payment: undefined;
+
+  TableSetting: undefined;
+  GlobalSetting: undefined;
+  StaffSetting: undefined;
+  AccountSetting: undefined;
 };

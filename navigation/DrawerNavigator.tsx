@@ -4,7 +4,7 @@ import OrderScreen from "../screens/OrderScreen";
 import TableScreen from "../screens/TableScreen";
 import CameraScreen from "../screens/CameraScreen";
 import PrinterScreen from "../screens/PrinterScreen";
-import TableListScreen from "../screens/TableListScreen";
+import TableListScreen from "../screens/setting/TableSettingScreen";
 import TableTabNavigator from "./TableTabNaivgator";
 import { useWindowDimensions } from "react-native";
 import { Foundation, Ionicons } from "@expo/vector-icons";
@@ -13,6 +13,7 @@ import MenuScreen from "../screens/MenuScreen";
 import MemberScreen from "../screens/MemberScreen";
 import TransactionScreen from "../screens/TransactionScreen";
 import SettingScreen from "../screens/SettingSceen";
+import SettingNavigator from "./SettingNavigator";
 
 const Drawer = createDrawerNavigator();
 
@@ -35,7 +36,7 @@ const DrawerNavigator = () => {
       <Drawer.Screen name="Menu" component={MenuScreen} />
       <Drawer.Screen name="Member" component={MemberScreen} />
       <Drawer.Screen name="Transaction" component={TransactionScreen} />
-      <Drawer.Screen name="Setting" component={SettingScreen} />
+      <Drawer.Screen name="Setting" component={SettingNavigator} />
       <Drawer.Screen name="Camera" component={CameraScreen} />
       <Drawer.Screen name="Printer" component={PrinterScreen} />
     </Drawer.Navigator>
@@ -94,7 +95,7 @@ const CustomDrawerContent = (props) => {
             w={{ base: "300px", md: "100%" }}
             h="90px"
           >
-            {({ isFocused, isPressed, isHovered }) => (
+            {() => (
               <Flex
                 direction={{ base: "row", md: "column" }}
                 w="100%"

@@ -181,7 +181,7 @@ const OrderScreen = () => {
 
   useEffect(() => {
     calculateOrderPrice();
-  }, [cartItem]);
+  }, [cartItem,fixedCartItem]);
 
   useEffect(() => {
     if (orders && orders.length > 0) {
@@ -254,10 +254,9 @@ const OrderScreen = () => {
     console.log("this is total item price");
     console.log(detail);
 
-    detail.subtotal = parseFloat(detail.subtotal.toFixed(2));
     detail.total = parseFloat(detail.subtotal.toFixed(2));
 
-    if (discountInCartDetail) {
+    if (detail.subtotal > 0 && discountInCartDetail) {
       console.log("calculating here");
       detail = {
         ...detail,
@@ -277,6 +276,7 @@ const OrderScreen = () => {
       } else if (detail.discountType === 4) {
         detail.total = 0;
       }
+      console.log(detail)
       if (orders && orders[0]) {
         orders[0].detail = detail;
         const orderValue = await fetchOrder();
@@ -285,6 +285,7 @@ const OrderScreen = () => {
         dispatch(setOrder(orderValue));
       }
     } else if (
+      detail.subtotal > 0 &&
       orders &&
       orders[0] &&
       orders[0].detail &&
@@ -292,6 +293,7 @@ const OrderScreen = () => {
     ) {
       console.log("calculating htertetetere");
       const orderDiscountDetail = orders[0].detail;
+      console.log(orders[0]);
       console.log(orderDiscountDetail);
       if (orderDiscountDetail.discountType === 1) {
         detail.total = detail.total - orderDiscountDetail.discountAmount;
@@ -315,6 +317,7 @@ const OrderScreen = () => {
         discountType: orderDiscountDetail.discountType,
         reference: orderDiscountDetail.reference,
       };
+      console.log(detail);
     } else {
       console.log("default way to calculate...");
       if (detail.discountType === 1) {
@@ -601,8 +604,6 @@ const OrderScreen = () => {
     } else {
       setSelectedEditItemIndex(index);
     }
-    console.log(item);
-    console.log("aaasdasdgfsdgsdfsgfgdfgsdfsgsdfgs");
     setSelectedEditItem(item);
     setShowDiscountModal(true);
   };
@@ -723,8 +724,6 @@ const OrderScreen = () => {
       discountAmount: enteredAmount,
       reference: enteredReference,
     };
-    console.log(discountDetail);
-    console.log("inside hereeeeeeeeeeeeeeeeee");
     // if (isEditCartMode) {
     //   const orderValue = await fetchOrder();
     //   let orderTemp = [...orderValue];

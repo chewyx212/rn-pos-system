@@ -16,25 +16,11 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "./RootStackParams";
 
 type SettingScreenProp = StackNavigationProp<RootStackParamList, "Member">;
-const SettingScreen = () => {
+const SettingScreen = ({children}:{children: React.ReactNode}) => {
   const navigation = useNavigation<SettingScreenProp>();
   const [selectedSetting, setSelectedSetting] = useState<number>(1);
   const toast = useToast();
 
-  const settingList = [
-    {
-      id: 1,
-      name: "Staff",
-    },
-    {
-      id: 2,
-      name: "Table",
-    },
-    {
-      id: 3,
-      name: "Account",
-    },
-  ];
   return (
     <Stack
       safeArea
@@ -44,7 +30,7 @@ const SettingScreen = () => {
       bg={useColorModeValue("light.100", "muted.800")}
     >
       <VStack h="100%" flex={6} mr="1%" pt={3}>
-        <Flex
+        {/* <Flex
           direction="row"
           pl={5}
           pb={2}
@@ -60,9 +46,10 @@ const SettingScreen = () => {
           >
             Setting
           </Heading>
-        </Flex>
+        </Flex> */}
         <Flex direction="row" w="100%" h="100%">
-          <Flex flex={1}>
+          {children}
+          {/* <Flex flex={1}>
             <FlatList
               keyExtractor={(item, index) => `${item.name}${index}`}
               data={settingList}
@@ -174,7 +161,7 @@ const SettingScreen = () => {
                 </Flex>
               </Flex>
             </Flex>
-          </Flex>
+          </Flex> */}
         </Flex>
       </VStack>
     </Stack>

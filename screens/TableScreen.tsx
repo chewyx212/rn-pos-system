@@ -110,8 +110,6 @@ const TableScreen = () => {
       console.log("this is indexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
       order.orderIndex = index;
     });
-    await storeOrder(orderTemp);
-    dispatch(setOrder(orderTemp));
     let tableTemp: TableDataType[] = [];
     setOrderList(otherOrder);
     tableData.forEach((table) => {
@@ -159,12 +157,14 @@ const TableScreen = () => {
         temp.total = orderDetail.detail.total;
 
         temp.status = tempStatus;
+        console.log(temp);
       }
     });
     setTableList(tableTemp);
   };
 
   const onSelectShowOrder = (order: OrderType) => {
+    console.log(order)
     setShowOrder(order);
     setOpenTableCart(false);
     setOpenCart(true);
