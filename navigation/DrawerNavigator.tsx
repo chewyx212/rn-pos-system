@@ -30,7 +30,7 @@ const DrawerNavigator = () => {
         drawerStyle: isLargeScreen ? { width: "10%" } : { width: "100%" },
       }}
       drawerContent={CustomDrawerContent}
-      initialRouteName="Table"
+      initialRouteName="StaffSetting"
     >
       <Drawer.Screen name="Table" component={TableScreen} />
       <Drawer.Screen name="Menu" component={MenuScreen} />

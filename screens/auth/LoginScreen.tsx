@@ -16,7 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../RootStackParams";
 import { AuthApi } from "../../api/AuthApi";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { login } from "../../app/auth/authSlice";
+import { login, logout } from "../../app/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Inputs = {
@@ -49,14 +49,15 @@ const LoginScreen = () => {
     const token = await AsyncStorage.getItem("token");
     const user = await AsyncStorage.getItem("user");
     const loginpass = await AsyncStorage.getItem("loginpass");
-    if (token && user && loginpass) {
-      console.log("got token");
-      console.log(loginpass)
+    const restaurantInfo = await AsyncStorage.getItem("restaurantInfo");
+    // dispatch(logout());
+    if (token && user && loginpass && restaurantInfo) {
       dispatch(
         login({
           token,
           user: JSON.parse(user),
           loginpass: JSON.parse(loginpass),
+          restaurantInfo: JSON.parse(restaurantInfo),
         })
       );
       navigation.navigate("Passcode");
@@ -77,11 +78,16 @@ const LoginScreen = () => {
         "loginpass",
         JSON.stringify(data.response.login_pass)
       );
+      AsyncStorage.setItem(
+        "restaurantInfo",
+        JSON.stringify(data.response.restaurant)
+      );
       dispatch(
         login({
           token: data.response.token,
           user: data.response.user,
           loginpass: data.response.login_pass,
+          restaurantInfo: data.response.restaurantInfo,
         })
       );
       navigation.navigate("Passcode");
