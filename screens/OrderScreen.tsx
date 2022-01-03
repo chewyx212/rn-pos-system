@@ -185,8 +185,6 @@ const OrderScreen = () => {
 
   useEffect(() => {
     if (orders && orders.length > 0) {
-      console.log(orders[0]);
-      console.log("im consoling in useeffect");
       setIsEditCartMode(true);
       let sentArray: any[] = [];
       let holdArray: any[] = [];
@@ -218,7 +216,6 @@ const OrderScreen = () => {
   const calculateOrderPrice = async (
     discountInCartDetail?: OrderDetailType
   ) => {
-    console.log("recalculating");
 
     let detail = {
       subtotal: 0.0,
@@ -230,7 +227,6 @@ const OrderScreen = () => {
     };
     let items = cartItem;
     if (fixedCartItem.length > 0) {
-      console.log(" this is hard to runnnnnnnnnnnnnnnnnnnnnnnn");
       // this will combine "SENT TO KITCHEN" item with "IN THE KITCHEN" item
       items = fixedCartItem.concat(cartItem);
     }
@@ -251,13 +247,10 @@ const OrderScreen = () => {
         detail.subtotal += item.calculatedPrice * item.quantity;
       }
     });
-    console.log("this is total item price");
-    console.log(detail);
 
     detail.total = parseFloat(detail.subtotal.toFixed(2));
 
     if (detail.subtotal > 0 && discountInCartDetail) {
-      console.log("calculating here");
       detail = {
         ...detail,
         discountType: discountInCartDetail.discountType,
@@ -276,7 +269,6 @@ const OrderScreen = () => {
       } else if (detail.discountType === 4) {
         detail.total = 0;
       }
-      console.log(detail)
       if (orders && orders[0]) {
         orders[0].detail = detail;
         const orderValue = await fetchOrder();
@@ -291,10 +283,7 @@ const OrderScreen = () => {
       orders[0].detail &&
       orders[0].detail.discountType
     ) {
-      console.log("calculating htertetetere");
       const orderDiscountDetail = orders[0].detail;
-      console.log(orders[0]);
-      console.log(orderDiscountDetail);
       if (orderDiscountDetail.discountType === 1) {
         detail.total = detail.total - orderDiscountDetail.discountAmount;
       } else if (orderDiscountDetail.discountType === 2) {
@@ -317,9 +306,7 @@ const OrderScreen = () => {
         discountType: orderDiscountDetail.discountType,
         reference: orderDiscountDetail.reference,
       };
-      console.log(detail);
     } else {
-      console.log("default way to calculate...");
       if (detail.discountType === 1) {
         detail.total = detail.subtotal - detail.discountAmount;
       } else if (detail.discountType === 2) {
@@ -438,6 +425,7 @@ const OrderScreen = () => {
   };
 
   const onAddAddon = async () => {
+    console.log(addonForm)
     let addonsPayload: any[] = [];
     Object.values(addonForm).forEach((item: any | any[]) => {
       if (item.length > 0) {
@@ -461,11 +449,10 @@ const OrderScreen = () => {
         (payload.calculatedPrice += parseFloat(addon.price)).toFixed(2);
       });
     }
-
     if (isEditAddon) {
       payload = {
-        ...payload,
         ...selectedEditItem,
+        ...payload,
         quantity: selectedItemQuantity,
         itemIndex: selectedEditItemIndex,
       };
@@ -562,6 +549,7 @@ const OrderScreen = () => {
     let originalItem = itemList.find(
       (list: ItemDataType) => list.id === item.id
     );
+    console.log(" here!aaaaaaaaaaaaaaaaaaaaaa")
     if (originalItem) {
       if (originalItem.addons.length > 0) {
         setIsEditQuantity(false);
@@ -672,7 +660,6 @@ const OrderScreen = () => {
         updateCartItem({ index: selectedEditItemIndex, item: editedItem })
       );
     }
-    calculateOrderPrice();
     setEnteredReference("");
     setEnteredAmount(0);
     setSelectedDiscountType(1);

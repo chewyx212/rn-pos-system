@@ -7,3 +7,14 @@ export interface CreateStaffType {
   pos_password: string;
   restaurant_id: string;
 }
+
+export interface StaffListType {
+  age: string;
+  email: string;
+  id: number;
+  name: string;
+  phone_number: string;
+  type: string;
+  userID: number;
+  username: string;
+}

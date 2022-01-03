@@ -9,6 +9,9 @@ import {
   Modal,
   useToast,
   KeyboardAvoidingView,
+  FlatList,
+  HStack,
+  Spinner,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { MaterialIcons, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -17,9 +20,9 @@ import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { RootStackParamList } from "../RootStackParams";
 import { useAppSelector } from "../../app/hooks";
 import { StaffApi } from "../../api/StaffApi";
-import { Platform } from "react-native";
+import { ListRenderItemInfo, Platform } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { CreateStaffType } from "../../types/staffType";
+import { CreateStaffType, StaffListType } from "../../types/staffType";
 
 type StaffSettingScreenProp = DrawerNavigationProp<
   RootStackParamList,
@@ -37,7 +40,8 @@ const StaffSettingScreen = () => {
     formState: { errors },
   } = useForm<CreateStaffType>();
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
-  const [staffList, setStaffList] = useState<[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
+  const [staffList, setStaffList] = useState<StaffListType[]>([]);
   const toast = useToast();
   const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
   const navigation = useNavigation<StaffSettingScreenProp>();
@@ -47,6 +51,7 @@ const StaffSettingScreen = () => {
   }, []);
 
   const getAllStaff = async () => {
+    setIsRefreshing(true);
     if (restaurantInfo) {
       const restaurantId: number = restaurantInfo.id;
       const result = await StaffApi.getStaff(restaurantId);
@@ -61,6 +66,7 @@ const StaffSettingScreen = () => {
         }
       }
     }
+    setIsRefreshing(false)
   };
 
   const onSubmit = async (field: CreateStaffType) => {
@@ -72,24 +78,25 @@ const StaffSettingScreen = () => {
     console.log(payload);
     const result = await StaffApi.createStaff(payload);
     console.log(result);
-    // if (data.status === 707) {
-
-    // } else if (data.status === 701) {
-    //   await toast.closeAll();
-    //   toast.show({
-    //     title: "Email or password is wrong!",
-    //     status: "error",
-    //     placement: "top",
-    //   });
-    // } else {
-    //   await toast.closeAll();
-    //   toast.show({
-    //     title: "Try again later!",
-    //     description: "Something wrong...",
-    //     status: "warning",
-    //     placement: "top",
-    //   });
-    // }
+    if (result.status === 200) {
+      console.log(result.data);
+    } else if (result.status === 422) {
+      console.log(result.data);
+      await toast.closeAll();
+      toast.show({
+        title: "Email or password is wrong!",
+        status: "error",
+        placement: "top",
+      });
+    } else {
+      await toast.closeAll();
+      toast.show({
+        title: "Try again later!",
+        description: "Something wrong...",
+        status: "warning",
+        placement: "top",
+      });
+    }
   };
 
   return (
@@ -106,7 +113,9 @@ const StaffSettingScreen = () => {
             Staff
           </Heading>
           <Flex direction="row" flex={1}>
-            <Button onPress={() => setOpenAddModal(true)} mr={3}> Add Staff</Button>
+            <Button onPress={() => setOpenAddModal(true)} mr={3}>
+              Add Staff
+            </Button>
             <Input
               placeholder="Search Staff"
               bg="transparent"
@@ -138,7 +147,10 @@ const StaffSettingScreen = () => {
           py={3}
           px={2}
         >
-          <Text flex={1} textAlign="center">
+          <Text flex={0.5} textAlign="center">
+            Index
+          </Text>
+          <Text flex={0.5} textAlign="center">
             Id
           </Text>
           <Text flex={1} textAlign="center">
@@ -151,36 +163,31 @@ const StaffSettingScreen = () => {
             Email
           </Text>
           <Text flex={1} textAlign="center">
+            Role
+          </Text>
+          <Text flex={1} textAlign="center">
             Action
           </Text>
         </Flex>
-        {staffList.map((staff) => {
-          return (
-            <Flex
-              direction="row"
-              bg={useColorModeValue("light.100", "dark.100")}
-              py={4}
-            >
-              <Text flex={1} textAlign="center">
-                123
-              </Text>
-              <Text flex={1} textAlign="center">
-                Chew Yx
-              </Text>
-              <Text flex={1} textAlign="center">
-                +60197902102
-              </Text>
-              <Text flex={1} textAlign="center">
-                chewingyx212@gmail.com
-              </Text>
-              <Flex flex={1} textAlign="center">
-                <Button colorScheme="gray" variant="outline" mx={10}>
-                  Edit
-                </Button>
-              </Flex>
-            </Flex>
-          );
-        })}
+        {staffList.length > 0 && !isRefreshing ? (
+          <FlatList
+            refreshing={isRefreshing}
+            onRefresh={getAllStaff}
+            keyExtractor={(item, index) => item.name + index}
+            data={staffList}
+            renderItem={({
+              item,
+              index,
+            }: ListRenderItemInfo<StaffListType>) => (
+              <StaffSettingListItem staff={item} index={index} />
+            )}
+          />
+        ) : (
+          <Flex direction="row" justify="center" alignItems="center" m={5}>
+            <Spinner accessibilityLabel="Loading posts" mx={10} />
+            <Heading fontSize="md">Loading</Heading>
+          </Flex>
+        )}
       </Flex>
       <Modal
         isOpen={openAddModal}
@@ -457,6 +464,45 @@ const StaffSettingScreen = () => {
         </KeyboardAvoidingView>
       </Modal>
     </>
+  );
+};
+
+interface StaffSettingListItemProps {
+  staff: StaffListType;
+  index: number;
+}
+
+const StaffSettingListItem = ({ staff, index }: StaffSettingListItemProps) => {
+  return (
+    <Flex
+      direction="row"
+      bg={useColorModeValue("light.100", "dark.100")}
+      py={4}
+    >
+      <Text flex={0.5} textAlign="center">
+        {index +1}
+      </Text>
+      <Text flex={0.5} textAlign="center">
+        {staff.id}
+      </Text>
+      <Text flex={1} textAlign="center">
+        {staff.name}
+      </Text>
+      <Text flex={1} textAlign="center">
+        {staff.phone_number}
+      </Text>
+      <Text flex={1} textAlign="center">
+        {staff.email}
+      </Text>
+      <Text flex={1} textAlign="center">
+        {staff.type}
+      </Text>
+      <Flex flex={1} textAlign="center">
+        <Button colorScheme="gray" variant="outline" mx={10}>
+          Edit
+        </Button>
+      </Flex>
+    </Flex>
   );
 };
 
