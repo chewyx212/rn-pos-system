@@ -1,5 +1,5 @@
 export interface ItemDataType {
-  id: number;|
+  id: number;
   name: string;
   price: number;
   stock: null | number;
@@ -19,7 +19,7 @@ export interface ItemDataType {
   addons: any[];
 }
 
-export interface ItemFromApi  {
+export interface ItemFromApi {
   id: number;
   imageURL: string;
   image_url: {
@@ -36,24 +36,33 @@ export interface ItemFromApi  {
   name: string;
   order_number: number;
   price: number;
+  stock: null | number;
   addons: AddonType[];
+}
+
+export interface EditItemForm {
+  stock: number;
+}
+
+export interface EditItemType extends EditItemForm {
+  id: number;
 }
 
 export interface AddonType {
   addon_category: AddonCategoryType;
   addon_category_id: number;
   id: number;
-  is_active: number|boolean
+  is_active: number | boolean;
   name: string;
   price: number;
   restaurant_id: number;
 }
 export interface AddonCategoryType {
   id: number;
-  name: string
-  remark: string
+  name: string;
+  remark: string;
   restaurant_id: number;
-  type: number
+  type: number;
 }
 
 export interface ItemInCartType extends ItemDataType {
