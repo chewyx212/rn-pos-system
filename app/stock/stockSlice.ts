@@ -18,21 +18,11 @@ const stockSlice = createSlice({
           ...state.stockItems[findIndex],
           in_cart:
             state.stockItems[findIndex].in_cart + action.payload.quantity,
-          in_kitchen:
-            action.payload.status === 2
-              ? state.stockItems[findIndex].in_kitchen + action.payload.quantity
-              : state.stockItems[findIndex].in_kitchen,
-          on_hold:
-            action.payload.status === 1
-              ? state.stockItems[findIndex].on_hold + action.payload.quantity
-              : state.stockItems[findIndex].on_hold,
         };
       } else {
         state.stockItems.push({
           id: action.payload.id,
           in_cart: action.payload.quantity,
-          in_kitchen: action.payload.status === 2 ? action.payload.quantity : 0,
-          on_hold: action.payload.status === 1 ? action.payload.quantity : 0,
         });
       }
     },
@@ -51,15 +41,6 @@ const stockSlice = createSlice({
             ...state.stockItems[findIndex],
             in_cart:
               state.stockItems[findIndex].in_cart - action.payload.quantity,
-            in_kitchen:
-              action.payload.status === 2
-                ? state.stockItems[findIndex].in_kitchen -
-                  action.payload.quantity
-                : state.stockItems[findIndex].in_kitchen,
-            on_hold:
-              action.payload.status === 1
-                ? state.stockItems[findIndex].on_hold - action.payload.quantity
-                : state.stockItems[findIndex].on_hold,
           };
         }
       }
@@ -75,9 +56,6 @@ const stockSlice = createSlice({
           state.stockItems[findIndex] = {
             ...state.stockItems[findIndex],
             in_cart: action.payload.quantity,
-            in_kitchen:
-              action.payload.status === 2 ? action.payload.quantity : 0,
-            on_hold: action.payload.status === 1 ? action.payload.quantity : 0,
           };
         }
       }

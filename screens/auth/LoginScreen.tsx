@@ -64,7 +64,7 @@ const LoginScreen = () => {
     }
   };
 
-  const onSubmit = async (field) => {
+  const onSubmit = async (field: Inputs) => {
     const payload = {
       input: field.email,
       password: field.password,
@@ -182,7 +182,7 @@ const LoginScreen = () => {
                       borderWidth: 0.5,
                       borderColor: "dark.200",
                     }}
-                    isInvalid={errors.email}
+                    isInvalid={errors.email ? true : false}
                   />
 
                   {/* {errors.email && (

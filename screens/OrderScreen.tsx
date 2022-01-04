@@ -55,6 +55,7 @@ import {
 } from "../types/itemType";
 import { OrderType } from "../types/tableType";
 import { ItemApi } from "../api/ItemApi";
+import { addStockItem, updateStockItems } from "../app/stock/stockSlice";
 
 type OrderScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -387,6 +388,7 @@ const OrderScreen = () => {
         quantity,
       })
     );
+    dispatch(addStockItem({ id: item.id, quantity, status: 1 }));
     await toast.closeAll();
     toast.show({
       background: "emerald.500",
@@ -507,6 +509,8 @@ const OrderScreen = () => {
           quantity: selectedItemQuantity,
         })
       );
+      
+    dispatch(updateStockItems({ id: payload.id, selectedItemQuantity }));
     }
     await toast.closeAll();
     toast.show({

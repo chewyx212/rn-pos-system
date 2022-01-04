@@ -32,7 +32,7 @@ const NumberPadInput: React.FC<IProps> = ({
     useState<String>("0.00");
   const toast = useToast();
 
-  const onPressInput = (value) => {
+  const onPressInput = (value: string) => {
     if (isDecimal) {
       if (enteredDecimalValue.length >= maximumInputLength + 1) {
         toast.show({
@@ -64,7 +64,7 @@ const NumberPadInput: React.FC<IProps> = ({
       }
     }
   };
-  const countDecimals = (value) => {
+  const countDecimals = (value: number) => {
     if (Math.floor(value) === value) return 0;
     return value.toString().split(".")[1].length || 0;
   };
@@ -171,7 +171,7 @@ const NumberPadInput: React.FC<IProps> = ({
                     bg: useColorModeValue("light.200", "dark.200"),
                   }}
                   onPress={() => {
-                    onPressInput(index + 1);
+                    onPressInput((index + 1).toString());
                   }}
                   disabled={enteredValue.length >= maximumInputLength}
                 >
@@ -210,7 +210,7 @@ const NumberPadInput: React.FC<IProps> = ({
                   bg: useColorModeValue("light.200", "dark.200"),
                 }}
                 onPress={() => {
-                  onPressInput(0);
+                  onPressInput("0");
                 }}
               >
                 0
