@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../RootStackParams";
 import PasscodeInput from "../../components/PasscodeInput";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { setLoginPass, verifyPasscode } from "../../app/auth/authSlice";
+import { logout, setLoginPass, verifyPasscode } from "../../app/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthApi } from "../../api/AuthApi";
 
@@ -17,11 +17,37 @@ const PasscodeScreen = () => {
   const user = useAppSelector((state) => state.auth.user);
   const loginpass = useAppSelector((state) => state.auth.loginpass);
   const navigation = useNavigation<passcodeScreenProp>();
+  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const toast = useToast();
 
   useEffect(() => {
-    checkPasscode();
+    if (isLoggedIn) {
+      checkPasscode();
+    } else {
+      getTokenFromAsyncStorage();
+    }
   }, []);
+  useEffect(() => {}, []);
+
+  const getTokenFromAsyncStorage = async () => {
+    const token = await AsyncStorage.getItem("token");
+    const user = await AsyncStorage.getItem("user");
+    const loginpass = await AsyncStorage.getItem("loginpass");
+    const restaurantInfo = await AsyncStorage.getItem("restaurantInfo");
+    // dispatch(logout());
+    if (token && user && loginpass && restaurantInfo) {
+      dispatch(
+        login({
+          token,
+          user: JSON.parse(user),
+          loginpass: JSON.parse(loginpass),
+          restaurantInfo: JSON.parse(restaurantInfo),
+        })
+      );
+    } else {
+      navigation.navigate("Login");
+    }
+  };
 
   const checkPasscode = async () => {
     console.log(loginpass);
@@ -35,10 +61,13 @@ const PasscodeScreen = () => {
 
   const submitHandler = async (passcode: string) => {
     const result = await AuthApi.counterLogin({ pos_password: passcode });
-    console.log(result)
+    console.log(result);
     if (result.data.status === 711) {
       await AsyncStorage.setItem("passcode", passcode);
       dispatch(verifyPasscode());
+    } else if (result.status === 401) {
+      dispatch(logout());
+      navigation.navigate("Login");
     } else {
       await toast.closeAll();
       toast.show({
@@ -62,7 +91,7 @@ const PasscodeScreen = () => {
       });
 
       setIsLoginPass(true);
-      await AsyncStorage.setItem("loginpass", 'true');
+      await AsyncStorage.setItem("loginpass", "true");
       dispatch(setLoginPass({ loginpass: true }));
     } else if (result.data.status === 710) {
       await toast.closeAll();

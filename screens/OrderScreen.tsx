@@ -47,24 +47,14 @@ import { RectButton } from "react-native-gesture-handler";
 import NumberPadInput from "../components/NumberPadInput";
 import PasscodeVerification from "../components/PasscodeVerification";
 import {
+  AddonType,
   ItemCategoryType,
-  ItemDataType,
+  ItemType,
   ItemInCartType,
   OrderDetailType,
 } from "../types/itemType";
 import { OrderType } from "../types/tableType";
-
-const mappingItemCategory = (): ItemCategoryType[] => {
-  let category: ItemCategoryType[] = [];
-  let idList: number[] = [];
-  itemData.forEach((item) => {
-    if (!idList.includes(item.item_category.id)) {
-      idList.push(item.item_category.id);
-      category.push(item.item_category);
-    }
-  });
-  return category;
-};
+import { ItemApi } from "../api/ItemApi";
 
 type OrderScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -80,19 +70,16 @@ const OrderScreen = () => {
     reference: "",
     tax: 0.0,
   };
-  const [itemList, setItemList] = useState<ItemDataType[]>(itemData);
-  const [categoryList, setCategoryList] = useState<ItemCategoryType[]>(
-    mappingItemCategory()
-  );
-  const [selectedCategory, setSelectedCategory] = useState<number>(
-    mappingItemCategory()[0].id
-  );
-  const [selectedItem, setSelectedItem] = useState<ItemDataType>({});
+  const [itemList, setItemList] = useState<ItemType[]>([]);
+  const [categoryList, setCategoryList] = useState<ItemCategoryType[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number>(0);
+  const [selectedItem, setSelectedItem] = useState<ItemType>();
   const [selectedItemQuantity, setSelectedItemQuantity] = useState<number>(1);
   const [selectedItemAddon, setSelectedItemAddon] = useState({});
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
   const [fixedCartItem, setFixedCartItem] = useState<ItemInCartType[]>([]);
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [openSelectionModal, setOpenSelectionModal] = useState<boolean>(false);
   const [isEditCartMode, setIsEditCartMode] = useState<boolean>(false);
   const [openCart, setOpenCart] = useState<boolean>(false);
@@ -109,7 +96,7 @@ const OrderScreen = () => {
   const [selectedDiscountType, setSelectedDiscountType] = useState<number>(1);
   const [enteredAmount, setEnteredAmount] = useState<number>(0);
   const [enteredReference, setEnteredReference] = useState<string>("");
-  const [selectedEditItem, setSelectedEditItem] = useState<ItemInCartType>({});
+  const [selectedEditItem, setSelectedEditItem] = useState<ItemInCartType>();
   const [selectedEditItemQuantity, setSelectedEditItemQuantity] =
     useState<number>(0);
   const [selectedEditItemIndex, setSelectedEditItemIndex] = useState<number>(0);
@@ -117,6 +104,7 @@ const OrderScreen = () => {
     useState<OrderDetailType>(initialOrderDetail);
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
+  const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
   const cancelRef = useRef(null);
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
@@ -166,22 +154,10 @@ const OrderScreen = () => {
     { id: 3, name: "Fixed Price" },
     { id: 4, name: "FOC" },
   ];
-  const openPasscode = () => {
-    setTogglePasscode(true);
-  };
-  const closePasscode = () => {
-    setTogglePasscode(false);
-  };
-
-  const submitHandler = (result) => {
-    console.log("heihei");
-    console.log(result);
-    onVerifiedVoidOrder();
-  };
 
   useEffect(() => {
     calculateOrderPrice();
-  }, [cartItem,fixedCartItem]);
+  }, [cartItem, fixedCartItem]);
 
   useEffect(() => {
     if (orders && orders.length > 0) {
@@ -189,7 +165,8 @@ const OrderScreen = () => {
       let sentArray: any[] = [];
       let holdArray: any[] = [];
       orders.forEach((order) => {
-        order.items.forEach((item, index) => {
+        console.log(order.items);
+        order.items.forEach((item, index: number) => {
           if (item.orderStatus === 2) {
             sentArray.push({
               ...item,
@@ -211,12 +188,76 @@ const OrderScreen = () => {
     } else {
       dispatch(clearCart());
     }
+    getAllItem();
   }, []);
+
+  const openPasscode = () => {
+    setTogglePasscode(true);
+  };
+  const closePasscode = () => {
+    setTogglePasscode(false);
+  };
+
+  const submitHandler = (result: any) => {
+    console.log("heihei");
+    console.log(result);
+    onVerifiedVoidOrder();
+  };
+
+  const getAllItem = async () => {
+    setIsRefreshing(true);
+    console.log(restaurantInfo);
+    if (restaurantInfo) {
+      const restaurantId: number = restaurantInfo.id;
+      const result = await ItemApi.getItem(restaurantId);
+      if (result.status === 200 && result.data.status === 0) {
+        if (
+          result.data.response.item_lists &&
+          result.data.response.item_lists.length > 0
+        ) {
+          mappingAllItem(result.data.response.item_lists);
+        }
+      }
+    }
+    setIsRefreshing(false);
+  };
+
+  const mappingAllItem = (response: any[]) => {
+    let category: ItemCategoryType[] = [];
+    let itemList: ItemType[] = [];
+    let idList: number[] = [];
+    response.forEach((item) => {
+      if (item.addons && item.addons > 0) {
+        let addons: AddonType[] = [];
+        item.addons.forEach((addon: any) => {
+          addons.push({
+            ...addon,
+            price: parseFloat(addon.price),
+          });
+        });
+      } else {
+        itemList.push({
+          ...item,
+          price: parseFloat(item.price),
+        });
+      }
+      if (!idList.includes(item.item_category_id)) {
+        idList.push(item.item_category_id);
+        category.push({
+          id: item.item_category_id,
+          name: item.item_category_name,
+          is_enabled: true,
+        });
+      }
+    });
+    setItemList(itemList);
+    setSelectedCategory(idList[0]);
+    setCategoryList(category);
+  };
 
   const calculateOrderPrice = async (
     discountInCartDetail?: OrderDetailType
   ) => {
-
     let detail = {
       subtotal: 0.0,
       total: 0.0,
@@ -425,7 +466,7 @@ const OrderScreen = () => {
   };
 
   const onAddAddon = async () => {
-    console.log(addonForm)
+    console.log(addonForm);
     let addonsPayload: any[] = [];
     Object.values(addonForm).forEach((item: any | any[]) => {
       if (item.length > 0) {
@@ -546,10 +587,8 @@ const OrderScreen = () => {
     }
     setSelectedEditItem(item);
     setSelectedEditItemQuantity(item.quantity);
-    let originalItem = itemList.find(
-      (list: ItemDataType) => list.id === item.id
-    );
-    console.log(" here!aaaaaaaaaaaaaaaaaaaaaa")
+    let originalItem = itemList.find((list: ItemType) => list.id === item.id);
+    console.log(" here!aaaaaaaaaaaaaaaaaaaaaa");
     if (originalItem) {
       if (originalItem.addons.length > 0) {
         setIsEditQuantity(false);
@@ -617,53 +656,72 @@ const OrderScreen = () => {
   };
 
   const onApplyDiscount = async () => {
-    const editedItem: ItemInCartType = {
-      ...selectedEditItem,
-      discountType: selectedDiscountType,
-      discountAmount: enteredAmount,
-      reference: enteredReference,
-    };
-    // if the order is already placed else only change cart item
-    if (
-      isEditCartMode ||
-      (selectedEditItem?.orderStatus && selectedEditItem.orderStatus === 2)
-    ) {
-      const orderValue = await fetchOrder();
-      let orderTemp: OrderType[] = [...orderValue];
-
+    if (selectedEditItem) {
       if (
-        selectedEditItem.orderIndex !== undefined &&
-        selectedEditItem.orderIndex >= 0 &&
-        selectedEditItem.itemIndex !== undefined &&
-        selectedEditItem.itemIndex >= 0
+        selectedEditItem.calculatedPrice < enteredAmount &&
+        selectedDiscountType === 1
       ) {
-        orderTemp[selectedEditItem.orderIndex].items[
-          selectedEditItem.itemIndex
-        ] = editedItem;
-      }
-
-      if (selectedEditItem?.orderStatus && selectedEditItem.orderStatus === 2) {
-        setFixedCartItem((pervState) => {
-          pervState.splice(selectedEditItemIndex, 1, editedItem);
-          return pervState;
+        await toast.closeAll();
+        toast.show({
+          background: "amber.500",
+          description: `Discount Amount cannot greater than original price`,
+          placement: "top",
+          isClosable: true,
         });
       } else {
-        dispatch(
-          updateCartItem({ index: selectedEditItemIndex, item: editedItem })
-        );
+        const editedItem: ItemInCartType = {
+          ...selectedEditItem,
+          discountType: selectedDiscountType,
+          discountAmount: enteredAmount,
+          reference: enteredReference,
+        };
+        // if the order is already placed else only change cart item
+        if (
+          isEditCartMode ||
+          (selectedEditItem?.orderStatus && selectedEditItem.orderStatus === 2)
+        ) {
+          const orderValue = await fetchOrder();
+          let orderTemp: OrderType[] = [...orderValue];
+
+          if (
+            selectedEditItem.orderIndex !== undefined &&
+            selectedEditItem.orderIndex >= 0 &&
+            selectedEditItem.itemIndex !== undefined &&
+            selectedEditItem.itemIndex >= 0
+          ) {
+            orderTemp[selectedEditItem.orderIndex].items[
+              selectedEditItem.itemIndex
+            ] = editedItem;
+          }
+
+          if (
+            selectedEditItem?.orderStatus &&
+            selectedEditItem.orderStatus === 2
+          ) {
+            setFixedCartItem((pervState) => {
+              pervState.splice(selectedEditItemIndex, 1, editedItem);
+              return pervState;
+            });
+          } else {
+            dispatch(
+              updateCartItem({ index: selectedEditItemIndex, item: editedItem })
+            );
+          }
+          await storeOrder(orderTemp);
+          dispatch(setOrder(orderTemp));
+          refresher();
+        } else {
+          dispatch(
+            updateCartItem({ index: selectedEditItemIndex, item: editedItem })
+          );
+        }
       }
-      await storeOrder(orderTemp);
-      dispatch(setOrder(orderTemp));
-      refresher();
-    } else {
-      dispatch(
-        updateCartItem({ index: selectedEditItemIndex, item: editedItem })
-      );
+
+      setEnteredReference("");
+      setEnteredAmount(0);
+      setSelectedDiscountType(1);
+      setShowDiscountModal(false);
     }
-    setEnteredReference("");
-    setEnteredAmount(0);
-    setSelectedDiscountType(1);
-    setShowDiscountModal(false);
   };
 
   const onVoidOrder = async () => {
@@ -875,7 +933,7 @@ const OrderScreen = () => {
                               w="100%"
                               borderRadius="lg"
                               source={{
-                                uri: item.image?.url,
+                                uri: item.imageURL,
                               }}
                               fallbackSource={require("./../assets/fallback-img.jpg")}
                               alt={item.name}
@@ -1378,169 +1436,176 @@ const OrderScreen = () => {
           py={5}
           px={2}
         >
-          <Pressable bg="transparent" onPress={onCloseModalHandler}>
-            <Flex direction="row" align="center">
-              <Icon
-                color="primary.500"
-                as={Entypo}
-                name="chevron-left"
-                size="xs"
-              />
-              <Text color="primary.500">Cancel</Text>
-            </Flex>
-          </Pressable>
+          {selectedItem && (
+            <>
+              <Pressable bg="transparent" onPress={onCloseModalHandler}>
+                <Flex direction="row" align="center">
+                  <Icon
+                    color="primary.500"
+                    as={Entypo}
+                    name="chevron-left"
+                    size="xs"
+                  />
+                  <Text color="primary.500">Cancel</Text>
+                </Flex>
+              </Pressable>
 
-          <HStack pt={4}>
-            <Image
-              size="md"
-              resizeMode={"cover"}
-              borderRadius="md"
-              mr="10px"
-              bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
-              source={{
-                uri: selectedItem.image?.url,
-              }}
-              fallbackSource={require("./../assets/fallback-img.jpg")}
-              alt="Alternate Text"
-            />
-            <VStack>
-              <Text fontSize="md">{selectedItem?.id}</Text>
-              <Text fontSize="md">{selectedItem?.name}</Text>
-              <Text pt={1} color="primary.500" fontSize="lg" bold>
-                RM {selectedItem?.price}
-              </Text>
-            </VStack>
-          </HStack>
-          <View pt={3} flex={1}>
-            {selectedItem?.addons?.length > 0 && (
-              <FlatList
-                data={selectedItemAddon}
-                keyExtractor={(item, index) => item + index}
-                renderItem={({ item }) => {
-                  return (
-                    <>
-                      <Text
-                        py="3"
-                        fontFamily="sf-pro-text-semibold"
-                        fontSize="15"
-                      >
-                        {item.name}
-                      </Text>
-                      {parseInt(item.type) === 1 && (
+              <HStack pt={4}>
+                <Image
+                  size="md"
+                  resizeMode={"cover"}
+                  borderRadius="md"
+                  mr="10px"
+                  bg={useColorModeValue(
+                    "dark.500:alpha.20",
+                    "dark.300:alpha.20"
+                  )}
+                  source={{
+                    uri: selectedItem?.imageURL,
+                  }}
+                  fallbackSource={require("./../assets/fallback-img.jpg")}
+                  alt="Alternate Text"
+                />
+                <VStack>
+                  <Text fontSize="md">{selectedItem?.id}</Text>
+                  <Text fontSize="md">{selectedItem?.name}</Text>
+                  <Text pt={1} color="primary.500" fontSize="lg" bold>
+                    RM {selectedItem?.price}
+                  </Text>
+                </VStack>
+              </HStack>
+              <View pt={3} flex={1}>
+                {selectedItem?.addons?.length > 0 && (
+                  <FlatList
+                    data={selectedItemAddon}
+                    keyExtractor={(item, index) => item + index}
+                    renderItem={({ item }) => {
+                      return (
                         <>
-                          <Checkbox.Group
-                            onChange={(nextValue) =>
-                              onCheckChange(item.name, nextValue)
-                            }
-                            value={addonCheckboxForm}
-                            accessibilityLabel="choose addon"
+                          <Text
+                            py="3"
+                            fontFamily="sf-pro-text-semibold"
+                            fontSize="15"
                           >
-                            {item.data.map((addon) => {
-                              return (
-                                <Checkbox
-                                  key={addon.id}
-                                  value={addon.id}
-                                  my={2}
-                                  size="md"
-                                >
-                                  <Text
-                                    px={2}
-                                    fontFamily="sf-pro-text-regular"
-                                    fontSize="13"
-                                  >
-                                    {addon.name} RM{addon.price}
-                                  </Text>
-                                </Checkbox>
-                              );
-                            })}
-                          </Checkbox.Group>
-                        </>
-                      )}
-                      {parseInt(item.type) === 2 && (
-                        <Radio.Group
-                          name={item.name}
-                          accessibilityLabel={item.name}
-                          value={addonForm[item.name].id}
-                          onChange={(nextValue) =>
-                            onRadioChange(item.name, nextValue)
-                          }
-                        >
-                          {item.data.map((addon) => {
-                            return (
-                              <Radio
-                                key={addon.id}
-                                value={addon.id}
-                                my={1.5}
-                                size="lg"
+                            {item.name}
+                          </Text>
+                          {parseInt(item.type) === 1 && (
+                            <>
+                              <Checkbox.Group
+                                onChange={(nextValue) =>
+                                  onCheckChange(item.name, nextValue)
+                                }
+                                value={addonCheckboxForm}
+                                accessibilityLabel="choose addon"
                               >
-                                <Text
-                                  px={2}
-                                  fontFamily="sf-pro-text-regular"
-                                  fontSize="13"
-                                >
-                                  {addon.name}
-                                  {parseFloat(addon.price) > 0
-                                    ? ` RM ${addon.price}`
-                                    : ""}
-                                </Text>
-                              </Radio>
-                            );
-                          })}
-                        </Radio.Group>
-                      )}
-                    </>
-                  );
-                }}
-              />
-            )}
-            <HStack py={2}>
-              <Button
-                flex={1}
-                colorScheme="red"
-                leftIcon={
-                  selectedItemQuantity === 0 ? (
-                    <Icon as={Entypo} name="trash" size="xs" />
-                  ) : (
-                    <Icon as={Entypo} name="minus" size="xs" />
-                  )
-                }
-                onPress={() => {
-                  if (selectedItemQuantity === 0) {
-                    onCloseModalHandler();
-                  } else {
-                    setSelectedItemQuantity((prevState) => {
-                      if (prevState > 0) {
-                        return prevState - 1;
+                                {item.data.map((addon) => {
+                                  return (
+                                    <Checkbox
+                                      key={addon.id}
+                                      value={addon.id}
+                                      my={2}
+                                      size="md"
+                                    >
+                                      <Text
+                                        px={2}
+                                        fontFamily="sf-pro-text-regular"
+                                        fontSize="13"
+                                      >
+                                        {addon.name} RM{addon.price}
+                                      </Text>
+                                    </Checkbox>
+                                  );
+                                })}
+                              </Checkbox.Group>
+                            </>
+                          )}
+                          {parseInt(item.type) === 2 && (
+                            <Radio.Group
+                              name={item.name}
+                              accessibilityLabel={item.name}
+                              value={addonForm[item.name].id}
+                              onChange={(nextValue) =>
+                                onRadioChange(item.name, nextValue)
+                              }
+                            >
+                              {item.data.map((addon) => {
+                                return (
+                                  <Radio
+                                    key={addon.id}
+                                    value={addon.id}
+                                    my={1.5}
+                                    size="lg"
+                                  >
+                                    <Text
+                                      px={2}
+                                      fontFamily="sf-pro-text-regular"
+                                      fontSize="13"
+                                    >
+                                      {addon.name}
+                                      {parseFloat(addon.price) > 0
+                                        ? ` RM ${addon.price}`
+                                        : ""}
+                                    </Text>
+                                  </Radio>
+                                );
+                              })}
+                            </Radio.Group>
+                          )}
+                        </>
+                      );
+                    }}
+                  />
+                )}
+                <HStack py={2}>
+                  <Button
+                    flex={1}
+                    colorScheme="red"
+                    leftIcon={
+                      selectedItemQuantity === 0 ? (
+                        <Icon as={Entypo} name="trash" size="xs" />
+                      ) : (
+                        <Icon as={Entypo} name="minus" size="xs" />
+                      )
+                    }
+                    onPress={() => {
+                      if (selectedItemQuantity === 0) {
+                        onCloseModalHandler();
+                      } else {
+                        setSelectedItemQuantity((prevState) => {
+                          if (prevState > 0) {
+                            return prevState - 1;
+                          }
+                          return prevState;
+                        });
                       }
-                      return prevState;
-                    });
-                  }
-                }}
-              ></Button>
-              <Text flex={1} alignSelf="center" textAlign="center">
-                {selectedItemQuantity}
-              </Text>
-              <Button
-                flex={1}
-                colorScheme="green"
-                py={3}
-                leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
-                onPress={() =>
-                  setSelectedItemQuantity((prevState) => prevState + 1)
-                }
-              ></Button>
-            </HStack>
-            <PrimaryButton
-              mt="auto"
-              mb={1}
-              align="flex-end"
-              p={3}
-              onPress={onAddAddon}
-              disabled={selectedItemQuantity === 0}
-            >
-              Add
-            </PrimaryButton>
-          </View>
+                    }}
+                  ></Button>
+                  <Text flex={1} alignSelf="center" textAlign="center">
+                    {selectedItemQuantity}
+                  </Text>
+                  <Button
+                    flex={1}
+                    colorScheme="green"
+                    py={3}
+                    leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
+                    onPress={() =>
+                      setSelectedItemQuantity((prevState) => prevState + 1)
+                    }
+                  ></Button>
+                </HStack>
+                <PrimaryButton
+                  mt="auto"
+                  mb={1}
+                  align="flex-end"
+                  p={3}
+                  onPress={onAddAddon}
+                  disabled={selectedItemQuantity === 0}
+                >
+                  Add
+                </PrimaryButton>
+              </View>
+            </>
+          )}
         </VStack>
       </SlideFromRight>
     </>
@@ -1568,7 +1633,7 @@ const CartListItem = ({
     x: number,
     progress: Animated.AnimatedInterpolation,
     onPressFunction: Function,
-    item: ItemDataType,
+    item: ItemType,
     index: number
   ) => {
     const trans = progress.interpolate({
@@ -1659,7 +1724,7 @@ const CartListItem = ({
                     "dark.300:alpha.20"
                   )}
                   source={{
-                    uri: item.image?.url,
+                    uri: item.imageURL,
                   }}
                   fallbackSource={require("./../assets/fallback-img.jpg")}
                   alt="Alternate Text"

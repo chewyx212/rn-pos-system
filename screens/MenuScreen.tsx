@@ -30,7 +30,7 @@ import {
   AddonType,
   EditItemForm,
   ItemCategoryType,
-  ItemFromApi,
+  ItemType,
 } from "../types/itemType";
 import NumberPadInput from "../components/NumberPadInput";
 
@@ -46,9 +46,9 @@ const MenuScreen = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openNumberPad, setOpenNumberPad] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
-  const [menuList, setMenuList] = useState<ItemFromApi[]>([]);
-  const [selectedMenuList, setSelectedMenuList] = useState<ItemFromApi[]>([]);
-  const [selectedEditItem, setSelectedEditItem] = useState<ItemFromApi>();
+  const [menuList, setMenuList] = useState<ItemType[]>([]);
+  const [selectedMenuList, setSelectedMenuList] = useState<ItemType[]>([]);
+  const [selectedEditItem, setSelectedEditItem] = useState<ItemType>();
   const [categoryList, setCategoryList] = useState<ItemCategoryType[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
   const [enteredAmount, setEnteredAmount] = useState<number>(0);
@@ -79,7 +79,7 @@ const MenuScreen = () => {
 
   const mappingAllItem = (response: any[]) => {
     let category: ItemCategoryType[] = [];
-    let itemList: ItemFromApi[] = [];
+    let itemList: ItemType[] = [];
     let idList: number[] = [];
     response.forEach((item) => {
       if (item.addons && item.addons > 0) {
@@ -120,7 +120,7 @@ const MenuScreen = () => {
     );
   };
 
-  const onPressItemHandler = (item: ItemFromApi) => {
+  const onPressItemHandler = (item: ItemType) => {
     console.log(item);
     setSelectedEditItem(item);
     setEnteredAmount(item.stock ? item.stock : 0);
@@ -390,7 +390,7 @@ const MenuScreen = () => {
 };
 
 interface MenuListItemProps {
-  item: ItemFromApi;
+  item: ItemType;
   index: number;
   onPress: Function;
 }

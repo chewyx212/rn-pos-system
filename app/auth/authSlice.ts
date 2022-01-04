@@ -7,7 +7,7 @@ const initialState = {
   user: {},
   isPasscodeVerified: false,
   loginpass: false,
-  restaurantInfo: {},
+  restaurantInfo: undefined,
 };
 
 const authSlice = createSlice({
@@ -27,7 +27,7 @@ const authSlice = createSlice({
       state.isPasscodeVerified = false;
       state.user = {};
       state.loginpass = false;
-      state.restaurantInfo = {};
+      state.restaurantInfo = undefined;
       AsyncStorage.removeItem("token");
       AsyncStorage.removeItem("user");
       AsyncStorage.removeItem("loginpass");

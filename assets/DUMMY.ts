@@ -1,6 +1,6 @@
-import { ItemDataType } from "./../types/itemType";
+import { ItemType } from "./../types/itemType";
 import { TableCategoryType, TableDataType } from "./../types/tableType";
-export const itemData: ItemDataType[] = [
+export const itemData: ItemType[] = [
   {
     id: 1,
     name: "Coffee",

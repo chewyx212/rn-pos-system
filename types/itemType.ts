@@ -1,25 +1,6 @@
-export interface ItemDataType {
-  id: number;
-  name: string;
-  price: number;
-  stock: null | number;
-  image: any;
-  description: string;
-  order_number: number;
-  is_active: boolean | number;
-  is_charity: boolean | number;
-  is_new: boolean | number;
-  is_popular: boolean | number;
-  is_recommended: boolean | number;
-  is_veg: boolean | number;
-  orderStatus: number;
-  restaurant_id: number;
-  item_category_id: number;
-  item_category: ItemCategoryType;
-  addons: any[];
-}
 
-export interface ItemFromApi {
+
+export interface ItemType {
   id: number;
   imageURL: string;
   image_url: {
@@ -34,6 +15,7 @@ export interface ItemFromApi {
   item_category_name: string;
   item_category_remark: string | null;
   name: string;
+  orderStatus: number;
   order_number: number;
   price: number;
   stock: null | number;
@@ -65,7 +47,7 @@ export interface AddonCategoryType {
   type: number;
 }
 
-export interface ItemInCartType extends ItemDataType {
+export interface ItemInCartType extends ItemType {
   quantity: number;
   orderIndex?: number;
   calculatedPrice: number;
