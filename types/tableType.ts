@@ -25,3 +25,14 @@ export interface OrderType {
   orderStatus: number;
   detail: OrderDetailType;
 }
+
+export interface CreateTableType {
+  name: string;
+  restaurant_id: string;
+}
+
+export interface TableListType {
+  id: number;
+  name: string;
+  floor: string;
+}

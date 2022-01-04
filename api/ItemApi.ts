@@ -1,4 +1,4 @@
-// import { LoginForm, RegisterForm } from "types/AuthType";
+
 import axios from "../utils/axios/AxiosHandler";
 
 export const ItemApi = {

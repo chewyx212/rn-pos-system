@@ -1,5 +1,3 @@
-import { CreateStaffType } from "./../types/staffType";
-// import { LoginForm, RegisterForm } from "types/AuthType";
 import axios from "../utils/axios/AxiosHandler";
 
 export const StaffApi = {
