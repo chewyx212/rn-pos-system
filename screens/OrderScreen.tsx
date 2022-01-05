@@ -22,6 +22,7 @@ import {
   useToast,
   TextArea,
   KeyboardAvoidingView,
+  Circle,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -206,21 +207,22 @@ const OrderScreen = () => {
   };
 
   const getAllItem = async () => {
-    setIsRefreshing(true);
-    console.log(restaurantInfo);
-    if (restaurantInfo) {
-      const restaurantId: number = restaurantInfo.id;
-      const result = await ItemApi.getItem(restaurantId);
-      if (result.status === 200 && result.data.status === 0) {
-        if (
-          result.data.response.item_lists &&
-          result.data.response.item_lists.length > 0
-        ) {
-          mappingAllItem(result.data.response.item_lists);
-        }
-      }
-    }
-    setIsRefreshing(false);
+    // setIsRefreshing(true);
+    // console.log(restaurantInfo);
+    // if (restaurantInfo) {
+    //   const restaurantId: number = restaurantInfo.id;
+    //   const result = await ItemApi.getItem(restaurantId);
+    //   if (result.status === 200 && result.data.status === 0) {
+    //     if (
+    //       result.data.response.item_lists &&
+    //       result.data.response.item_lists.length > 0
+    //     ) {
+    //       mappingAllItem(result.data.response.item_lists);
+    //     }
+    //   }
+    // }
+    // setIsRefreshing(false);
+    mappingAllItem(itemData);
   };
 
   const mappingAllItem = (response: any[]) => {
@@ -509,8 +511,8 @@ const OrderScreen = () => {
           quantity: selectedItemQuantity,
         })
       );
-      
-    dispatch(updateStockItems({ id: payload.id, selectedItemQuantity }));
+
+      dispatch(updateStockItems({ id: payload.id, selectedItemQuantity }));
     }
     await toast.closeAll();
     toast.show({
@@ -957,18 +959,40 @@ const OrderScreen = () => {
                               justify="space-between"
                               align="flex-start"
                             >
-                              <Text
-                                color={
-                                  isPressed || isHovered
-                                    ? hoverTextColor
-                                    : textColor
-                                }
-                                fontFamily="sf-pro-display-bold"
-                                fontWeight="600"
-                                fontSize={{ base: 17, md: 22 }}
+                              <Flex
+                                direction="row"
+                                w="100%"
+                                justify="space-between"
+                                align="center"
                               >
-                                {item.id}
-                              </Text>
+                                <Text
+                                  color={
+                                    isPressed || isHovered
+                                      ? hoverTextColor
+                                      : textColor
+                                  }
+                                  fontFamily="sf-pro-display-bold"
+                                  fontWeight="600"
+                                  fontSize={{ base: 17, md: 22 }}
+                                >
+                                  {item.id}
+                                </Text>
+                                {item.is_stock_check &&
+                                  (item.stock ? item.stock : 0) <=
+                                    (item.stock_minimum
+                                      ? item.stock_minimum
+                                      : 0) && (
+                                    <Circle
+                                      size={4}
+                                      bg="red.600"
+                                      mr={3}
+                                      borderWidth={3}
+                                      borderColor="light.100"
+                                      shadow={3}
+                                    />
+                                  )}
+                              </Flex>
+
                               <Flex>
                                 <Text
                                   color={

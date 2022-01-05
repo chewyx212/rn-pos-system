@@ -5,9 +5,10 @@ export const itemData: ItemType[] = [
     id: 1,
     name: "Coffee",
     price: 10.5,
-    stock: null,
+    stock_minimum: 4,
+    is_stock_check: 1,
+    stock: 10,
     orderStatus: 1,
-    description: "Give Me Five",
     order_number: 2,
     is_recommended: 0,
     is_active: 1,
@@ -16,30 +17,28 @@ export const itemData: ItemType[] = [
     is_veg: 1,
     is_charity: 1,
     restaurant_id: 1,
-    item_category_id: 3,
-    image: {
-      id: 32,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-preview.jpg",
     },
-    item_category: {
-      id: 3,
-      name: "item category 3",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+    item_category_id: 3,
+    item_category_name: "item category 3",
+    item_category_remark: "",
     addons: [],
   },
   {
     id: 2,
     name: "Cofeeeeee",
     price: 10.5,
-    stock: null,
+    stock_minimum: 0,
+    is_stock_check: 1,
+    stock: 0,
     orderStatus: 1,
-    description: "",
     order_number: 1,
     is_recommended: 1,
     is_active: 1,
@@ -49,29 +48,27 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 2,
-    image: {
-      id: 252,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/252/mocha.jpg",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/252/mocha.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/252/conversions/mocha-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/252/conversions/mocha-preview.jpg",
     },
-    item_category: {
-      id: 2,
-      name: "item category 2",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+    item_category_name: "item category 2",
+    item_category_remark: "",
     addons: [],
   },
   {
     id: 3,
     name: "Item 3",
     price: 10.5,
+    stock_minimum: 0,
+    is_stock_check: 1,
     stock: null,
     orderStatus: 1,
-    description: "",
     order_number: 5,
     is_recommended: 0,
     is_active: 1,
@@ -81,23 +78,27 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 2,
-    image: null,
-    item_category: {
-      id: 2,
-      name: "item category 2",
-      order_number: 5,
-      is_enabled: 1,
-      restaurant_id: 1,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+    image_url: {
+      url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+      thumbnail:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-thumb.jpg",
+      preview:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-preview.jpg",
     },
+    item_category_name: "item category 2",
+    item_category_remark: "",
     addons: [],
   },
   {
     id: 4,
     name: "Item 4",
     price: 10.5,
-    stock: null,
+    stock_minimum: 7,
+    is_stock_check: 1,
+    stock: 4,
     orderStatus: 1,
-    description: "",
     order_number: 4,
     is_recommended: 0,
     is_active: 1,
@@ -107,22 +108,27 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 3,
-    image: null,
-    item_category: {
-      id: 3,
-      name: "item category 3",
-      is_enabled: 1,
-      restaurant_id: 1,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+    image_url: {
+      url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+      thumbnail:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-thumb.jpg",
+      preview:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-preview.jpg",
     },
+    item_category_name: "item category 3",
+    item_category_remark: "",
     addons: [],
   },
   {
     id: 5,
     name: "Item 5",
     price: 10.5,
+    stock_minimum: 0,
+    is_stock_check: 0,
     stock: null,
     orderStatus: 1,
-    description: "",
     order_number: 0,
     is_recommended: 0,
     is_active: 1,
@@ -132,20 +138,16 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 4,
-    image: {
-      id: 33,
+    imageURL: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/33/meat.png",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/33/meat.png",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/33/conversions/meat-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/33/conversions/meat-preview.jpg",
     },
-    item_category: {
-      id: 4,
-      name: "item category 4",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+    item_category_name: "item category 4",
+    item_category_remark: "",
     addons: [
       {
         id: 1,
@@ -154,12 +156,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 5, addon_id: 1 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -170,9 +170,10 @@ export const itemData: ItemType[] = [
     id: 7,
     name: "mushroom soup",
     price: 12.0,
-    stock: null,
+    stock_minimum: 0,
+    is_stock_check: 0,
+    stock: 1,
     orderStatus: 1,
-    description: "nice",
     order_number: 2,
     is_recommended: 1,
     is_active: 1,
@@ -182,20 +183,18 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 2,
-    image: {
-      id: 31,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/31/mushroom-soup-2.jpg",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/31/mushroom-soup-2.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/31/conversions/mushroom-soup-2-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/31/conversions/mushroom-soup-2-preview.jpg",
     },
-    item_category: {
-      id: 2,
-      name: "item category 2",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+
+    item_category_name: "item category 2",
+    item_category_remark: "",
     addons: [
       {
         id: 1,
@@ -204,12 +203,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 7, addon_id: 1 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -221,12 +218,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 3,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 7, addon_id: 9 },
         addon_category: {
           id: 3,
           name: "Pack",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -238,12 +233,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 3,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 7, addon_id: 10 },
         addon_category: {
           id: 3,
           name: "Pack",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -254,9 +247,10 @@ export const itemData: ItemType[] = [
     id: 8,
     name: "213",
     price: 123.0,
+    stock_minimum: 0,
+    is_stock_check: 1,
     stock: null,
     orderStatus: 1,
-    description: "123",
     order_number: 3,
     is_recommended: 1,
     is_active: 1,
@@ -266,29 +260,28 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 2,
-    image: {
-      id: 30,
-      url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/image3.jpg",
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/image_url3.jpg",
+    image_url: {
+      url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/image_url3.jpg",
       thumbnail:
-        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/conversions/image3-thumb.jpg",
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/conversions/image_url3-thumb.jpg",
       preview:
-        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/conversions/image3-preview.jpg",
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/30/conversions/image_url3-preview.jpg",
     },
-    item_category: {
-      id: 2,
-      name: "item category 2",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+
+    item_category_name: "item category 2",
+    item_category_remark: "",
     addons: [],
   },
   {
     id: 9,
-    name: "Testiing no image",
+    name: "Testiing",
     price: 12.0,
-    stock: null,
+    stock_minimum: 4,
+    is_stock_check: 1,
+    stock: 10,
     orderStatus: 1,
-    description: "123",
     order_number: 5,
     is_recommended: 1,
     is_active: 1,
@@ -298,13 +291,17 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 3,
-    image: null,
-    item_category: {
-      id: 3,
-      name: "item category 3",
-      is_enabled: 1,
-      restaurant_id: 1,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+    image_url: {
+      url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+      thumbnail:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-thumb.jpg",
+      preview:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-preview.jpg",
     },
+    item_category_name: "item category 3",
+    item_category_remark: "",
     addons: [
       {
         id: 3,
@@ -313,12 +310,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 9, addon_id: 3 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -330,12 +325,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 2,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 9, addon_id: 7 },
         addon_category: {
           id: 2,
           name: "Size",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -347,12 +340,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 2,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 9, addon_id: 8 },
         addon_category: {
           id: 2,
           name: "Size",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -364,12 +355,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 3,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 9, addon_id: 9 },
         addon_category: {
           id: 3,
           name: "Pack",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -381,12 +370,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 3,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 9, addon_id: 10 },
         addon_category: {
           id: 3,
           name: "Pack",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -397,9 +384,10 @@ export const itemData: ItemType[] = [
     id: 10,
     name: "23",
     price: 1.97,
+    stock_minimum: 0,
+    is_stock_check: 0,
     stock: null,
     orderStatus: 1,
-    description: "",
     order_number: 4,
     is_recommended: 1,
     is_active: 1,
@@ -409,23 +397,28 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 2,
-    image: null,
-    item_category: {
-      id: 2,
-      name: "item category 2",
-      is_enabled: 1,
-      restaurant_id: 1,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+    image_url: {
+      url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+      thumbnail:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-thumb.jpg",
+      preview:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-preview.jpg",
     },
+    item_category_name: "item category 2",
+    item_category_remark: "",
     addons: [],
   },
   {
     id: 11,
     name: "Happy Meal",
     price: 9.99,
+    stock_minimum: 0,
+    is_stock_check: 0,
     stock: 123,
 
     orderStatus: 1,
-    description: "<p>Happy meal with no toy :)</p>",
     order_number: 0,
     is_recommended: 1,
     is_active: 0,
@@ -435,20 +428,17 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 1,
-    image: {
-      id: 44,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/44/612ef41e4383c_merchant_product_mcd_happymeal.jpg",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/44/612ef41e4383c_merchant_product_mcd_happymeal.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/44/conversions/612ef41e4383c_merchant_product_mcd_happymeal-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/44/conversions/612ef41e4383c_merchant_product_mcd_happymeal-preview.jpg",
     },
-    item_category: {
-      id: 1,
-      name: "item category 1 haha",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+    item_category_name: "item category 1 haha",
+    item_category_remark: "",
     addons: [
       {
         id: 1,
@@ -457,12 +447,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 11, addon_id: 1 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -473,10 +461,11 @@ export const itemData: ItemType[] = [
     id: 16,
     name: "Testname",
     price: 12.5,
+    stock_minimum: 0,
+    is_stock_check: 0,
     stock: null,
 
     orderStatus: 1,
-    description: "Test",
     order_number: 1,
     is_recommended: 1,
     is_active: 1,
@@ -486,23 +475,28 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 3,
-    image: null,
-    item_category: {
-      id: 3,
-      name: "item category 3",
-      is_enabled: 1,
-      restaurant_id: 1,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+    image_url: {
+      url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/coffee.jpg",
+      thumbnail:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-thumb.jpg",
+      preview:
+        "https://menuworlds.s3.ap-southeast-1.amazonaws.com/32/conversions/coffee-preview.jpg",
     },
+    item_category_name: "item category 3",
+    item_category_remark: "",
     addons: [],
   },
   {
     id: 17,
     name: "TestName",
     price: 12.5,
+    stock_minimum: 0,
+    is_stock_check: 0,
     stock: null,
 
     orderStatus: 1,
-    description: "Test Description",
     order_number: 2,
     is_recommended: 1,
     is_active: 1,
@@ -512,30 +506,28 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 3,
-    image: {
-      id: 251,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/251/photo_2021-05-31_15-59-35.jpg",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/251/photo_2021-05-31_15-59-35.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/251/conversions/photo_2021-05-31_15-59-35-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/251/conversions/photo_2021-05-31_15-59-35-preview.jpg",
     },
-    item_category: {
-      id: 3,
-      name: "item category 3",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+    item_category_name: "item category 3",
+    item_category_remark: "",
     addons: [],
   },
   {
     id: 18,
     name: "asd",
-    price: 12.00,
+    price: 12.0,
+    stock_minimum: 0,
+    is_stock_check: 1,
     stock: null,
 
     orderStatus: 1,
-    description: "123123",
     order_number: 1,
     is_recommended: 0,
     is_active: 1,
@@ -545,20 +537,17 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 10,
-    image: {
-      id: 258,
+    imageURL: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/258/meat.png",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/258/meat.png",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/258/conversions/meat-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/258/conversions/meat-preview.jpg",
     },
-    item_category: {
-      id: 10,
-      name: "A Testing Category",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+
+    item_category_name: "A Testing Category",
+    item_category_remark: "",
     addons: [
       {
         id: 3,
@@ -567,12 +556,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 18, addon_id: 3 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -584,12 +571,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 2,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 18, addon_id: 7 },
         addon_category: {
           id: 2,
           name: "Size",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -601,12 +586,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 2,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 18, addon_id: 8 },
         addon_category: {
           id: 2,
           name: "Size",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -618,12 +601,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 18, addon_id: 22 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -633,11 +614,12 @@ export const itemData: ItemType[] = [
   {
     id: 19,
     name: "Item Name",
-    price: 10.00,
+    price: 10.0,
+    stock_minimum: 0,
+    is_stock_check: 1,
     stock: null,
 
     orderStatus: 1,
-    description: "test addon",
     order_number: 1,
     is_recommended: 1,
     is_active: 1,
@@ -647,20 +629,18 @@ export const itemData: ItemType[] = [
     is_charity: 1,
     restaurant_id: 1,
     item_category_id: 4,
-    image: {
-      id: 259,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/259/photo_2021-05-31_15-59-35.jpg",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/259/photo_2021-05-31_15-59-35.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/259/conversions/photo_2021-05-31_15-59-35-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/259/conversions/photo_2021-05-31_15-59-35-preview.jpg",
     },
-    item_category: {
-      id: 4,
-      name: "item category 4",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+
+    item_category_name: "item category 4",
+    item_category_remark: "",
     addons: [
       {
         id: 4,
@@ -669,12 +649,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 19, addon_id: 4 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -686,12 +664,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 19, addon_id: 5 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -703,12 +679,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 19, addon_id: 6 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -720,12 +694,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 2,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 19, addon_id: 7 },
         addon_category: {
           id: 2,
           name: "Size",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -737,12 +709,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 3,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 19, addon_id: 9 },
         addon_category: {
           id: 3,
           name: "Pack",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -753,10 +723,11 @@ export const itemData: ItemType[] = [
     id: 20,
     name: "Final Item",
     price: 99.99,
+    stock_minimum: 0,
+    is_stock_check: 1,
     stock: null,
 
     orderStatus: 1,
-    description: "final description",
     order_number: 3,
     is_recommended: 1,
     is_active: 1,
@@ -766,20 +737,17 @@ export const itemData: ItemType[] = [
     is_charity: 1,
     restaurant_id: 1,
     item_category_id: 3,
-    image: {
-      id: 260,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/260/Cul-BabyYoda_mandalorian-thechild-1_af408bfd.jpg",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/260/Cul-BabyYoda_mandalorian-thechild-1_af408bfd.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/260/conversions/Cul-BabyYoda_mandalorian-thechild-1_af408bfd-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/260/conversions/Cul-BabyYoda_mandalorian-thechild-1_af408bfd-preview.jpg",
     },
-    item_category: {
-      id: 3,
-      name: "item category 3",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+    item_category_name: "item category 3",
+    item_category_remark: "",
     addons: [
       {
         id: 2,
@@ -788,12 +756,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 20, addon_id: 2 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -805,12 +771,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 20, addon_id: 3 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -822,12 +786,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 20, addon_id: 4 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -839,12 +801,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 20, addon_id: 5 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -856,12 +816,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 1,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 20, addon_id: 6 },
         addon_category: {
           id: 1,
           name: "Drinks",
-          type: "1",
+          type: 1,
           remark: "let drink",
           restaurant_id: 1,
         },
@@ -873,12 +831,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 2,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 20, addon_id: 7 },
         addon_category: {
           id: 2,
           name: "Size",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -890,12 +846,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 2,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 20, addon_id: 8 },
         addon_category: {
           id: 2,
           name: "Size",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -907,12 +861,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 3,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 20, addon_id: 9 },
         addon_category: {
           id: 3,
           name: "Pack",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -924,12 +876,10 @@ export const itemData: ItemType[] = [
         is_active: 1,
         addon_category_id: 3,
         restaurant_id: 1,
-        image: null,
-        pivot: { item_id: 20, addon_id: 10 },
         addon_category: {
           id: 3,
           name: "Pack",
-          type: "2",
+          type: 2,
           remark: null,
           restaurant_id: 1,
         },
@@ -940,10 +890,10 @@ export const itemData: ItemType[] = [
     id: 47,
     name: "hi",
     price: 0.0,
+    stock_minimum: 0,
+    is_stock_check: 1,
     stock: null,
-
     orderStatus: 1,
-    description: "",
     order_number: 1,
     is_recommended: 0,
     is_active: 1,
@@ -953,20 +903,18 @@ export const itemData: ItemType[] = [
     is_charity: 0,
     restaurant_id: 1,
     item_category_id: 24,
-    image: {
-      id: 326,
+    imageURL:
+      "https://menuworlds.s3.ap-southeast-1.amazonaws.com/326/Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo.jpg",
+    image_url: {
       url: "https://menuworlds.s3.ap-southeast-1.amazonaws.com/326/Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo.jpg",
       thumbnail:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/326/conversions/Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo-thumb.jpg",
       preview:
         "https://menuworlds.s3.ap-southeast-1.amazonaws.com/326/conversions/Screenshot_2021-11-12-23-15-22-619_com.menuworlds.merchant.demo-preview.jpg",
     },
-    item_category: {
-      id: 24,
-      name: "i",
-      is_enabled: 1,
-      restaurant_id: 1,
-    },
+
+    item_category_name: "i",
+    item_category_remark: "",
     addons: [],
   },
 ];

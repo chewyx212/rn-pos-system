@@ -11,18 +11,20 @@ import {
   KeyboardAvoidingView,
   FlatList,
   HStack,
+  Box,
   Spinner,
   Stack,
   VStack,
   Pressable,
   ScrollView,
+  Switch,
 } from "native-base";
 import React, { useEffect, useState } from "react";
 import { MaterialIcons, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { RootStackParamList } from "./RootStackParams";
-import { Platform } from "react-native";
+import { Platform, RefreshControl } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useAppSelector } from "../app/hooks";
 import { ItemApi } from "../api/ItemApi";
@@ -33,19 +35,16 @@ import {
   ItemType,
 } from "../types/itemType";
 import NumberPadInput from "../components/NumberPadInput";
+import PullToRefreshScrollView from "../components/PullToRefreshScrollView";
+import { itemData } from "../assets/DUMMY";
 
 type MenuScreenProp = DrawerNavigationProp<RootStackParamList, "Menu">;
 type MenuScreenRouteProp = RouteProp<RootStackParamList, "Menu">;
 const MenuScreen = () => {
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<EditItemForm>();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openNumberPad, setOpenNumberPad] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
+  const [isStockCheck, setIsStockCheck] = useState<boolean>(false);
   const [menuList, setMenuList] = useState<ItemType[]>([]);
   const [selectedMenuList, setSelectedMenuList] = useState<ItemType[]>([]);
   const [selectedEditItem, setSelectedEditItem] = useState<ItemType>();
@@ -62,18 +61,21 @@ const MenuScreen = () => {
 
   const getAllItem = async () => {
     setIsRefreshing(true);
-    if (restaurantInfo) {
-      const restaurantId: number = restaurantInfo.id;
-      const result = await ItemApi.getItem(restaurantId);
-      if (result.status === 200 && result.data.status === 0) {
-        if (
-          result.data.response.item_lists &&
-          result.data.response.item_lists.length > 0
-        ) {
-          mappingAllItem(result.data.response.item_lists);
-        }
-      }
-    }
+    // console.log("here");
+    // if (restaurantInfo) {
+    //   const restaurantId: number = restaurantInfo.id;
+    //   const result = await ItemApi.getItem(restaurantId);
+    //   if (result.status === 200 && result.data.status === 0) {
+    //     if (
+    //       result.data.response.item_lists &&
+    //       result.data.response.item_lists.length > 0
+    //     ) {
+    //       mappingAllItem(result.data.response.item_lists);
+    //     }
+    //   }
+    // }
+    // console.log("end");
+    mappingAllItem(itemData);
     setIsRefreshing(false);
   };
 
@@ -123,6 +125,8 @@ const MenuScreen = () => {
   const onPressItemHandler = (item: ItemType) => {
     console.log(item);
     setSelectedEditItem(item);
+    setIsStockCheck(item.is_stock_check === 0 ? true : false);
+    console.log(item.is_stock_check === 0 ? true : false);
     setEnteredAmount(item.stock ? item.stock : 0);
     setOpenModal(true);
   };
@@ -132,6 +136,7 @@ const MenuScreen = () => {
     setEnteredAmount(0);
     setOpenModal(false);
     setOpenNumberPad(false);
+    setIsStockCheck(false);
   };
 
   const onEnteredAmount = (amount: number) => {
@@ -140,6 +145,8 @@ const MenuScreen = () => {
   };
 
   const onSubmit = () => {
+    console.log(isStockCheck);
+    // console.log(selectedEditItem);
     console.log(enteredAmount);
     onCloseHandler();
   };
@@ -273,16 +280,37 @@ const MenuScreen = () => {
                     />
                   )}
                 />
-              ) : (
-                <Flex
-                  direction="row"
-                  justify="center"
-                  alignItems="center"
-                  m={5}
+              ) : isRefreshing ? (
+                <PullToRefreshScrollView
+                  isRefreshing={isRefreshing}
+                  onRefresh={getAllItem}
                 >
-                  <Spinner accessibilityLabel="Loading posts" mx={10} />
-                  <Heading fontSize="md">Loading</Heading>
-                </Flex>
+                  <Flex
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    m={5}
+                  >
+                    <Spinner accessibilityLabel="Loading posts" mx={10} />
+                    <Heading fontSize="md">Loading</Heading>
+                  </Flex>
+                </PullToRefreshScrollView>
+              ) : (
+                <PullToRefreshScrollView
+                  isRefreshing={isRefreshing}
+                  onRefresh={getAllItem}
+                >
+                  <Flex
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    m={5}
+                  >
+                    <Heading fontSize="md" ml={-10}>
+                      No Item Found
+                    </Heading>
+                  </Flex>
+                </PullToRefreshScrollView>
               )}
             </Flex>
           </Flex>
@@ -300,65 +328,88 @@ const MenuScreen = () => {
             <Modal.CloseButton />
             <Modal.Header>Edit Item</Modal.Header>
             <Modal.Body _scrollview={{ scrollEnabled: false }}>
-              <Text
-                fontFamily="sf-pro-text-semibold"
-                fontWeight="600"
-                fontSize={15}
-                py={2}
+              <Flex
+                direction="row"
+                justify="space-between"
+                align="center"
+                my={3}
+                pr={3}
               >
-                Stock
-              </Text>
-              <Pressable
-                w="100%"
-                bg="transparent"
-                _pressed={{
-                  bg: useColorModeValue("light.200", "dark.200"),
-                }}
-                onPress={() => setOpenNumberPad(true)}
-              >
-                <Flex
-                  direction="row"
-                  justify="space-between"
-                  align="center"
-                  borderRadius={3}
-                  borderWidth={0.5}
-                  borderColor={useColorModeValue("light.300", "dark.300")}
+                <Text
+                  fontFamily="sf-pro-text-semibold"
+                  fontWeight="600"
+                  fontSize={15}
+                  py={2}
                 >
-                  <Button
-                    flex={1}
-                    py={4}
-                    borderRadius={0}
-                    colorScheme="red"
-                    leftIcon={<Icon as={Entypo} name="minus" size="xs" />}
-                    onPress={() =>
-                      setEnteredAmount((prevState) =>
-                        prevState !== 0 ? prevState - 1 : prevState
-                      )
-                    }
-                  ></Button>
-                  <Text
-                    flex={5}
-                    textAlign="center"
-                    color={useColorModeValue("light.500", "dark.500")}
-                    fontFamily="sf-pro-text-regular"
-                    fontWeight="600"
-                    fontSize={15}
+                  Stock Check
+                </Text>
+                <Switch
+                  isChecked={isStockCheck}
+                  onToggle={() => setIsStockCheck((prevState) => !prevState)}
+                  size="sm"
+                />
+              </Flex>
+              <Box display={isStockCheck ? "flex" : "none"}>
+                <Text
+                  fontFamily="sf-pro-text-semibold"
+                  fontWeight="600"
+                  fontSize={15}
+                  py={2}
+                >
+                  Stock
+                </Text>
+                <Pressable
+                  w="100%"
+                  bg="transparent"
+                  _pressed={{
+                    bg: useColorModeValue("light.200", "dark.200"),
+                  }}
+                  onPress={() => setOpenNumberPad(true)}
+                >
+                  <Flex
+                    direction="row"
+                    justify="space-between"
+                    align="center"
+                    borderRadius={3}
+                    borderWidth={0.5}
+                    borderColor={useColorModeValue("light.300", "dark.300")}
                   >
-                    {enteredAmount}
-                  </Text>
+                    <Button
+                      flex={1}
+                      py={4}
+                      borderRadius={0}
+                      colorScheme="red"
+                      leftIcon={<Icon as={Entypo} name="minus" size="xs" />}
+                      onPress={() =>
+                        setEnteredAmount((prevState) =>
+                          prevState !== 0 ? prevState - 1 : prevState
+                        )
+                      }
+                    ></Button>
+                    <Text
+                      flex={5}
+                      textAlign="center"
+                      color={useColorModeValue("light.500", "dark.500")}
+                      fontFamily="sf-pro-text-regular"
+                      fontWeight="600"
+                      fontSize={15}
+                    >
+                      {enteredAmount}
+                    </Text>
 
-                  <Button
-                    flex={1}
-                    py={4}
-                    borderRadius={0}
-                    colorScheme="green"
-                    leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
-                    onPress={() =>
-                      setEnteredAmount((prevState) => prevState + 1)
-                    }
-                  ></Button>
-                </Flex>
-              </Pressable>
+                    <Button
+                      flex={1}
+                      py={4}
+                      borderRadius={0}
+                      colorScheme="green"
+                      leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
+                      onPress={() =>
+                        setEnteredAmount((prevState) => prevState + 1)
+                      }
+                    ></Button>
+                  </Flex>
+                </Pressable>
+              </Box>
             </Modal.Body>
             <Modal.Footer>
               <Button
@@ -420,7 +471,7 @@ const MenuListItem = ({ item, index, onPress }: MenuListItemProps) => {
           {item.item_category_name}
         </Text>
         <Text flex={1} textAlign="center">
-          {item.stock ? item.stock : 0}
+          {item.is_stock_check ? (item.stock ? item.stock : 0) : "-"}
         </Text>
       </Flex>
     </Pressable>

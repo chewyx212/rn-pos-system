@@ -1,5 +1,3 @@
-
-
 export interface ItemType {
   id: number;
   imageURL: string;
@@ -8,16 +6,22 @@ export interface ItemType {
     thumbnail: string;
     preview: string;
   };
+  is_recommended: boolean | number;
   is_active: boolean | number;
   is_charity: boolean | number;
+  is_new: boolean | number;
+  is_popular: boolean | number;
   is_veg: boolean | number;
   item_category_id: number;
   item_category_name: string;
   item_category_remark: string | null;
+  restaurant_id: number;
   name: string;
   orderStatus: number;
   order_number: number;
   price: number;
+  is_stock_check: boolean | number;
+  stock_minimum: null | number;
   stock: null | number;
   addons: AddonType[];
 }
@@ -42,7 +46,7 @@ export interface AddonType {
 export interface AddonCategoryType {
   id: number;
   name: string;
-  remark: string;
+  remark: null | string;
   restaurant_id: number;
   type: number;
 }

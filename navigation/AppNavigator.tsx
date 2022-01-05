@@ -13,8 +13,9 @@ const AppNavigator = () => {
   console.log(!isLoggedIn || !isPasscodeVerified);
   return (
     <NavigationContainer>
-      {(!isLoggedIn || !isPasscodeVerified) && <AuthNavigator />}
-      {isLoggedIn && isPasscodeVerified && <ProtectedNavigator />}
+      {/* {(!isLoggedIn || !isPasscodeVerified) && <AuthNavigator />}
+      {isLoggedIn && isPasscodeVerified && <ProtectedNavigator />} */}
+      {<ProtectedNavigator />}
     </NavigationContainer>
   );
 };

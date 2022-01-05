@@ -67,6 +67,11 @@ const PasscodeScreen = () => {
       dispatch(verifyPasscode());
     } else if (result.status === 401) {
       dispatch(logout());
+      toast.show({
+        title: "Please login!",
+        status: "error",
+        placement: "top",
+      });
       navigation.navigate("Login");
     } else {
       await toast.closeAll();
