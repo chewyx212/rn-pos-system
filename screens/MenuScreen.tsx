@@ -60,8 +60,7 @@ const MenuScreen = () => {
   }, []);
 
   const getAllItem = async () => {
-    setIsRefreshing(true);
-    // console.log("here");
+    // setIsRefreshing(true);
     // if (restaurantInfo) {
     //   const restaurantId: number = restaurantInfo.id;
     //   const result = await ItemApi.getItem(restaurantId);
@@ -74,9 +73,9 @@ const MenuScreen = () => {
     //     }
     //   }
     // }
-    // console.log("end");
-    mappingAllItem(itemData);
     setIsRefreshing(false);
+
+    mappingAllItem(itemData);
   };
 
   const mappingAllItem = (response: any[]) => {
@@ -123,10 +122,8 @@ const MenuScreen = () => {
   };
 
   const onPressItemHandler = (item: ItemType) => {
-    console.log(item);
     setSelectedEditItem(item);
     setIsStockCheck(item.is_stock_check === 0 ? true : false);
-    console.log(item.is_stock_check === 0 ? true : false);
     setEnteredAmount(item.stock ? item.stock : 0);
     setOpenModal(true);
   };

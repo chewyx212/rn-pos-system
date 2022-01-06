@@ -106,8 +106,6 @@ const TableScreen = () => {
       } else {
         otherOrder.push(order);
       }
-      console.log(index);
-      console.log("this is indexxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
       order.orderIndex = index;
     });
     let tableTemp: TableDataType[] = [];
@@ -164,7 +162,6 @@ const TableScreen = () => {
   };
 
   const onSelectShowOrder = (order: OrderType) => {
-    console.log(order)
     setShowOrder(order);
     setOpenTableCart(false);
     setOpenCart(true);
@@ -215,6 +212,9 @@ const TableScreen = () => {
     console.log("heihei");
   };
 
+  const onSelectStartOrder = () => {
+    
+  }
   const onSelectOrderType = (type: number) => {
     navigation.navigate("Order", {
       orderType: type,
@@ -228,15 +228,15 @@ const TableScreen = () => {
   return (
     <>
       <Stack
-        safeArea
+        safeAreaBottom
         position="relative"
         h="100%"
         direction="row"
         pl={5}
         bg={useColorModeValue("light.100", "muted.800")}
       >
-        <VStack h="100%" flex={6} mr="1%" pt={3}>
-          <Flex direction="row" w="100%" justify="space-between" align="center">
+        <VStack h="100%" flex={1} mr="1%">
+          {/* <Flex direction="row" w="100%" justify="space-between" align="center">
             <Heading
               size="lg"
               fontFamily="sf-pro-display-bold"
@@ -244,14 +244,6 @@ const TableScreen = () => {
               fontSize={{ base: 24, md: 32 }}
             >
               Table & Order
-              {/* <Button
-                variant="outline"
-                onPress={() => {
-                  navigation.navigate("TableEdit");
-                }}
-              >
-                Edit Table
-              </Button> */}
             </Heading>
 
             <Menu
@@ -277,7 +269,7 @@ const TableScreen = () => {
                 Counter
               </Menu.Item>
             </Menu>
-          </Flex>
+          </Flex> */}
           <Stack maxH={{ md: "12%" }}>
             <ScrollView
               horizontal={true}
@@ -373,6 +365,37 @@ const TableScreen = () => {
             }}
           >
             <Flex flex="1" direction="row" wrap="wrap" justify="flex-start">
+              <Pressable
+                flexBasis={{ base: "46%", lg: "18%" }}
+                h={{ base: "150px", md: "165px" }}
+                borderRadius="lg"
+                mx={{ base: "2%", md: "1.5", lg: "1%" }}
+                my={{ base: "2%", md: "1.5", lg: "1%" }}
+                bg={useColorModeValue("bgLightColor.200", "dark.200")}
+                borderStyle="dashed"
+                borderWidth={3}
+                borderColor="dottedColor.borderColor"
+                onPress={() => {
+                  onSelectStartOrder();
+                }}
+              >
+                <Flex
+                  w="100%"
+                  h="100%"
+                  borderRadius="lg"
+                  justify="center"
+                  align="center"
+                >
+                  <Text
+                    fontFamily="sf-pro-text-semibold"
+                    fontWeight="600"
+                    fontSize={18}
+                    color="dottedColor.textColor"
+                  >
+                    Start Order
+                  </Text>
+                </Flex>
+              </Pressable>
               {isAllCategory &&
                 orderList.map((order, index) => {
                   let statusBgColor = useColorModeValue(

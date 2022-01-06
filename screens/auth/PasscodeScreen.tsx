@@ -6,7 +6,12 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../RootStackParams";
 import PasscodeInput from "../../components/PasscodeInput";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { logout, setLoginPass, verifyPasscode } from "../../app/auth/authSlice";
+import {
+  login,
+  logout,
+  setLoginPass,
+  verifyPasscode,
+} from "../../app/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthApi } from "../../api/AuthApi";
 

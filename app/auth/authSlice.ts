@@ -22,12 +22,7 @@ const authSlice = createSlice({
       state.restaurantInfo = action.payload.restaurantInfo;
     },
     logout: (state) => {
-      state.token = "";
-      state.isLoggedIn = false;
-      state.isPasscodeVerified = false;
-      state.user = {};
-      state.loginpass = false;
-      state.restaurantInfo = undefined;
+      state = initialState;
       AsyncStorage.removeItem("token");
       AsyncStorage.removeItem("user");
       AsyncStorage.removeItem("loginpass");

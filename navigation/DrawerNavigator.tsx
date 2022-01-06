@@ -1,14 +1,18 @@
 import * as React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import OrderScreen from "../screens/OrderScreen";
 import TableScreen from "../screens/TableScreen";
 import CameraScreen from "../screens/CameraScreen";
 import PrinterScreen from "../screens/PrinterScreen";
-import TableListScreen from "../screens/setting/TableSettingScreen";
-import TableTabNavigator from "./TableTabNaivgator";
 import { useWindowDimensions } from "react-native";
 import { Foundation, Ionicons } from "@expo/vector-icons";
-import { Flex, Icon, Text, Pressable, useColorModeValue } from "native-base";
+import {
+  Flex,
+  Icon,
+  Text,
+  Pressable,
+  useColorModeValue,
+  Image,
+} from "native-base";
 import MenuScreen from "../screens/MenuScreen";
 import MemberScreen from "../screens/MemberScreen";
 import TransactionScreen from "../screens/TransactionScreen";
@@ -24,7 +28,7 @@ const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
       screenOptions={{
-        headerShown: !isLargeScreen,
+        headerShown: false,
         drawerType: isLargeScreen ? "permanent" : "front",
         drawerHideStatusBarOnOpen: true,
         drawerStyle: isLargeScreen ? { width: "10%" } : { width: "100%" },
@@ -73,16 +77,9 @@ const CustomDrawerContent = (props) => {
       iconName: "stats-chart-outline",
       activeIcon: "stats-chart",
     },
-    {
-      name: "Setting",
-      display: "Setting",
-      icon: Ionicons,
-      iconName: "settings-outline",
-      activeIcon: "settings",
-    },
   ];
   return (
-    <Flex align="center" pt={12} px={3}>
+    <Flex align="center" p={3}>
       {drawerItems.map((item) => {
         let isActive = item.name === currentRoute;
         return (
@@ -93,7 +90,7 @@ const CustomDrawerContent = (props) => {
             _dark={{ bg: isActive ? "primary.400" : "transparent" }}
             borderRadius="lg"
             w={{ base: "300px", md: "100%" }}
-            h="90px"
+            h="85px"
           >
             {() => (
               <Flex

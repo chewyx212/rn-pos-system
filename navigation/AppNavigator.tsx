@@ -1,5 +1,8 @@
-import * as React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import React, { useRef } from "react";
+import {
+  NavigationContainer,
+  useNavigationContainerRef,
+} from "@react-navigation/native";
 import AuthNavigator from "./AuthNavigator";
 import ProtectedNavigator from "./ProtectedNavigator";
 import { useAppSelector } from "../app/hooks";
@@ -10,12 +13,13 @@ const AppNavigator = () => {
   const isPasscodeVerified = useAppSelector(
     (state) => state.auth.isPasscodeVerified
   );
-  console.log(!isLoggedIn || !isPasscodeVerified);
+
   return (
-    <NavigationContainer>
+    <NavigationContainer
+    >
       {/* {(!isLoggedIn || !isPasscodeVerified) && <AuthNavigator />}
       {isLoggedIn && isPasscodeVerified && <ProtectedNavigator />} */}
-      {<ProtectedNavigator />}
+      <ProtectedNavigator />
     </NavigationContainer>
   );
 };

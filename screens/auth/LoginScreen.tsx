@@ -82,6 +82,7 @@ const LoginScreen = () => {
         "restaurantInfo",
         JSON.stringify(data.response.restaurant)
       );
+      console.log(data.response)
       dispatch(
         login({
           token: data.response.token,

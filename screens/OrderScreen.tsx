@@ -57,6 +57,8 @@ import {
 import { OrderType } from "../types/tableType";
 import { ItemApi } from "../api/ItemApi";
 import { addStockItem, updateStockItems } from "../app/stock/stockSlice";
+import { logout } from "../app/auth/authSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type OrderScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -167,7 +169,6 @@ const OrderScreen = () => {
       let sentArray: any[] = [];
       let holdArray: any[] = [];
       orders.forEach((order) => {
-        console.log(order.items);
         order.items.forEach((item, index: number) => {
           if (item.orderStatus === 2) {
             sentArray.push({
@@ -220,6 +221,9 @@ const OrderScreen = () => {
     //       mappingAllItem(result.data.response.item_lists);
     //     }
     //   }
+    // } else {
+    //   console.log("logout");
+    //   dispatch(logout());
     // }
     // setIsRefreshing(false);
     mappingAllItem(itemData);
@@ -470,7 +474,6 @@ const OrderScreen = () => {
   };
 
   const onAddAddon = async () => {
-    console.log(addonForm);
     let addonsPayload: any[] = [];
     Object.values(addonForm).forEach((item: any | any[]) => {
       if (item.length > 0) {
@@ -594,7 +597,6 @@ const OrderScreen = () => {
     setSelectedEditItem(item);
     setSelectedEditItemQuantity(item.quantity);
     let originalItem = itemList.find((list: ItemType) => list.id === item.id);
-    console.log(" here!aaaaaaaaaaaaaaaaaaaaaa");
     if (originalItem) {
       if (originalItem.addons.length > 0) {
         setIsEditQuantity(false);
