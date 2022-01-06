@@ -42,9 +42,27 @@ const theme = extendTheme({
       800: "#6a301b",
       900: "#550000",
     },
+    themeColor: {
+      50: "#fbd8bc",
+      100: "#f9c9a2",
+      200: "#f49a52",
+      300: "#f49a52",
+      400: "#f28b37",
+      500: "#f17c1d",
+      600: "#e26d0e",
+      700: "#c8600d",
+      800: "#ad540b",
+      900: "#924709",
+    },
     dottedColor: {
       borderColor: "#aeadb2",
       textColor: "#636365",
+    },
+    tableStatus: {
+      100: "#00BFA5",
+      200: "#0288D1",
+      300: "#FAAE42",
+      400: "#E75D77",
     },
     iconColor: {
       grey: "#3a3a3c",
@@ -92,14 +110,15 @@ const theme = extendTheme({
       darkPressText: "#f5f5f4",
     },
   },
-  config: {
-    useSystemColorMode: true,
-    initialColorMode: "dark",
-    dependencies: {
-      "linear-gradient": require("expo-linear-gradient").LinearGradient,
-    },
-  },
 });
+
+const config = {
+  useSystemColorMode: true,
+  initialColorMode: "dark",
+  dependencies: {
+    "linear-gradient": require("expo-linear-gradient").LinearGradient,
+  },
+};
 
 export default function App() {
   let [fontLoaded] = useFonts({
@@ -122,7 +141,7 @@ export default function App() {
   changeScreenOrientation();
   return (
     <Provider store={store}>
-      <NativeBaseProvider theme={theme}>
+      <NativeBaseProvider config={config} theme={theme}>
         <SafeAreaProvider>
           <SSRProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>

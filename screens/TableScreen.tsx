@@ -19,11 +19,11 @@ import {
   IconButton,
   useToast,
   Menu,
+  PresenceTransition,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import { tableData, tableCategoryData } from "../assets/DUMMY";
-import PrimaryButton from "../components/Ui/PrimaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
 import PasscodeVerification from "../components/PasscodeVerification";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
@@ -39,6 +39,7 @@ import {
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setOrder } from "../app/order/orderSlice";
+import { LinearGradient } from "expo-linear-gradient";
 
 const mappingItemCategory = () => {
   // let category: TableCategoryType[] = [];
@@ -63,6 +64,7 @@ const TableScreen = () => {
   const [orderList, setOrderList] = useState<any[]>([]);
   const [isAllCategory, setIsAllCategory] = useState<boolean>(true);
   const [showQuantityModal, setShowQuantityModal] = useState<boolean>(false);
+  const [showOrderType, setShowOrderType] = useState<boolean>(false);
   const [showCustomQuantityModal, setShowCustomQuantityModal] =
     useState<boolean>(false);
   const [selectedTable, setSelectedTable] = useState<TableDataType>({});
@@ -81,6 +83,21 @@ const TableScreen = () => {
   const cancelRef = useRef(null);
   const toast = useToast();
   const navigation = useNavigation<TableScreenProp>();
+
+  const orderTypes = [
+    {
+      id: 2,
+      name: "Take Away",
+    },
+    {
+      id: 3,
+      name: "Delivery Order",
+    },
+    {
+      id: 4,
+      name: "Counter",
+    },
+  ];
 
   useEffect(() => {
     orderItemMapping();
@@ -213,9 +230,10 @@ const TableScreen = () => {
   };
 
   const onSelectStartOrder = () => {
-    
-  }
+    setShowOrderType(true);
+  };
   const onSelectOrderType = (type: number) => {
+    setShowOrderType(false);
     navigation.navigate("Order", {
       orderType: type,
       orders: [],
@@ -232,8 +250,8 @@ const TableScreen = () => {
         position="relative"
         h="100%"
         direction="row"
-        pl={5}
-        bg={useColorModeValue("light.100", "muted.800")}
+        pl={3}
+        bg={useColorModeValue("bgLightColor.50", "bgDarkColor.50")}
       >
         <VStack h="100%" flex={1} mr="1%">
           {/* <Flex direction="row" w="100%" justify="space-between" align="center">
@@ -277,7 +295,7 @@ const TableScreen = () => {
               overflow="scroll"
               _contentContainerStyle={{
                 m: "1%",
-                py: "10px",
+                py: "5px",
               }}
             >
               {(() => {
@@ -371,10 +389,13 @@ const TableScreen = () => {
                 borderRadius="lg"
                 mx={{ base: "2%", md: "1.5", lg: "1%" }}
                 my={{ base: "2%", md: "1.5", lg: "1%" }}
-                bg={useColorModeValue("bgLightColor.200", "dark.200")}
+                bg={useColorModeValue("bgLightColor.100", "bgDarkColor.100")}
                 borderStyle="dashed"
                 borderWidth={3}
                 borderColor="dottedColor.borderColor"
+                _pressed={{
+                  bg: useColorModeValue("bgLightColor.300", "bgDarkColor.300"),
+                }}
                 onPress={() => {
                   onSelectStartOrder();
                 }}
@@ -398,18 +419,15 @@ const TableScreen = () => {
               </Pressable>
               {isAllCategory &&
                 orderList.map((order, index) => {
-                  let statusBgColor = useColorModeValue(
-                    "green.500",
-                    "green.700"
-                  );
+                  let statusBgColor = "tableStatus.100";
                   if (order.orderStatus === 1) {
-                    statusBgColor = useColorModeValue("amber.500", "amber.700");
+                    statusBgColor = "tableStatus.300";
                   }
                   if (order.orderStatus === 2) {
-                    statusBgColor = useColorModeValue("blue.500", "blue.700");
+                    statusBgColor = "tableStatus.200";
                   }
                   if (order.orderStatus === 3) {
-                    statusBgColor = useColorModeValue("red.500", "red.700");
+                    statusBgColor = "tableStatus.400";
                   }
 
                   return (
@@ -424,56 +442,65 @@ const TableScreen = () => {
                         onSelectShowOrder(order);
                       }}
                     >
-                      <Flex
-                        w="100%"
-                        h="100%"
-                        bg={useColorModeValue("white", "dark.200")}
-                        shadow={2}
-                        borderRadius="lg"
-                        justify="space-between"
-                        direction="row"
-                      >
-                        <Box
-                          borderLeftRadius="lg"
-                          bg={statusBgColor}
-                          w={{ base: "7%", md: "5%", lg: "9%" }}
-                          h="100%"
-                        ></Box>
-
+                      {({ isPressed }) => (
                         <Flex
-                          borderRightRadius="lg"
-                          w="90%"
+                          w="100%"
                           h="100%"
-                          direction="row"
+                          shadow={2}
+                          borderRadius="lg"
                           justify="space-between"
-                          py={2}
-                          pl={1}
+                          direction="row"
+                          bg={
+                            isPressed
+                              ? useColorModeValue(
+                                  "bgLightColor.50",
+                                  "bgDarkColor.50"
+                                )
+                              : useColorModeValue("white", "dark.200")
+                          }
                         >
-                          <Flex h="100%" justify="space-between" pl={2}>
-                            <Text
-                              fontFamily="sf-pro-display-bold"
-                              fontSize="22px"
-                            >
-                              {order.name}
-                              {order.orderType === 2 && "TA" + 0 + order.id}
-                              {order.orderType === 3 && "DO" + 0 + order.id}
-                              {order.orderType === 4 && "CO" + 0 + order.id}
-                            </Text>
+                          <Box
+                            borderLeftRadius="lg"
+                            bg={statusBgColor}
+                            w={{ base: "7%", md: "5%", lg: "9%" }}
+                            h="100%"
+                          ></Box>
 
-                            <Flex>
-                              {order && order.items.length > 0 && (
-                                <Text
-                                  fontFamily="sf-pro-text-semibold"
-                                  fontSize="15px"
-                                >
-                                  RM
-                                  {parseFloat(order.detail.total).toFixed(2)}
-                                </Text>
-                              )}
+                          <Flex
+                            borderRightRadius="lg"
+                            w="90%"
+                            h="100%"
+                            direction="row"
+                            justify="space-between"
+                            py={2}
+                            pl={1}
+                          >
+                            <Flex h="100%" justify="space-between" pl={2}>
+                              <Text
+                                fontFamily="sf-pro-display-bold"
+                                fontSize="22px"
+                              >
+                                {order.name}
+                                {order.orderType === 2 && "TA" + 0 + order.id}
+                                {order.orderType === 3 && "DO" + 0 + order.id}
+                                {order.orderType === 4 && "CO" + 0 + order.id}
+                              </Text>
+
+                              <Flex>
+                                {order && order.items.length > 0 && (
+                                  <Text
+                                    fontFamily="sf-pro-text-semibold"
+                                    fontSize="15px"
+                                  >
+                                    RM
+                                    {parseFloat(order.detail.total).toFixed(2)}
+                                  </Text>
+                                )}
+                              </Flex>
                             </Flex>
                           </Flex>
                         </Flex>
-                      </Flex>
+                      )}
                     </Pressable>
                   );
                 })}
@@ -484,18 +511,15 @@ const TableScreen = () => {
                     isAllCategory
                 )
                 .map((table) => {
-                  let statusBgColor = useColorModeValue(
-                    "green.500",
-                    "green.700"
-                  );
+                  let statusBgColor = "tableStatus.100";
                   if (table.status === 1) {
-                    statusBgColor = useColorModeValue("amber.500", "amber.700");
+                    statusBgColor = "tableStatus.300";
                   }
                   if (table.status === 2) {
-                    statusBgColor = useColorModeValue("blue.500", "blue.700");
+                    statusBgColor = "tableStatus.200";
                   }
                   if (table.status === 3) {
-                    statusBgColor = useColorModeValue("red.500", "red.700");
+                    statusBgColor = "tableStatus.400";
                   }
 
                   return (
@@ -515,82 +539,91 @@ const TableScreen = () => {
                         }
                       }}
                     >
-                      <Flex
-                        w="100%"
-                        h="100%"
-                        bg={useColorModeValue("white", "dark.200")}
-                        shadow={2}
-                        borderRadius="lg"
-                        justify="space-between"
-                        direction="row"
-                      >
-                        <Box
-                          borderLeftRadius="lg"
-                          bg={statusBgColor}
-                          w={{ base: "7%", md: "5%", lg: "9%" }}
-                          h="100%"
-                        ></Box>
-
+                      {({ isPressed }) => (
                         <Flex
-                          borderRightRadius="lg"
-                          w="90%"
+                          w="100%"
                           h="100%"
-                          direction="row"
+                          shadow={2}
+                          borderRadius="lg"
                           justify="space-between"
-                          py={2}
-                          pl={1}
+                          direction="row"
+                          bg={
+                            isPressed
+                              ? useColorModeValue(
+                                  "bgLightColor.50",
+                                  "bgDarkColor.50"
+                                )
+                              : useColorModeValue("white", "dark.200")
+                          }
                         >
-                          <Flex h="100%" justify="space-between" pl={2}>
-                            <Text
-                              fontFamily="sf-pro-display-bold"
-                              fontSize="22px"
-                            >
-                              {table.name}
-                            </Text>
+                          <Box
+                            borderLeftRadius="lg"
+                            bg={statusBgColor}
+                            w={{ base: "7%", md: "5%", lg: "9%" }}
+                            h="100%"
+                          ></Box>
 
-                            <Flex>
-                              {table.order && table.order.length > 0 && (
-                                <Text
-                                  fontFamily="sf-pro-text-semibold"
-                                  fontSize="15px"
-                                >
-                                  RM
-                                  {parseFloat(table.total).toFixed(2)}
-                                </Text>
-                              )}
-                              <Flex direction="row" align="center">
-                                {table.order &&
-                                  table.order.length > 0 &&
-                                  parseInt(table.order[0].pax) > 0 && (
-                                    <>
-                                      <Icon
-                                        as={Ionicons}
-                                        name="people"
-                                        size="sm"
-                                        mr={2}
-                                        color={useColorModeValue(
-                                          "muted.400",
-                                          "muted.400"
-                                        )}
-                                      />
-                                      <Text
-                                        fontFamily="sf-pro-text-medium"
-                                        fontSize="19px"
-                                        textAlign="center"
-                                        color={useColorModeValue(
-                                          "muted.400",
-                                          "muted.400"
-                                        )}
-                                      >
-                                        {table.order[0].pax}
-                                      </Text>
-                                    </>
-                                  )}
+                          <Flex
+                            borderRightRadius="lg"
+                            w="90%"
+                            h="100%"
+                            direction="row"
+                            justify="space-between"
+                            py={2}
+                            pl={1}
+                          >
+                            <Flex h="100%" justify="space-between" pl={2}>
+                              <Text
+                                fontFamily="sf-pro-display-bold"
+                                fontSize="22px"
+                              >
+                                {table.name}
+                              </Text>
+
+                              <Flex>
+                                {table.order && table.order.length > 0 && (
+                                  <Text
+                                    fontFamily="sf-pro-text-semibold"
+                                    fontSize="15px"
+                                  >
+                                    RM
+                                    {parseFloat(table.total).toFixed(2)}
+                                  </Text>
+                                )}
+                                <Flex direction="row" align="center">
+                                  {table.order &&
+                                    table.order.length > 0 &&
+                                    parseInt(table.order[0].pax) > 0 && (
+                                      <>
+                                        <Icon
+                                          as={Ionicons}
+                                          name="people"
+                                          size="sm"
+                                          mr={2}
+                                          color={useColorModeValue(
+                                            "muted.400",
+                                            "muted.400"
+                                          )}
+                                        />
+                                        <Text
+                                          fontFamily="sf-pro-text-medium"
+                                          fontSize="19px"
+                                          textAlign="center"
+                                          color={useColorModeValue(
+                                            "muted.400",
+                                            "muted.400"
+                                          )}
+                                        >
+                                          {table.order[0].pax}
+                                        </Text>
+                                      </>
+                                    )}
+                                </Flex>
                               </Flex>
                             </Flex>
                           </Flex>
                         </Flex>
-                      </Flex>
+                      )}
                     </Pressable>
                   );
                 })}
@@ -663,6 +696,41 @@ const TableScreen = () => {
           maximumInputLength={4}
         />
 
+        <Modal
+          isOpen={showOrderType}
+          onClose={() => setShowOrderType(false)}
+        >
+          <Modal.Content maxW={{ base: "320px", md: "600px" }} w="100%">
+            <Modal.CloseButton />
+            <Modal.Header>Order Type</Modal.Header>
+            <Modal.Body>
+              <Flex direction="row" w="100%" align="flex-start" wrap="wrap">
+                {orderTypes.map((type) => (
+                  <Button
+                    key={type.id}
+                    flex={1}
+                    borderColor="light.400"
+                    borderWidth={0.5}
+                    bg="transparent"
+                    _text={{ color: "light.400" }}
+                    _pressed={{
+                      bg: useColorModeValue("light.200", "dark.200"),
+                    }}
+                    flexBasis="30%"
+                    mx="1.6%"
+                    my="3%"
+                    maxW="30%"
+                    h={40}
+                    onPress={() => onSelectOrderType(type.id)}
+                  >
+                    {type.name}
+                  </Button>
+                ))}
+              </Flex>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal>
+
         {/* <-------------- Confirmation Modal when checkout--> */}
         <AlertDialog
           leastDestructiveRef={cancelRef}
@@ -720,6 +788,7 @@ const TableScreen = () => {
         bottom="0"
         h="100%"
       />
+
       <SlideFromRight
         isOpen={openTableCart}
         w={{ base: "100%", md: "50%" }}
@@ -1036,7 +1105,7 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
         >
           Edit
         </Button>
-        <PrimaryButton
+        <Button
           flex={{ base: 11, lg: 9 }}
           disabled={cartItem.length < 1}
           onPress={() => {
@@ -1044,7 +1113,7 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
           }}
         >
           Checkout
-        </PrimaryButton>
+        </Button>
       </HStack>
     </Flex>
   );

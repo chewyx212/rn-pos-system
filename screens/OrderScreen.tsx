@@ -27,7 +27,6 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import { itemData } from "../assets/DUMMY";
-import PrimaryButton from "../components/Ui/PrimaryButton";
 import SlideFromRight from "../components/Ui/SlideFromRight";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
@@ -114,6 +113,9 @@ const OrderScreen = () => {
   const navigation = useNavigation<OrderScreenNavigationProp>();
   const route = useRoute<OrderScreenRouteProp>();
   const { orderType, tableId, pax, refresher, orders } = route.params;
+  navigation.setOptions({
+    headerShown: false,
+  });
   const selectionButtonGroup = [
     // {
     //   name: "Add Customer",
@@ -822,10 +824,10 @@ const OrderScreen = () => {
             <Flex direction="row">
               <IconButton
                 _icon={{
-                  color: "primary.500",
+                  color: "themeColor.500",
                   size: "md",
                 }}
-                colorScheme="primary"
+                colorScheme="themeColor"
                 icon={<Icon as={Ionicons} name="arrow-back" size="sm" />}
                 mr={5}
                 onPress={() => navigation.goBack()}
@@ -861,7 +863,7 @@ const OrderScreen = () => {
                 let bgColor = useColorModeValue("transparent", "transparent");
                 let textColor = useColorModeValue("muted.500", "muted.400");
                 if (isActive) {
-                  bgColor = useColorModeValue("primary.500", "primary.700");
+                  bgColor = useColorModeValue("themeColor.500", "themeColor.700");
                   textColor = useColorModeValue("light.50", "light.50");
                 }
                 return (
@@ -1280,7 +1282,7 @@ const OrderScreen = () => {
                       );
                       const isActive = type.id === selectedDiscountType;
                       if (isActive) {
-                        bg = useColorModeValue("primary.500", "primary.600");
+                        bg = useColorModeValue("themeColor.500", "themeColor.600");
                         textColor = useColorModeValue("light.200", "dark.200");
                       }
 
@@ -1471,12 +1473,12 @@ const OrderScreen = () => {
               <Pressable bg="transparent" onPress={onCloseModalHandler}>
                 <Flex direction="row" align="center">
                   <Icon
-                    color="primary.500"
+                    color="themeColor.500"
                     as={Entypo}
                     name="chevron-left"
                     size="xs"
                   />
-                  <Text color="primary.500">Cancel</Text>
+                  <Text color="themeColor.500">Cancel</Text>
                 </Flex>
               </Pressable>
 
@@ -1499,7 +1501,7 @@ const OrderScreen = () => {
                 <VStack>
                   <Text fontSize="md">{selectedItem?.id}</Text>
                   <Text fontSize="md">{selectedItem?.name}</Text>
-                  <Text pt={1} color="primary.500" fontSize="lg" bold>
+                  <Text pt={1} color="themeColor.500" fontSize="lg" bold>
                     RM {selectedItem?.price}
                   </Text>
                 </VStack>
@@ -1623,16 +1625,15 @@ const OrderScreen = () => {
                     }
                   ></Button>
                 </HStack>
-                <PrimaryButton
+                <Button
                   mt="auto"
                   mb={1}
-                  align="flex-end"
                   p={3}
                   onPress={onAddAddon}
                   disabled={selectedItemQuantity === 0}
                 >
                   Add
-                </PrimaryButton>
+                </Button>
               </View>
             </>
           )}
@@ -1743,9 +1744,22 @@ const CartListItem = ({
               align="center"
               justify="space-between"
             >
-              <HStack flex={3}>
+              <Flex justify="center" align="center">
+                <Flex bg="amber.500" px={3} py={.5} borderRadius="xl" mr={2}>
+                  <Text
+                    fontFamily="sf-pro-text-medium"
+                    fontWeight="500"
+                    fontSize="12px"
+                    color="bgLightColor.50"
+                  >
+                    x{item.quantity}
+                  </Text>
+                </Flex>
+              </Flex>
+              <Flex direction="row" align="center" flex={3}>
                 <Image
-                  size="sm"
+                  h="55px"
+                  w="55px"
                   resizeMode={"cover"}
                   borderRadius="md"
                   mr="10px"
@@ -1771,7 +1785,7 @@ const CartListItem = ({
                     fontSize={15}
                     isTruncated
                     noOfLines={2}
-                    maxW={{ base: "150", md: "120" }}
+                    maxW={{ base: "150", md: "110" }}
                   >
                     {item.id}. {item.name}
                   </Text>
@@ -1798,7 +1812,7 @@ const CartListItem = ({
                       })}
                   </Text>
                 </VStack>
-              </HStack>
+              </Flex>
               <View flex={2} pr={2}>
                 <Text
                   color={
@@ -1812,20 +1826,20 @@ const CartListItem = ({
                 >
                   {item.discountType && item.discountType === 1
                     ? `RM ${(
-                        item.calculatedPrice - item.discountAmount
-                      ).toFixed(2)} x ${item.quantity}`
+                        (item.calculatedPrice - item.discountAmount) *
+                        item.quantity
+                      ).toFixed(2)}`
                     : item.discountType && item.discountType === 2
                     ? `RM  ${(
-                        (item.calculatedPrice * (100 - item.discountAmount)) /
-                        100
-                      ).toFixed(2)} x ${item.quantity}`
-                    : item.discountType && item.discountType === 3
-                    ? `RM ${item.discountAmount.toFixed(2)} x ${item.quantity}`
-                    : item.discountType && item.discountType === 4
-                    ? `Free x ${item.quantity}`
-                    : `RM ${item.calculatedPrice.toFixed(2)} x ${
+                        ((item.calculatedPrice * (100 - item.discountAmount)) /
+                          100) *
                         item.quantity
-                      }`}
+                      ).toFixed(2)}`
+                    : item.discountType && item.discountType === 3
+                    ? `RM ${(item.discountAmount * item.quantity).toFixed(2)}`
+                    : item.discountType && item.discountType === 4
+                    ? "Free"
+                    : `RM ${item.calculatedPrice * item.quantity.toFixed(2)}`}
                 </Text>
               </View>
             </Flex>
@@ -1948,7 +1962,7 @@ const OrderDetailComponent = ({
           leftIcon={<Icon as={Entypo} name="dots-three-horizontal" size="xs" />}
           onPress={() => setOpenSelectionModal(true)}
         ></Button>
-        <PrimaryButton
+        <Button
           flex={{ base: 11, lg: 9 }}
           disabled={cartItem.length < 1 && fixedCartItem.length < 1}
           onPress={() => {
@@ -1960,7 +1974,7 @@ const OrderDetailComponent = ({
           }}
         >
           Send to Kitchen
-        </PrimaryButton>
+        </Button>
       </HStack>
     </Flex>
   );
