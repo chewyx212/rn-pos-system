@@ -10,7 +10,17 @@ import CameraScreen from "../screens/CameraScreen";
 import PrinterScreen from "../screens/PrinterScreen";
 import DrawerNavigator from "./DrawerNavigator";
 import PaymentScreen from "../screens/PaymentScreen";
-import { Flex, Heading, Icon, IconButton, Image, Text, useColorModeValue } from "native-base";
+import {
+  Flex,
+  Heading,
+  Icon,
+  IconButton,
+  Image,
+  Text,
+  Box,
+  useColorModeValue,
+  useColorMode,
+} from "native-base";
 import {
   getFocusedRouteNameFromRoute,
   useNavigationState,
@@ -20,22 +30,22 @@ import { Ionicons } from "@expo/vector-icons";
 const Stack = createStackNavigator();
 const ProtectedNavigator = () => {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        header: (props) => <CustomHeader {...props} />,
-        cardShadowEnabled: false,
-        cardOverlayEnabled: false,
-        presentation: "card",
-        ...TransitionPresets.FadeFromBottomAndroid,
-      }}
-      initialRouteName="StaffSetting"
-    >
-      <Stack.Screen name="Home" component={DrawerNavigator} />
-      <Stack.Screen name="Order" component={OrderScreen} />
-      <Stack.Screen name="Payment" component={PaymentScreen} />
-      <Stack.Screen name="Camera" component={CameraScreen} />
-      <Stack.Screen name="Printer" component={PrinterScreen} />
-    </Stack.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          header: (props) => <CustomHeader {...props} />,
+          cardShadowEnabled: true,
+          cardOverlayEnabled: false,
+          presentation: "card",
+          ...TransitionPresets.FadeFromBottomAndroid,
+        }}
+        initialRouteName="StaffSetting"
+      >
+        <Stack.Screen name="Home" component={DrawerNavigator} />
+        <Stack.Screen name="Order" component={OrderScreen} />
+        <Stack.Screen name="Payment" component={PaymentScreen} />
+        <Stack.Screen name="Camera" component={CameraScreen} />
+        <Stack.Screen name="Printer" component={PrinterScreen} />
+      </Stack.Navigator>
   );
 };
 
@@ -52,13 +62,12 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
   return (
     <Flex
       direction="row"
-      bg="white"
+      bg={useColorModeValue("white", "greyColor.1000")}
       shadow={1}
       justify="space-between"
       align="center"
       px={6}
       pb={1}
-      mb={1}
       safeAreaTop
     >
       <Flex direction="row" align="center">
@@ -80,29 +89,35 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
       <Flex direction="row">
         <IconButton
           _pressed={{
-            bg: "bgLightColor.50",
+            bg: "greyColor.50",
           }}
           icon={
             <Icon
               as={Ionicons}
               name="sync-outline"
               size="sm"
-              color="iconColor.grey"
+              color={useColorModeValue(
+                "iconColor.lightGrey",
+                "iconColor.darkGrey"
+              )}
             />
           }
-          onPress={() => navigation.navigate("Home", { screen: "Setting" })}
+          onPress={useColorMode().toggleColorMode}
         />
         <IconButton
           ml={6}
           _pressed={{
-            bg: useColorModeValue("bgLightColor.50","bgLightCoor.800")
+            bg: useColorModeValue("greyColor.50", "greyColor.800"),
           }}
           icon={
             <Icon
               as={Ionicons}
               name="settings-outline"
               size="sm"
-              color="iconColor.grey"
+              color={useColorModeValue(
+                "iconColor.lightGrey",
+                "iconColor.darkGrey"
+              )}
             />
           }
           onPress={() => navigation.navigate("Home", { screen: "Setting" })}

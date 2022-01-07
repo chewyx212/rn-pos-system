@@ -862,9 +862,23 @@ const OrderScreen = () => {
                 let isActive = category.id === selectedCategory;
                 let bgColor = useColorModeValue("transparent", "transparent");
                 let textColor = useColorModeValue("muted.500", "muted.400");
+                let pressedBgColor = useColorModeValue(
+                  "themeColor.50",
+                  "themeColoer.50"
+                );
+                let pressedTextColor = useColorModeValue(
+                  "themeColor.900",
+                  "themeColoer.900"
+                );
                 if (isActive) {
-                  bgColor = useColorModeValue("themeColor.500", "themeColor.700");
-                  textColor = useColorModeValue("light.50", "light.50");
+                  bgColor = useColorModeValue(
+                    "themeColor.500",
+                    "themeColor.700"
+                  );
+                  textColor = useColorModeValue(
+                    "textColor.buttonColor",
+                    "light.50"
+                  );
                 }
                 return (
                   <Button
@@ -876,14 +890,9 @@ const OrderScreen = () => {
                       fontSize: { base: 15, md: 13 },
                     }}
                     _pressed={{
-                      bg: bgColor,
+                      bg: pressedBgColor,
                       // @ts-ignore: Unreachable code error
-                      _text: { color: textColor },
-                    }}
-                    _hover={{
-                      bg: bgColor,
-                      // @ts-ignore: Unreachable code error
-                      _text: { color: textColor },
+                      _text: { color: pressedTextColor },
                     }}
                     disabled={isActive}
                     borderRadius="2xl"
@@ -982,19 +991,21 @@ const OrderScreen = () => {
                                   {item.id}
                                 </Text>
                                 {item.is_stock_check &&
-                                  (item.stock ? item.stock : 0) <=
-                                    (item.stock_minimum
-                                      ? item.stock_minimum
-                                      : 0) && (
-                                    <Circle
-                                      size={4}
-                                      bg="red.600"
-                                      mr={3}
-                                      borderWidth={3}
-                                      borderColor="light.100"
-                                      shadow={3}
-                                    />
-                                  )}
+                                (item.stock ? item.stock : 0) <=
+                                  (item.stock_minimum
+                                    ? item.stock_minimum
+                                    : 0) ? (
+                                  <Circle
+                                    size={4}
+                                    bg="red.600"
+                                    mr={3}
+                                    borderWidth={3}
+                                    borderColor="light.100"
+                                    shadow={3}
+                                  />
+                                ) : (
+                                  <></>
+                                )}
                               </Flex>
 
                               <Flex>
@@ -1282,7 +1293,10 @@ const OrderScreen = () => {
                       );
                       const isActive = type.id === selectedDiscountType;
                       if (isActive) {
-                        bg = useColorModeValue("themeColor.500", "themeColor.600");
+                        bg = useColorModeValue(
+                          "themeColor.500",
+                          "themeColor.600"
+                        );
                         textColor = useColorModeValue("light.200", "dark.200");
                       }
 
@@ -1745,12 +1759,12 @@ const CartListItem = ({
               justify="space-between"
             >
               <Flex justify="center" align="center">
-                <Flex bg="amber.500" px={3} py={.5} borderRadius="xl" mr={2}>
+                <Flex bg="amber.500" px={3} py={0.5} borderRadius="xl" mr={2}>
                   <Text
                     fontFamily="sf-pro-text-medium"
                     fontWeight="500"
                     fontSize="12px"
-                    color="bgLightColor.50"
+                    color="greyColor.50"
                   >
                     x{item.quantity}
                   </Text>

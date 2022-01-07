@@ -31,7 +31,9 @@ const DrawerNavigator = () => {
         headerShown: false,
         drawerType: isLargeScreen ? "permanent" : "front",
         drawerHideStatusBarOnOpen: true,
-        drawerStyle: isLargeScreen ? { width: "10%" } : { width: "100%" },
+        drawerStyle: isLargeScreen
+          ? { width: "auto", minWidth: "8%", backgroundColor: "#ff0000" }
+          : { width: "100%" },
       }}
       drawerContent={CustomDrawerContent}
       initialRouteName="StaffSetting"
@@ -79,18 +81,39 @@ const CustomDrawerContent = (props) => {
     },
   ];
   return (
-    <Flex align="center" p={3}>
+    <Flex
+      align="center"
+      h="100%"
+      py={3}
+      px={2}
+      _light={{
+        bg: "white",
+      }}
+      _dark={{
+        bg: "greyColor.1000",
+      }}
+    >
       {drawerItems.map((item) => {
         let isActive = item.name === currentRoute;
         return (
           <Pressable
-            my={3}
+            my={2}
             onPress={() => props.navigation.navigate(item.name)}
-            _light={{ bg: isActive ? "primary.500" : "transparent" }}
-            _dark={{ bg: isActive ? "primary.400" : "transparent" }}
+            _light={{
+              bg: isActive ? "themeColor.500" : "transparent",
+              _pressed: {
+                bg: isActive ? "themeColor.500" : "themeColor.50",
+              },
+            }}
+            _dark={{
+              bg: isActive ? "themeColor.400" : "transparent",
+              _pressed: {
+                bg: isActive ? "themeColor.400" : "themeColor.200",
+              },
+            }}
             borderRadius="lg"
             w={{ base: "300px", md: "100%" }}
-            h="85px"
+            h="75px"
           >
             {() => (
               <Flex
@@ -105,18 +128,20 @@ const CustomDrawerContent = (props) => {
                 <Icon
                   as={item.icon}
                   textAlign="center"
-                  _light={{ color: isActive ? "light.100" : "primary.500" }}
-                  _dark={{ color: isActive ? "light.300" : "primary.400" }}
-                  size="md"
+                  _light={{
+                    color: isActive ? "light.100" : "themeColor.500:alpha.50",
+                  }}
+                  _dark={{ color: isActive ? "light.300" : "themeColor.200" }}
+                  size={7}
                   name={isActive ? item.activeIcon : item.iconName}
                 />
                 <Text
                   py={1}
                   _light={{ color: isActive ? "light.100" : "dark.400" }}
-                  _dark={{ color: isActive ? "light.300" : "primary.400" }}
+                  _dark={{ color: isActive ? "light.300" : "themeColor.200" }}
                   fontFamily="sf-pro-text-semibold"
                   fontWeight="600"
-                  fontSize={13}
+                  fontSize={12}
                 >
                   {item.display}
                 </Text>

@@ -1,5 +1,10 @@
 import React from "react";
-import { NativeBaseProvider, extendTheme } from "native-base";
+import {
+  NativeBaseProvider,
+  extendTheme,
+  useColorModeValue,
+  Box,
+} from "native-base";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AppNavigator from "./navigation/AppNavigator";
 import { useFonts } from "expo-font";
@@ -29,30 +34,20 @@ const theme = extendTheme({
     },
   },
   colors: {
-    // Add new color
-    myPrimary: {
-      50: "#FF9671",
-      100: "#d16f4d",
-      200: "#cc5f39",
-      300: "#FF9671",
-      400: "#a74b2b",
-      500: "#934226",
-      600: "#7e3921",
-      700: "#7e3921",
-      800: "#6a301b",
-      900: "#550000",
-    },
     themeColor: {
       50: "#fbd8bc",
       100: "#f9c9a2",
       200: "#f49a52",
       300: "#f49a52",
       400: "#f28b37",
-      500: "#f17c1d",
+      500: "#EC720F",
       600: "#e26d0e",
       700: "#c8600d",
       800: "#ad540b",
       900: "#924709",
+    },
+    textColor: {
+      buttonColor: "#ffffff",
     },
     dottedColor: {
       borderColor: "#aeadb2",
@@ -65,7 +60,8 @@ const theme = extendTheme({
       400: "#E75D77",
     },
     iconColor: {
-      grey: "#3a3a3c",
+      lightGrey: "#3a3a3c",
+      darkGrey: "#c8c7cc",
     },
     bgDarkColor: {
       50: "#000000",
@@ -76,7 +72,7 @@ const theme = extendTheme({
       500: "#e6e6f0",
       600: "#8f8e93",
     },
-    bgLightColor: {
+    greyColor: {
       50: "#f3f2f7",
       100: "#e6e5ea",
       200: "#d2d1d6",
@@ -86,28 +82,8 @@ const theme = extendTheme({
       600: "#636365",
       700: "#48484a",
       800: "#3a3a3c",
-      900: "#020202",
+      900: "#2c2c2e",
       1000: "#1c1c1e",
-    },
-    primaryButton: {
-      lightBg: "#2563eb",
-      darkBg: "#1e40af",
-      lightPressBg: "#1d4ed8",
-      darkPressBg: "#1e3a8a",
-      lightText: "#fafafa",
-      darkText: "#e7e5e4",
-      lightPressText: "#fafaf9",
-      darkPressText: "#f5f5f4",
-    },
-    secondaryButton: {
-      lightBg: "#2563eb",
-      darkBg: "#1e40af",
-      lightPressBg: "#1d4ed8",
-      darkPressBg: "#1e3a8a",
-      lightText: "#fafafa",
-      darkText: "#e7e5e4",
-      lightPressText: "#fafaf9",
-      darkPressText: "#f5f5f4",
     },
   },
 });
@@ -145,7 +121,7 @@ export default function App() {
         <SafeAreaProvider>
           <SSRProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
-              <AppNavigator />
+                <AppNavigator />
             </GestureHandlerRootView>
           </SSRProvider>
         </SafeAreaProvider>

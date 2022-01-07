@@ -19,7 +19,6 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "./RootStackParams";
 import NumberPadInput from "../components/NumberPadInput";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
-import PrimaryButton from "../components/Ui/PrimaryButton";
 
 type PaymentScreenProp = StackNavigationProp<RootStackParamList, "Payment">;
 const PaymentScreen = () => {
@@ -381,14 +380,9 @@ const PaymentScreen = () => {
                 </Pressable>
               </Flex>
 
-              <PrimaryButton
-                mt="auto"
-                mb={1}
-                align="flex-end"
-                p={4}
-              >
+              <Button mt="auto" mb={1} align="flex-end" p={4}>
                 Pay
-              </PrimaryButton>
+              </Button>
             </Flex>
           </Flex>
         </VStack>

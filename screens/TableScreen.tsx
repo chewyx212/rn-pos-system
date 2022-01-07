@@ -250,8 +250,8 @@ const TableScreen = () => {
         position="relative"
         h="100%"
         direction="row"
-        pl={3}
-        bg={useColorModeValue("bgLightColor.50", "bgDarkColor.50")}
+        pl={2}
+        bg={useColorModeValue("greyColor.50", "greyColor.1000")}
       >
         <VStack h="100%" flex={1} mr="1%">
           {/* <Flex direction="row" w="100%" justify="space-between" align="center">
@@ -301,9 +301,24 @@ const TableScreen = () => {
               {(() => {
                 let bgColor = useColorModeValue("transparent", "transparent");
                 let textColor = useColorModeValue("muted.500", "muted.400");
+                let pressedBgColor = useColorModeValue(
+                  "themeColor.50",
+                  "themeColoer.50"
+                );
+                let pressedTextColor = useColorModeValue(
+                  "themeColor.900",
+                  "themeColoer.900"
+                );
+
                 if (isAllCategory) {
-                  bgColor = useColorModeValue("primary.500", "primary.700");
-                  textColor = useColorModeValue("light.50", "light.50");
+                  bgColor = useColorModeValue(
+                    "themeColor.500",
+                    "themeColor.700"
+                  );
+                  textColor = useColorModeValue(
+                    "textColor.buttonColor",
+                    "light.50"
+                  );
                 }
                 return (
                   <Button
@@ -314,14 +329,9 @@ const TableScreen = () => {
                       fontSize: { base: 17, md: 15 },
                     }}
                     _pressed={{
-                      bg: bgColor,
+                      bg: pressedBgColor,
                       // @ts-ignore: Unreachable code error
-                      _text: { color: textColor },
-                    }}
-                    _hover={{
-                      bg: bgColor,
-                      // @ts-ignore: Unreachable code error
-                      _text: { color: textColor },
+                      _text: { color: pressedTextColor },
                     }}
                     disabled={isAllCategory}
                     borderRadius="2xl"
@@ -339,9 +349,23 @@ const TableScreen = () => {
                   category.id === selectedCategory && !isAllCategory;
                 let bgColor = useColorModeValue("transparent", "transparent");
                 let textColor = useColorModeValue("muted.500", "muted.400");
+                let pressedBgColor = useColorModeValue(
+                  "themeColor.50",
+                  "themeColoer.50"
+                );
+                let pressedTextColor = useColorModeValue(
+                  "themeColor.900",
+                  "themeColoer.900"
+                );
                 if (isActive) {
-                  bgColor = useColorModeValue("primary.500", "primary.700");
-                  textColor = useColorModeValue("light.50", "light.50");
+                  bgColor = useColorModeValue(
+                    "themeColor.500",
+                    "themeColor.700"
+                  );
+                  textColor = useColorModeValue(
+                    "textColor.buttonColor",
+                    "light.50"
+                  );
                 }
                 return (
                   <Button
@@ -353,14 +377,9 @@ const TableScreen = () => {
                       fontSize: { base: 17, md: 15 },
                     }}
                     _pressed={{
-                      bg: bgColor,
+                      bg: pressedBgColor,
                       // @ts-ignore: Unreachable code error
-                      _text: { color: textColor },
-                    }}
-                    _hover={{
-                      bg: bgColor,
-                      // @ts-ignore: Unreachable code error
-                      _text: { color: textColor },
+                      _text: { color: pressedTextColor },
                     }}
                     disabled={isActive}
                     borderRadius="2xl"
@@ -389,12 +408,12 @@ const TableScreen = () => {
                 borderRadius="lg"
                 mx={{ base: "2%", md: "1.5", lg: "1%" }}
                 my={{ base: "2%", md: "1.5", lg: "1%" }}
-                bg={useColorModeValue("bgLightColor.100", "bgDarkColor.100")}
+                bg={useColorModeValue("greyColor.100", "bgDarkColor.100")}
                 borderStyle="dashed"
                 borderWidth={3}
                 borderColor="dottedColor.borderColor"
                 _pressed={{
-                  bg: useColorModeValue("bgLightColor.300", "bgDarkColor.300"),
+                  bg: useColorModeValue("greyColor.300", "bgDarkColor.300"),
                 }}
                 onPress={() => {
                   onSelectStartOrder();
@@ -453,7 +472,7 @@ const TableScreen = () => {
                           bg={
                             isPressed
                               ? useColorModeValue(
-                                  "bgLightColor.50",
+                                  "greyColor.50",
                                   "bgDarkColor.50"
                                 )
                               : useColorModeValue("white", "dark.200")
@@ -550,7 +569,7 @@ const TableScreen = () => {
                           bg={
                             isPressed
                               ? useColorModeValue(
-                                  "bgLightColor.50",
+                                  "greyColor.50",
                                   "bgDarkColor.50"
                                 )
                               : useColorModeValue("white", "dark.200")
@@ -696,10 +715,7 @@ const TableScreen = () => {
           maximumInputLength={4}
         />
 
-        <Modal
-          isOpen={showOrderType}
-          onClose={() => setShowOrderType(false)}
-        >
+        <Modal isOpen={showOrderType} onClose={() => setShowOrderType(false)}>
           <Modal.Content maxW={{ base: "320px", md: "600px" }} w="100%">
             <Modal.CloseButton />
             <Modal.Header>Order Type</Modal.Header>
@@ -765,7 +781,10 @@ const TableScreen = () => {
           position="absolute"
           w="100%"
           h="100%"
-          bg={useColorModeValue("muted.600:alpha.40", "muted.800")}
+          bg={useColorModeValue(
+            "greyColor.400:alpha.60",
+            "greyColor.900:alpha.70"
+          )}
           onPress={() => setOpenTableCart(false)}
         ></Pressable>
       )}
@@ -774,7 +793,10 @@ const TableScreen = () => {
           position="absolute"
           w="100%"
           h="100%"
-          bg={useColorModeValue("muted.600:alpha.40", "muted.800")}
+          bg={useColorModeValue(
+            "greyColor.400:alpha.60",
+            "greyColor.900:alpha.70"
+          )}
           onPress={() => setOpenCart(false)}
         ></Pressable>
       )}
@@ -797,7 +819,7 @@ const TableScreen = () => {
         bottom="0"
         h="100%"
       >
-        <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
+        <VStack h="100%" bg={useColorModeValue("greyColor.50", "greyColor.900")}>
           <View w="100%" flex={14} px={3} h="100%">
             <Flex direction="row" justify="space-between" align="center" py={4}>
               <Flex direction="row">

@@ -6,6 +6,7 @@ import {
 import AuthNavigator from "./AuthNavigator";
 import ProtectedNavigator from "./ProtectedNavigator";
 import { useAppSelector } from "../app/hooks";
+import { Box, useColorModeValue } from "native-base";
 const AppNavigator = () => {
   let isAuth = false;
 
@@ -15,11 +16,10 @@ const AppNavigator = () => {
   );
 
   return (
-    <NavigationContainer
-    >
+    <NavigationContainer>
+      <ProtectedNavigator />
       {/* {(!isLoggedIn || !isPasscodeVerified) && <AuthNavigator />}
       {isLoggedIn && isPasscodeVerified && <ProtectedNavigator />} */}
-      <ProtectedNavigator />
     </NavigationContainer>
   );
 };
