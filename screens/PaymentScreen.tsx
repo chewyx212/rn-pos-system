@@ -67,53 +67,42 @@ const PaymentScreen = () => {
     },
   ];
 
+  const subHeadingStyle = {
+    fontFamily: "sf-pro-text-bold",
+    fontWeight: "700",
+    fontSize: "17px",
+    color: useColorModeValue("greyColor.700", "greyColor.500"),
+  };
+
   return (
     <>
       <Stack
-        safeArea
+        safeAreaBottom
         position="relative"
         h="100%"
         direction="row"
         pl={5}
-        bg={useColorModeValue("light.100", "muted.800")}
+        bg={useColorModeValue("greyColor.50", "greyColor.1000")}
       >
         <VStack h="100%" flex={6} mr="1%" pt={3}>
-          <Flex direction="row" w="100%" justify="space-between" align="center">
-            <Flex direction="row">
-              <IconButton
-                _icon={{
-                  color: "primary.500",
-                  size: "md",
-                }}
-                colorScheme="primary"
-                icon={<Icon as={Ionicons} name="arrow-back" size="sm" />}
-                mr={5}
-                onPress={() => navigation.goBack()}
-              />
-              <Heading
-                size="lg"
-                fontFamily="sf-pro-display-bold"
-                fontWeight="600"
-                fontSize={{ base: 24, md: 32 }}
-              >
-                Payment
-              </Heading>
-            </Flex>
-            <IconButton
-              display={{ md: "none" }}
-              icon={<Icon as={AntDesign} name="shoppingcart" size="sm" />}
-              mr={5}
-            />
-          </Flex>
           <Flex direction="row" flex={1} my={1}>
-            <Flex flex={1} mx={2} bg="light.50" shadow={5} borderRadius="xl">
+            <Flex
+              flex={1}
+              mx={2}
+              bg={useColorModeValue("white", "greyColor.900")}
+              shadow={5}
+              borderRadius="xl"
+            >
               <Flex
                 flexBasis="10%"
                 py={4}
                 px={5}
                 w="100%"
                 borderBottomWidth={2}
-                borderBottomColor="light.200"
+                borderBottomColor={useColorModeValue(
+                  "greyColor.100",
+                  "greyColor.800"
+                )}
               >
                 <Text
                   fontFamily="sf-pro-display-bold"
@@ -129,7 +118,10 @@ const PaymentScreen = () => {
                 px={5}
                 w="100%"
                 borderBottomWidth={2}
-                borderBottomColor="light.200"
+                borderBottomColor={useColorModeValue(
+                  "greyColor.100",
+                  "greyColor.800"
+                )}
               >
                 {/* <FlatList
                 keyExtractor={(item, index) => `${item.name}${index}`}
@@ -205,22 +197,25 @@ const PaymentScreen = () => {
               </Flex>
             </Flex>
             <Flex flex={1} mx={2}>
-              <Flex direction="row" px={2} justify="space-between">
-                <Text
-                  fontFamily="sf-pro-text-bold"
-                  fontWeight="700"
-                  fontSize="17px"
-                  color={useColorModeValue("light.500", "dark.400")}
-                >
-                  Payable Amount
-                </Text>
-                <Button variant="ghost">Split Amount</Button>
+              <Flex direction="row" px={2} pb={1} justify="space-between">
+                <Text {...subHeadingStyle}>Payable Amount</Text>
+                <Pressable>
+                  <Text
+                    fontFamily="sf-pro-text-medium"
+                    color={useColorModeValue(
+                      "themeColor.500",
+                      "themeColor.500"
+                    )}
+                  >
+                    Split Amount
+                  </Text>
+                </Pressable>
               </Flex>
               <Flex
                 flexBasis="17%"
                 borderRadius="lg"
                 w="100%"
-                bg="light.50"
+                bg={useColorModeValue("white", "greyColor.900")}
                 shadow={2}
                 align="center"
                 justify="center"
@@ -233,32 +228,34 @@ const PaymentScreen = () => {
                   RM 50.00
                 </Text>
               </Flex>
-              <Text
-                px={2}
-                pt={10}
-                py={3}
-                fontFamily="sf-pro-text-bold"
-                fontWeight="700"
-                fontSize="17px"
-                color={useColorModeValue("light.500", "dark.400")}
-              >
+              <Text px={2} pt={10} pb={1} {...subHeadingStyle}>
                 Choose Payment Method
               </Text>
               <Flex direction="row">
                 {paymentMethods.map((method) => {
                   let backgroundColor = useColorModeValue(
-                    "light.50",
-                    "dark.100"
+                    "white",
+                    "greyColor.900"
                   );
                   let borderColor = useColorModeValue(
-                    "primary.400",
-                    "primary.400"
+                    "themeColor.500",
+                    "themeColor.500"
+                  );
+
+                  let textColor = useColorModeValue(
+                    "greyColor.800",
+                    "greyColor.300"
                   );
                   const isActive = method.id === selectedMethod;
                   if (isActive) {
                     backgroundColor = useColorModeValue(
-                      "primary.50",
-                      "primary.50"
+                      "themeColor.50",
+                      "themeColor.100"
+                    );
+
+                    textColor = useColorModeValue(
+                      "greyColor.900",
+                      "greyColor.700"
                     );
                   }
                   return (
@@ -269,13 +266,13 @@ const PaymentScreen = () => {
                       shadow={2}
                       borderRadius="lg"
                       borderColor={isActive ? borderColor : "transparent"}
-                      borderWidth={1}
+                      borderWidth={1.5}
                       mx={method.id === 2 ? 5 : 0}
                       onPress={() => {
                         setSelectedMethod(method.id);
                       }}
                     >
-                      <Flex align="center" py={7}>
+                      <Flex align="center" py={6}>
                         <Image
                           size="xs"
                           resizeMode={"cover"}
@@ -288,7 +285,8 @@ const PaymentScreen = () => {
                           fontFamily="sf-pro-text-medium"
                           fontWeight="600"
                           fontSize="15px"
-                          color={useColorModeValue("light.700", "dark.400")}
+                          pt={2}
+                          color={textColor}
                         >
                           {method.name}
                         </Text>
@@ -297,32 +295,34 @@ const PaymentScreen = () => {
                   );
                 })}
               </Flex>
-              <Text
-                px={2}
-                pt={10}
-                py={3}
-                fontFamily="sf-pro-text-bold"
-                fontWeight="700"
-                fontSize="17px"
-                color={useColorModeValue("light.500", "dark.400")}
-              >
+              <Text px={2} pt={10} pb={1} {...subHeadingStyle}>
                 Quick Payment
               </Text>
               <Flex direction="row" wrap="wrap">
                 {quickPayments.map((payment) => {
                   let backgroundColor = useColorModeValue(
-                    "light.50",
-                    "dark.100"
+                    "white",
+                    "greyColor.900"
                   );
                   let borderColor = useColorModeValue(
-                    "primary.400",
-                    "primary.400"
+                    "themeColor.500",
+                    "themeColor.500"
+                  );
+
+                  let textColor = useColorModeValue(
+                    "greyColor.800",
+                    "greyColor.300"
                   );
                   const isActive = payment.id === selectedAmount;
                   if (isActive) {
                     backgroundColor = useColorModeValue(
-                      "primary.50",
-                      "primary.50"
+                      "themeColor.50",
+                      "themeColor.100"
+                    );
+
+                    textColor = useColorModeValue(
+                      "greyColor.900",
+                      "greyColor.700"
                     );
                   }
                   return (
@@ -348,7 +348,7 @@ const PaymentScreen = () => {
                         fontFamily="sf-pro-text-medium"
                         fontWeight="600"
                         fontSize="15px"
-                        color={useColorModeValue("light.700", "dark.400")}
+                        color={textColor}
                       >
                         {payment.name}
                       </Text>
@@ -380,7 +380,21 @@ const PaymentScreen = () => {
                 </Pressable>
               </Flex>
 
-              <Button mt="auto" mb={1} align="flex-end" p={4}>
+              <Button
+                mt="auto"
+                mb={1}
+                p={4}
+                bg={useColorModeValue(
+                  "primaryButton.lightBgColor",
+                  "primaryButton.darkBgColor"
+                )}
+                _text={{
+                  color: useColorModeValue(
+                    "primaryButton.lightTextColor",
+                    "primaryButton.darkTextColor"
+                  ),
+                }}
+              >
                 Pay
               </Button>
             </Flex>

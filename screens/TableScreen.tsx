@@ -240,6 +240,10 @@ const TableScreen = () => {
       refresher: orderRefresher,
     });
   };
+  const checkoutHandler = () => {
+    onCloseConfirm();
+    navigation.navigate("Payment");
+  }
 
   const onCloseConfirm = () => setIsConfirm(false);
 
@@ -316,7 +320,7 @@ const TableScreen = () => {
                     "themeColor.700"
                   );
                   textColor = useColorModeValue(
-                    "textColor.buttonColor",
+                    "textColor.buttonText",
                     "light.50"
                   );
                 }
@@ -363,7 +367,7 @@ const TableScreen = () => {
                     "themeColor.700"
                   );
                   textColor = useColorModeValue(
-                    "textColor.buttonColor",
+                    "textColor.buttonText",
                     "light.50"
                   );
                 }
@@ -408,7 +412,7 @@ const TableScreen = () => {
                 borderRadius="lg"
                 mx={{ base: "2%", md: "1.5", lg: "1%" }}
                 my={{ base: "2%", md: "1.5", lg: "1%" }}
-                bg={useColorModeValue("greyColor.100", "bgDarkColor.100")}
+                bg={useColorModeValue("greyColor.50", "greyColor.1000")}
                 borderStyle="dashed"
                 borderWidth={3}
                 borderColor="dottedColor.borderColor"
@@ -759,7 +763,7 @@ const TableScreen = () => {
             <AlertDialog.CloseButton />
             <AlertDialog.Header>Place Order</AlertDialog.Header>
             <AlertDialog.Body>
-              Your order will be send to kitchen and start prepare.
+              Ready to checkout?
             </AlertDialog.Body>
             <AlertDialog.Footer>
               <Button.Group space={2}>
@@ -770,7 +774,7 @@ const TableScreen = () => {
                 >
                   Cancel
                 </Button>
-                <Button colorScheme="success">Proceed to Payment</Button>
+                <Button colorScheme="success" onPress={checkoutHandler}>Proceed to Payment</Button>
               </Button.Group>
             </AlertDialog.Footer>
           </AlertDialog.Content>
@@ -1044,7 +1048,7 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
       px={3}
       mx={3}
       borderRadius={{ base: undefined, md: "xl" }}
-      bg={useColorModeValue("white", "black")}
+      bg={useColorModeValue("white", "greyColor.1000")}
     >
       <Flex direction="row" align="center" justify="space-between">
         <Text fontFamily="sf-pro-text-medium" fontWeight="500" fontSize="15px">

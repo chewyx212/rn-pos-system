@@ -30,22 +30,22 @@ import { Ionicons } from "@expo/vector-icons";
 const Stack = createStackNavigator();
 const ProtectedNavigator = () => {
   return (
-      <Stack.Navigator
-        screenOptions={{
-          header: (props) => <CustomHeader {...props} />,
-          cardShadowEnabled: true,
-          cardOverlayEnabled: false,
-          presentation: "card",
-          ...TransitionPresets.FadeFromBottomAndroid,
-        }}
-        initialRouteName="StaffSetting"
-      >
-        <Stack.Screen name="Home" component={DrawerNavigator} />
-        <Stack.Screen name="Order" component={OrderScreen} />
-        <Stack.Screen name="Payment" component={PaymentScreen} />
-        <Stack.Screen name="Camera" component={CameraScreen} />
-        <Stack.Screen name="Printer" component={PrinterScreen} />
-      </Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        header: (props) => <CustomHeader {...props} />,
+        cardShadowEnabled: true,
+        cardOverlayEnabled: false,
+        presentation: "card",
+        ...TransitionPresets.FadeFromBottomAndroid,
+      }}
+      initialRouteName="StaffSetting"
+    >
+      <Stack.Screen name="Home" component={DrawerNavigator} />
+      <Stack.Screen name="Order" component={OrderScreen} />
+      <Stack.Screen name="Payment" component={PaymentScreen} />
+      <Stack.Screen name="Camera" component={CameraScreen} />
+      <Stack.Screen name="Printer" component={PrinterScreen} />
+    </Stack.Navigator>
   );
 };
 
@@ -53,7 +53,11 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
   const title = getHeaderTitle(options, route.name);
   // const state = navigation.getState();
   // const state = useNavigationState();
-  let routeName = getFocusedRouteNameFromRoute(route) ?? "Order";
+  let routeName = getFocusedRouteNameFromRoute(route) ?? title;
+  console.log(routeName);
+
+  console.log("here");
+  console.log(title);
   // let actualRoute = state.routes[state.index];
 
   // while (actualRoute.state) {
@@ -71,17 +75,32 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
       safeAreaTop
     >
       <Flex direction="row" align="center">
-        <Image
-          w={16}
-          h={16}
-          alt="bg image"
-          source={require("./../assets/logo-min-1.png")}
-        />
+        
+        {routeName === "Payment" ? (
+          <IconButton
+            _icon={{
+              color: "primary.500",
+              size: "8",
+            }}
+            py={4}
+            colorScheme="primary"
+            icon={<Icon as={Ionicons} name="arrow-back" size="sm" />}
+            
+            onPress={() => navigation.goBack()}
+          />
+        ) : (
+          <Image
+            w={16}
+            h={16}
+            alt="bg image"
+            source={require("./../assets/logo-min-1.png")}
+          />
+        )}
         <Heading
           fontFamily="sf-pro-display-bold"
           fontWeight={700}
           fontSize={30}
-          pl={9}
+          pl={8}
         >
           {routeName}
         </Heading>

@@ -876,7 +876,7 @@ const OrderScreen = () => {
                     "themeColor.700"
                   );
                   textColor = useColorModeValue(
-                    "textColor.buttonColor",
+                    "textColor.buttonText",
                     "light.50"
                   );
                 }

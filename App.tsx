@@ -46,8 +46,16 @@ const theme = extendTheme({
       800: "#ad540b",
       900: "#924709",
     },
+    primaryButton: {
+      lightTextColor: "#ffffff",
+      lightBgColor: "#EC720F",
+      darkTextColor: "#ffffff",
+      darkBgColor: "#e26d0e",
+    },
     textColor: {
-      buttonColor: "#ffffff",
+      buttonText: "#ffffff",
+      h1: "#283252",
+      h2: "#48484a",
     },
     dottedColor: {
       borderColor: "#aeadb2",
@@ -121,7 +129,7 @@ export default function App() {
         <SafeAreaProvider>
           <SSRProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
-                <AppNavigator />
+              <AppNavigator />
             </GestureHandlerRootView>
           </SSRProvider>
         </SafeAreaProvider>

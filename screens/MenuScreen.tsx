@@ -151,165 +151,141 @@ const MenuScreen = () => {
   return (
     <>
       <Stack
-        safeArea
+        safeAreaBottom
         position="relative"
         h="100%"
         direction="row"
-        bg={useColorModeValue("light.100", "muted.800")}
+        bg={useColorModeValue("greyColor.50", "greyColor.1000")}
       >
-        <VStack h="100%" flex={6} mr="1%" pt={3}>
-          <Flex direction="row" px={5} mb={3} justify="space-between">
-            <Heading
-              size="lg"
-              fontFamily="sf-pro-display-bold"
-              fontWeight="600"
-              fontSize={{ base: 22, md: 32 }}
-              flex={1}
-            >
-              Menu
-            </Heading>
-            <Flex direction="row" flex={1}>
-              {/* <Button onPress={() => setOpenModal(true)} mr={3}>
-                    Add item
-                  </Button> */}
-              <Input
-                placeholder="Search Item"
-                bg="transparent"
-                width="100%"
-                borderRadius="4"
-                py="3"
-                px="1"
-                fontSize="14"
-                _web={{
-                  _focus: { borderColor: "muted.300" },
-                }}
-                InputLeftElement={
-                  <Icon
-                    m="2"
-                    ml="3"
-                    size="6"
-                    color="gray.400"
-                    as={<MaterialIcons name="search" />}
-                  />
-                }
-              />
-            </Flex>
-          </Flex>
-          <Flex direction="row" w="100%" h="100%">
+        <VStack
+          h="100%"
+          flex={6}
+          my={3}
+          mx={5}
+          bg={useColorModeValue("white", "greyColor.900")}
+          borderRadius="xl"
+          direction="row"
+          w="100%"
+        >
+          <Flex
+            w="20%"
+            bg="transparent"
+            borderRightWidth={1}
+            borderRightColor="light.200"
+          >
             <Flex
-              w="20%"
-              bg="transparent"
-              borderRightWidth={1}
-              borderRightColor="light.200"
-            >
-              <Flex
-                direction="row"
-                bg={useColorModeValue("light.200", "dark.50")}
-                textAlign="center"
-                py={3}
-                px={2}
-              >
-                <Text flex={0.5} textAlign="center">
-                  Category
-                </Text>
-              </Flex>
-              <ScrollView>
-                {categoryList.map((category: ItemCategoryType) => {
-                  let isActive = category.id === selectedCategoryId;
-                  return (
-                    <Pressable
-                      p={4}
-                      px={10}
-                      key={category.id}
-                      bg={isActive ? "light.300" : "transparent"}
-                      onPress={() => onSelectCategory(category.id)}
-                    >
-                      <Text
-                        fontFamily="sf-pro-text-medium"
-                        fontWeight="600"
-                        fontSize={15}
-                      >
-                        {category.name}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </Flex>
-            <Flex w="80%">
-              <Flex
-                direction="row"
-                bg={useColorModeValue("light.200", "dark.50")}
-                textAlign="center"
-                py={3}
-                px={2}
-              >
-                <Text flex={0.5} textAlign="center">
-                  No.
-                </Text>
-                <Text flex={0.5} textAlign="center">
-                  Id
-                </Text>
-                <Text flex={1} textAlign="center">
-                  Name
-                </Text>
-                <Text flex={1} textAlign="center">
-                  Price
-                </Text>
-                <Text flex={1} textAlign="center">
-                  Category
-                </Text>
-                <Text flex={1} textAlign="center">
-                  Stock
-                </Text>
-              </Flex>
-              {menuList.length > 0 && !isRefreshing ? (
-                <FlatList
-                  refreshing={isRefreshing}
-                  onRefresh={getAllItem}
-                  keyExtractor={(item, index) => item.name + index}
-                  data={selectedMenuList}
-                  renderItem={({ item, index }) => (
-                    <MenuListItem
-                      item={item}
-                      index={index}
-                      onPress={onPressItemHandler}
-                    />
-                  )}
-                />
-              ) : isRefreshing ? (
-                <PullToRefreshScrollView
-                  isRefreshing={isRefreshing}
-                  onRefresh={getAllItem}
-                >
-                  <Flex
-                    direction="row"
-                    justify="center"
-                    alignItems="center"
-                    m={5}
-                  >
-                    <Spinner accessibilityLabel="Loading posts" mx={10} />
-                    <Heading fontSize="md">Loading</Heading>
-                  </Flex>
-                </PullToRefreshScrollView>
-              ) : (
-                <PullToRefreshScrollView
-                  isRefreshing={isRefreshing}
-                  onRefresh={getAllItem}
-                >
-                  <Flex
-                    direction="row"
-                    justify="center"
-                    alignItems="center"
-                    m={5}
-                  >
-                    <Heading fontSize="md" ml={-10}>
-                      No Item Found
-                    </Heading>
-                  </Flex>
-                </PullToRefreshScrollView>
+              direction="row"
+              justify="center"
+              py={3}
+              px={2}
+              borderBottomWidth={1}
+              borderBottomColor={useColorModeValue(
+                "greyColor.100",
+                "greyColor.800"
               )}
+            >
+              <Text textAlign="center">Category</Text>
             </Flex>
+            <ScrollView>
+              {categoryList.map((category: ItemCategoryType) => {
+                let isActive = category.id === selectedCategoryId;
+                return (
+                  <Pressable
+                    p={4}
+                    px={10}
+                    key={category.id}
+                    bg={isActive ? "light.300" : "transparent"}
+                    onPress={() => onSelectCategory(category.id)}
+                  >
+                    <Text
+                      fontFamily="sf-pro-text-medium"
+                      fontWeight="600"
+                      fontSize={15}
+                    >
+                      {category.name}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </Flex>
+          <Flex w="80%">
+            <Flex
+              direction="row"
+              textAlign="center"
+              py={3}
+              px={2}
+              borderBottomWidth={1}
+              borderBottomColor={useColorModeValue(
+                "greyColor.100",
+                "greyColor.800"
+              )}
+            >
+              <Text flex={0.5} textAlign="center">
+                No.
+              </Text>
+              <Text flex={0.5} textAlign="center">
+                Id
+              </Text>
+              <Text flex={1} textAlign="center">
+                Name
+              </Text>
+              <Text flex={1} textAlign="center">
+                Price
+              </Text>
+              <Text flex={1} textAlign="center">
+                Category
+              </Text>
+              <Text flex={1} textAlign="center">
+                Stock
+              </Text>
+            </Flex>
+            {menuList.length > 0 && !isRefreshing ? (
+              <FlatList
+                refreshing={isRefreshing}
+                onRefresh={getAllItem}
+                keyExtractor={(item, index) => item.name + index}
+                data={selectedMenuList}
+                renderItem={({ item, index }) => (
+                  <MenuListItem
+                    item={item}
+                    index={index}
+                    onPress={onPressItemHandler}
+                  />
+                )}
+              />
+            ) : isRefreshing ? (
+              <PullToRefreshScrollView
+                isRefreshing={isRefreshing}
+                onRefresh={getAllItem}
+              >
+                <Flex
+                  direction="row"
+                  justify="center"
+                  alignItems="center"
+                  m={5}
+                >
+                  <Spinner accessibilityLabel="Loading posts" mx={10} />
+                  <Heading fontSize="md">Loading</Heading>
+                </Flex>
+              </PullToRefreshScrollView>
+            ) : (
+              <PullToRefreshScrollView
+                isRefreshing={isRefreshing}
+                onRefresh={getAllItem}
+              >
+                <Flex
+                  direction="row"
+                  justify="center"
+                  alignItems="center"
+                  m={5}
+                >
+                  <Heading fontSize="md" ml={-10}>
+                    No Item Found
+                  </Heading>
+                </Flex>
+              </PullToRefreshScrollView>
+            )}
           </Flex>
         </VStack>
       </Stack>
@@ -367,9 +343,11 @@ const MenuScreen = () => {
                     direction="row"
                     justify="space-between"
                     align="center"
-                    borderRadius={3}
-                    borderWidth={0.5}
-                    borderColor={useColorModeValue("light.300", "dark.300")}
+                    borderRightWidth={1}
+                    borderRightColor={useColorModeValue(
+                      "greyColor.100",
+                      "greyColor.800"
+                    )}
                   >
                     <Button
                       flex={1}
@@ -446,7 +424,6 @@ interface MenuListItemProps {
 const MenuListItem = ({ item, index, onPress }: MenuListItemProps) => {
   return (
     <Pressable
-      bg={useColorModeValue("light.100", "dark.100")}
       py={4}
       _pressed={{ bg: useColorModeValue("light.400", "dark.400") }}
       onPress={() => onPress(item)}
