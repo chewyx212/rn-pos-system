@@ -12,6 +12,7 @@ import {
   FlatList,
   HStack,
   Spinner,
+  Pressable,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { MaterialIcons, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -24,6 +25,7 @@ import { ListRenderItemInfo, Platform } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { CreateTableType, TableListType } from "../../types/tableType";
 import { TableApi } from "../../api/TableApi";
+import PullToRefreshScrollView from "../../components/PullToRefreshScrollView";
 
 type TableSettingScreenProp = DrawerNavigationProp<
   RootStackParamList,
@@ -102,87 +104,93 @@ const TableSettingScreen = () => {
 
   return (
     <>
-      <Flex>
-        <Flex direction="row" px={5} justify="space-between">
-          <Heading
-            size="lg"
-            fontFamily="sf-pro-display-bold"
-            fontWeight="600"
-            fontSize={{ base: 22, md: 32 }}
-            flex={1}
-          >
-            Table
-          </Heading>
-          <Flex direction="row" flex={1}>
-            <Button onPress={() => setOpenAddModal(true)} mr={3}>
-              Add Table
-            </Button>
-            <Input
-              placeholder="Search Staff"
-              bg="transparent"
-              width="100%"
-              borderRadius="4"
-              py="3"
-              px="1"
-              fontSize="14"
-              _web={{
-                _focus: { borderColor: "muted.300" },
-              }}
-              InputLeftElement={
-                <Icon
-                  m="2"
-                  ml="3"
-                  size="6"
-                  color="gray.400"
-                  as={<MaterialIcons name="search" />}
-                />
-              }
-            />
-          </Flex>
-        </Flex>
+      <Flex
+        bg={useColorModeValue("greyColor.50", "greyColor.1000")}
+        pb={3}
+        pt={6}
+        pr={6}
+        h="100%"
+      >
         <Flex
-          direction="row"
-          bg={useColorModeValue("light.200", "dark.50")}
-          textAlign="center"
-          mt={5}
-          py={3}
-          px={2}
+          bg={useColorModeValue("white", "greyColor.900")}
+          borderRightRadius="xl"
+          h="100%"
         >
-          <Text flex={0.5} textAlign="center">
-            Index
-          </Text>
-          <Text flex={0.5} textAlign="center">
-            Id
-          </Text>
-          <Text flex={1} textAlign="center">
-            Name
-          </Text>
-          <Text flex={1} textAlign="center">
-            Floor
-          </Text>
-          <Text flex={1} textAlign="center">
-            Action
-          </Text>
-        </Flex>
-        {tableList.length > 0 && !isRefreshing ? (
-          <FlatList
-            refreshing={isRefreshing}
-            onRefresh={getAllTable}
-            keyExtractor={(item, index) => item.name + index}
-            data={tableList}
-            renderItem={({
-              item,
-              index,
-            }: ListRenderItemInfo<TableListType>) => (
-              <TableSettingListItem table={item} index={index} />
-            )}
-          />
-        ) : (
-          <Flex direction="row" justify="center" alignItems="center" m={5}>
-            <Spinner accessibilityLabel="Loading posts" mx={10} />
-            <Heading fontSize="md">Loading</Heading>
+          <Flex direction="row" textAlign="center">
+            <Text py={3} px={2} flex={0.5} textAlign="center">
+              Index
+            </Text>
+            <Text py={3} px={2} flex={0.5} textAlign="center">
+              Id
+            </Text>
+            <Text py={3} px={2} flex={1} textAlign="center">
+              Name
+            </Text>
+            <Text py={3} px={2} flex={1} textAlign="center">
+              Phone
+            </Text>
+            <Text py={3} px={2} flex={1} textAlign="center">
+              Email
+            </Text>
+            <Text py={3} px={2} flex={1} textAlign="center">
+              Role
+            </Text>
+            <Pressable
+              flex={0.5}
+              textAlign="center"
+              py={3}
+              px={2}
+              borderTopRightRadius="xl"
+              bg={useColorModeValue("themeColor.400", "themeColor.400")}
+              onPress={() => setOpenAddModal(true)}
+            >
+              <Icon
+                as={Feather}
+                ml="auto"
+                mr={3}
+                name="plus-circle"
+                size={5}
+                color={useColorModeValue(
+                  "textColor.buttonText",
+                  "textColor.buttonText"
+                )}
+              />
+            </Pressable>
           </Flex>
-        )}
+          {tableList.length > 0 && !isRefreshing ? (
+            <FlatList
+              refreshing={isRefreshing}
+              onRefresh={getAllTable}
+              keyExtractor={(item, index) => item.name + index}
+              data={tableList}
+              renderItem={({
+                item,
+                index,
+              }: ListRenderItemInfo<TableListType>) => (
+                <TableSettingListItem table={item} index={index} />
+              )}
+            />
+          ) : isRefreshing ? (
+            <PullToRefreshScrollView
+              isRefreshing={isRefreshing}
+              onRefresh={getAllTable}
+            >
+              <Flex direction="row" justify="center" alignItems="center" m={5}>
+                <Spinner accessibilityLabel="Loading posts" mx={10} />
+                <Heading fontSize="md">Loading</Heading>
+              </Flex>
+            </PullToRefreshScrollView>
+          ) : (
+            <PullToRefreshScrollView
+              isRefreshing={isRefreshing}
+              onRefresh={getAllTable}
+            >
+              <Flex direction="row" justify="center" alignItems="center" m={5}>
+                <Text>No Table Found</Text>
+              </Flex>
+            </PullToRefreshScrollView>
+          )}
+        </Flex>
       </Flex>
       <Modal
         isOpen={openAddModal}

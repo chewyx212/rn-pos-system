@@ -52,6 +52,7 @@ const theme = extendTheme({
       darkTextColor: "#ffffff",
       darkBgColor: "#e26d0e",
     },
+    white:"#fefefe",
     textColor: {
       buttonText: "#ffffff",
       h1: "#283252",

@@ -384,15 +384,14 @@ const PaymentScreen = () => {
                 mt="auto"
                 mb={1}
                 p={4}
-                bg={useColorModeValue(
-                  "primaryButton.lightBgColor",
-                  "primaryButton.darkBgColor"
-                )}
+                bg={useColorModeValue("themeColor.500", "themeColor.600")}
+                _pressed={{
+                  bg: useColorModeValue("themeColor.700", "themeColor.700"),
+                }}
                 _text={{
-                  color: useColorModeValue(
-                    "primaryButton.lightTextColor",
-                    "primaryButton.darkTextColor"
-                  ),
+                  color: "textColor.buttonText",
+                  fontFamily: "sf-pro-text-medium",
+                  fontSize: "15px",
                 }}
               >
                 Pay

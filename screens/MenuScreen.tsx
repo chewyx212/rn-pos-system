@@ -153,6 +153,9 @@ const MenuScreen = () => {
       <Stack
         safeAreaBottom
         position="relative"
+        pt={6}
+        pb={4}
+        px={6}
         h="100%"
         direction="row"
         bg={useColorModeValue("greyColor.50", "greyColor.1000")}
@@ -160,8 +163,6 @@ const MenuScreen = () => {
         <VStack
           h="100%"
           flex={6}
-          my={3}
-          mx={5}
           bg={useColorModeValue("white", "greyColor.900")}
           borderRadius="xl"
           direction="row"
@@ -171,7 +172,7 @@ const MenuScreen = () => {
             w="20%"
             bg="transparent"
             borderRightWidth={1}
-            borderRightColor="light.200"
+            borderRightColor="greyColor.100"
           >
             <Flex
               direction="row"
@@ -194,7 +195,7 @@ const MenuScreen = () => {
                     p={4}
                     px={10}
                     key={category.id}
-                    bg={isActive ? "light.300" : "transparent"}
+                    bg={isActive ? "greyColor.200" : "transparent"}
                     onPress={() => onSelectCategory(category.id)}
                   >
                     <Text

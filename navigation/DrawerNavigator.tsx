@@ -97,6 +97,7 @@ const CustomDrawerContent = (props) => {
         let isActive = item.name === currentRoute;
         return (
           <Pressable
+            key={item.name}
             my={2}
             onPress={() => props.navigation.navigate(item.name)}
             _light={{

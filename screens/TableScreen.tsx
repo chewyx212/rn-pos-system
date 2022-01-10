@@ -762,19 +762,32 @@ const TableScreen = () => {
           <AlertDialog.Content>
             <AlertDialog.CloseButton />
             <AlertDialog.Header>Place Order</AlertDialog.Header>
-            <AlertDialog.Body>
-              Ready to checkout?
-            </AlertDialog.Body>
+            <AlertDialog.Body>Ready to checkout?</AlertDialog.Body>
             <AlertDialog.Footer>
               <Button.Group space={2}>
                 <Button
                   variant="unstyled"
                   colorScheme="coolGray"
+                  _text={{
+                    color: "textColor.buttonText",
+                    fontFamily: "sf-pro-text-medium",
+                    fontSize: "13px",
+                  }}
                   ref={cancelRef}
                 >
                   Cancel
                 </Button>
-                <Button colorScheme="success" onPress={checkoutHandler}>Proceed to Payment</Button>
+                <Button
+                  onPress={checkoutHandler}
+                  colorScheme="themeColor"
+                  _text={{
+                    color: "textColor.buttonText",
+                    fontFamily: "sf-pro-text-medium",
+                    fontSize: "13px",
+                  }}
+                >
+                  Proceed to Payment
+                </Button>
               </Button.Group>
             </AlertDialog.Footer>
           </AlertDialog.Content>
@@ -823,7 +836,10 @@ const TableScreen = () => {
         bottom="0"
         h="100%"
       >
-        <VStack h="100%" bg={useColorModeValue("greyColor.50", "greyColor.900")}>
+        <VStack
+          h="100%"
+          bg={useColorModeValue("greyColor.50", "greyColor.900")}
+        >
           <View w="100%" flex={14} px={3} h="100%">
             <Flex direction="row" justify="space-between" align="center" py={4}>
               <Flex direction="row">
@@ -1136,6 +1152,15 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
           disabled={cartItem.length < 1}
           onPress={() => {
             if (cartItem.length > 0) setIsConfirm(true);
+          }}
+          bg={useColorModeValue("themeColor.500", "themeColor.600")}
+          _pressed={{
+            bg: useColorModeValue("themeColor.700", "themeColor.700"),
+          }}
+          _text={{
+            color: "textColor.buttonText",
+            fontFamily: "sf-pro-text-medium",
+            fontSize: "15px",
           }}
         >
           Checkout

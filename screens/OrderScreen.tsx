@@ -817,7 +817,7 @@ const OrderScreen = () => {
         h="100%"
         direction="row"
         pl={5}
-        bg={useColorModeValue("light.100", "muted.800")}
+        bg={useColorModeValue("greyColor.50", "greyColor.1000")}
       >
         <VStack h="100%" flex={6} mr="1%" pt={3}>
           <Flex direction="row" w="100%" justify="space-between" align="center">
@@ -1050,9 +1050,9 @@ const OrderScreen = () => {
           flex={{ md: 4, lg: 2.5 }}
           pt={{ base: 0, sm: 0, md: 3 }}
           px={{ base: 0, sm: 0, md: 3 }}
-          bg={useColorModeValue("light.100", "muted.800")}
+          bg={useColorModeValue("greyColor.50", "greyColor.1000")}
           borderLeftWidth="2"
-          borderLeftColor={useColorModeValue("light.200", "dark.200")}
+          borderLeftColor={useColorModeValue("greyColor.200", "greyColor.200")}
         >
           <View w="100%" flex={{ base: 20, lg: 14 }}>
             <Flex direction="row" justify="space-between" align="center" py="2">
@@ -1125,12 +1125,25 @@ const OrderScreen = () => {
                 <Button
                   variant="unstyled"
                   colorScheme="coolGray"
+                  _text={{
+                    color: "textColor.buttonText",
+                    fontFamily: "sf-pro-text-medium",
+                    fontSize: "13px",
+                  }}
                   onPress={() => onSubmitOrder(1)}
                   ref={cancelRef}
                 >
                   Hold Order
                 </Button>
-                <Button colorScheme="success" onPress={() => onSubmitOrder(2)}>
+                <Button
+                  colorScheme="themeColor"
+                  _text={{
+                    color: "textColor.buttonText",
+                    fontFamily: "sf-pro-text-medium",
+                    fontSize: "13px",
+                  }}
+                  onPress={() => onSubmitOrder(2)}
+                >
                   Send to Kitchen
                 </Button>
               </Button.Group>
@@ -1758,18 +1771,6 @@ const CartListItem = ({
               align="center"
               justify="space-between"
             >
-              <Flex justify="center" align="center">
-                <Flex bg="amber.500" px={3} py={0.5} borderRadius="xl" mr={2}>
-                  <Text
-                    fontFamily="sf-pro-text-medium"
-                    fontWeight="500"
-                    fontSize="12px"
-                    color="greyColor.50"
-                  >
-                    x{item.quantity}
-                  </Text>
-                </Flex>
-              </Flex>
               <Flex direction="row" align="center" flex={3}>
                 <Image
                   h="55px"
@@ -1856,6 +1857,24 @@ const CartListItem = ({
                     : `RM ${item.calculatedPrice * item.quantity.toFixed(2)}`}
                 </Text>
               </View>
+              <Flex justify="center" align="center">
+                <Flex
+                  bg="themeColor.500"
+                  px={3}
+                  py={0.5}
+                  borderRadius="xl"
+                  ml={2}
+                >
+                  <Text
+                    fontFamily="sf-pro-text-medium"
+                    fontWeight="500"
+                    fontSize="12px"
+                    color="greyColor.50"
+                  >
+                    x{item.quantity}
+                  </Text>
+                </Flex>
+              </Flex>
             </Flex>
           );
         }}
@@ -1893,7 +1912,7 @@ const OrderDetailComponent = ({
       justify="flex-end"
       pt={4}
       pb={{ base: 10, md: 5 }}
-      mb={{ md: 5 }}
+      mb={{ md: 3 }}
       px={3}
       borderRadius={{ base: undefined, md: "xl" }}
       bg={useColorModeValue("white", "black")}
@@ -1985,6 +2004,15 @@ const OrderDetailComponent = ({
             } else if (fixedCartItem.length > 0) {
               onSubmitOrder(2);
             }
+          }}
+          bg={useColorModeValue("themeColor.500", "themeColor.600")}
+          _pressed={{
+            bg: useColorModeValue("themeColor.700", "themeColor.700"),
+          }}
+          _text={{
+            color: "textColor.buttonText",
+            fontFamily: "sf-pro-text-medium",
+            fontSize: "15px",
           }}
         >
           Send to Kitchen

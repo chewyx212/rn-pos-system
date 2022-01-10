@@ -23,18 +23,16 @@ const SettingScreen = ({children}:{children: React.ReactNode}) => {
 
   return (
     <Stack
-      safeArea
+      safeAreaBottom
       position="relative"
       h="100%"
       direction="row"
-      bg={useColorModeValue("light.100", "muted.800")}
+      bg={useColorModeValue("greyColor.50", "greyColor.1000")}
     >
-      <VStack h="100%" flex={6} mr="1%" pt={3}>
         
         <Flex direction="row" w="100%" h="100%">
           {children}
         </Flex>
-      </VStack>
     </Stack>
   );
 };

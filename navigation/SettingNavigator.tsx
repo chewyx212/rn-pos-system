@@ -30,7 +30,7 @@ const SettingNavigator = () => {
           drawerType: isLargeScreen ? "permanent" : "front",
           drawerHideStatusBarOnOpen: true,
           drawerStyle: isLargeScreen
-            ? { width: "20%", backgroundColor: "transparent" }
+            ? { width: "21%", backgroundColor: "transparent" }
             : { width: "100%", backgroundColor: "transparent" },
         }}
         drawerContent={CustomDrawerContent}
@@ -77,74 +77,49 @@ const CustomDrawerContent = (props) => {
     },
   ];
   return (
-    <Flex w="100%">
-      {drawerItems.map((item) => {
-        let isActive = item.name === currentRoute;
-        return (
-          <Pressable
-            p={4}
-            px={10}
-            bg={isActive ? "light.300" : "transparent"}
-            onPress={() => props.navigation.navigate(item.name)}
-          >
-            <Text
-              fontFamily="sf-pro-text-medium"
-              fontWeight="600"
-              fontSize={15}
+    <Flex h="100%" pl={6} pt={6} pb={3}>
+      <Flex
+        h="100%"
+        w="100%"
+        borderBottomLeftRadius="xl"
+        borderLeftRadius="xl"
+        _light={{
+          bg: "white",
+        }}
+        _dark={{ bg: "greyColor.900" }}
+      >
+        <Flex
+          direction="row"
+          justify="center"
+          py={3}
+          px={2}
+          borderBottomWidth={1}
+          _light={{ borderBottomColor: "greyColor.100" }}
+          _dark={{ borderBottomColor: "greyColor.800" }}
+        >
+          <Text textAlign="center">Settings</Text>
+        </Flex>
+        {drawerItems.map((item) => {
+          let isActive = item.name === currentRoute;
+          return (
+            <Pressable
+              p={4}
+              px={10}
+              bg={isActive ? "light.300" : "transparent"}
+              onPress={() => props.navigation.navigate(item.name)}
             >
-              {item.display}
-            </Text>
-          </Pressable>
-        );
-      })}
+              <Text
+                fontFamily="sf-pro-text-medium"
+                fontWeight="600"
+                fontSize={15}
+              >
+                {item.display}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </Flex>
     </Flex>
-    // <Flex align="center" pt={12} px={3}>
-    //   {drawerItems.map((item) => {
-    //     let isActive = item.name === currentRoute;
-    //     return (
-    //       <Pressable
-    //         my={3}
-    //         onPress={() => props.navigation.navigate(item.name)}
-    //         _light={{ bg: isActive ? "primary.500" : "transparent" }}
-    //         _dark={{ bg: isActive ? "primary.400" : "transparent" }}
-    //         borderRadius="lg"
-    //         w={{ base: "300px", md: "100%" }}
-    //         h="90px"
-    //       >
-    //         {() => (
-    //           <Flex
-    //             direction={{ base: "row", md: "column" }}
-    //             w="100%"
-    //             h="100%"
-    //             align="center"
-    //             justify={{ base: "space-between", md: "center" }}
-    //             p={{ base: 5, md: 0 }}
-    //             textAlign="center"
-    //           >
-    //             <Icon
-    //               as={item.icon}
-    //               textAlign="center"
-    //               _light={{ color: isActive ? "light.100" : "primary.500" }}
-    //               _dark={{ color: isActive ? "light.300" : "primary.400" }}
-    //               size="md"
-    //               name={isActive ? item.activeIcon : item.iconName}
-    //             />
-    //             <Text
-    //               py={1}
-    //               _light={{ color: isActive ? "light.100" : "dark.400" }}
-    //               _dark={{ color: isActive ? "light.300" : "primary.400" }}
-    //               fontFamily="sf-pro-text-semibold"
-    //               fontWeight="600"
-    //               fontSize={13}
-    //             >
-    //               {item.display}
-    //             </Text>
-    //           </Flex>
-    //         )}
-    //       </Pressable>
-    //     );
-    //   })}
-    // </Flex>
   );
 };
 
