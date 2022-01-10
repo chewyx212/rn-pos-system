@@ -17,9 +17,12 @@ export type RootStackParamList = {
   Menu: undefined;
   Transaction: undefined;
   Setting: undefined;
-  Payment: undefined;
+  Payment:  {
+    order: any;
+  };
 
   TableSetting: undefined;
+  TableCategorySetting: undefined;
   GlobalSetting: undefined;
   StaffSetting: undefined;
   AccountSetting: undefined;

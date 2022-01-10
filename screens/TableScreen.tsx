@@ -73,7 +73,6 @@ const TableScreen = () => {
   const [selectedCategory, setSelectedCategory] = useState<number>(
     mappingItemCategory()[0].id
   );
-  const [isConfirm, setIsConfirm] = useState<boolean>(false);
   const [openCart, setOpenCart] = useState<boolean>(false);
   const [openTableCart, setOpenTableCart] = useState<boolean>(false);
   const [togglePasscode, setTogglePasscode] = useState<boolean>(false);
@@ -240,12 +239,10 @@ const TableScreen = () => {
       refresher: orderRefresher,
     });
   };
-  const checkoutHandler = () => {
-    onCloseConfirm();
-    navigation.navigate("Payment");
-  }
+  const checkoutOrder = (order) => {
+    navigation.navigate("Payment", { order });
+  };
 
-  const onCloseConfirm = () => setIsConfirm(false);
 
   return (
     <>
@@ -750,48 +747,6 @@ const TableScreen = () => {
             </Modal.Body>
           </Modal.Content>
         </Modal>
-
-        {/* <-------------- Confirmation Modal when checkout--> */}
-        <AlertDialog
-          leastDestructiveRef={cancelRef}
-          isOpen={isConfirm}
-          onClose={onCloseConfirm}
-          closeOnOverlayClick={true}
-          size="md"
-        >
-          <AlertDialog.Content>
-            <AlertDialog.CloseButton />
-            <AlertDialog.Header>Place Order</AlertDialog.Header>
-            <AlertDialog.Body>Ready to checkout?</AlertDialog.Body>
-            <AlertDialog.Footer>
-              <Button.Group space={2}>
-                <Button
-                  variant="unstyled"
-                  colorScheme="coolGray"
-                  _text={{
-                    color: "textColor.buttonText",
-                    fontFamily: "sf-pro-text-medium",
-                    fontSize: "13px",
-                  }}
-                  ref={cancelRef}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onPress={checkoutHandler}
-                  colorScheme="themeColor"
-                  _text={{
-                    color: "textColor.buttonText",
-                    fontFamily: "sf-pro-text-medium",
-                    fontSize: "13px",
-                  }}
-                >
-                  Proceed to Payment
-                </Button>
-              </Button.Group>
-            </AlertDialog.Footer>
-          </AlertDialog.Content>
-        </AlertDialog>
       </Stack>
       {openTableCart && (
         <Pressable
@@ -882,7 +837,7 @@ const TableScreen = () => {
               ))}
           </View>
           <OrderDetailComponent
-            setIsConfirm={setIsConfirm}
+            checkoutOrder={checkoutOrder}
             cartItem={showTableOrder?.order}
             editOrder={editOrder}
           />
@@ -920,7 +875,7 @@ const TableScreen = () => {
             />
           </View>
           <OrderDetailComponent
-            setIsConfirm={setIsConfirm}
+            checkoutOrder={checkoutOrder}
             cartItem={[showOrder]}
             editOrder={editOrder}
           />
@@ -1029,7 +984,7 @@ const CartListItem = ({ item }) => {
   );
 };
 
-const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
+const OrderDetailComponent = ({ cartItem, checkoutOrder, editOrder }) => {
   let detail = {
     subtotal: 0.0,
     total: 0.0,
@@ -1151,7 +1106,7 @@ const OrderDetailComponent = ({ cartItem, setIsConfirm, editOrder }) => {
           flex={{ base: 11, lg: 9 }}
           disabled={cartItem.length < 1}
           onPress={() => {
-            if (cartItem.length > 0) setIsConfirm(true);
+            if (cartItem.length > 0) checkoutOrder(cartItem);
           }}
           bg={useColorModeValue("themeColor.500", "themeColor.600")}
           _pressed={{

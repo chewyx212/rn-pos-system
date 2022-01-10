@@ -15,6 +15,7 @@ import StaffSettingScreen from "../screens/setting/StaffSettingScreen";
 import TableSettingScreen from "../screens/setting/TableSettingScreen";
 import GlobalSettingScreen from "../screens/setting/GlobalSettingScreen";
 import AccountSettingScreen from "../screens/setting/AccountSettingScreen";
+import TableCategorySetting from "../screens/setting/TableCategorySettingScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -38,6 +39,10 @@ const SettingNavigator = () => {
       >
         <Drawer.Screen name="StaffSetting" component={StaffSettingScreen} />
         <Drawer.Screen name="TableSetting" component={TableSettingScreen} />
+        <Drawer.Screen
+          name="TableCategorySetting"
+          component={TableCategorySetting}
+        />
         <Drawer.Screen name="AccountSetting" component={AccountSettingScreen} />
         <Drawer.Screen name="GlobalSetting" component={GlobalSettingScreen} />
       </Drawer.Navigator>
@@ -50,30 +55,23 @@ const CustomDrawerContent = (props) => {
     {
       name: "StaffSetting",
       display: "Staff",
-      icon: Foundation,
-      iconName: "clipboard-notes",
-      activeIcon: "clipboard-pencil",
     },
     {
       name: "TableSetting",
       display: "Table",
-      icon: Ionicons,
-      iconName: "book-outline",
-      activeIcon: "book",
+    },
+
+    {
+      name: "TableCategorySetting",
+      display: "Table Category",
     },
     {
       name: "AccountSetting",
       display: "Account",
-      icon: Ionicons,
-      iconName: "people-outline",
-      activeIcon: "people",
     },
     {
       name: "GlobalSetting",
       display: "Global Setting",
-      icon: Ionicons,
-      iconName: "settings-outline",
-      activeIcon: "settings",
     },
   ];
   return (
@@ -103,9 +101,10 @@ const CustomDrawerContent = (props) => {
           let isActive = item.name === currentRoute;
           return (
             <Pressable
+              key={item.name}
               p={4}
               px={10}
-              bg={isActive ? "light.300" : "transparent"}
+              bg={isActive ? "greyColor.100" : "transparent"}
               onPress={() => props.navigation.navigate(item.name)}
             >
               <Text

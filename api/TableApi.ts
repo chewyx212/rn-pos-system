@@ -16,6 +16,17 @@ export const TableApi = {
     return axios.get(`/api/pos/update-restaurant-table-list/`);
   },
   getTableCategory: async (restaurant_id: number) => {
-    return axios.get(`/api/pos/get-restaurant-table-list/${restaurant_id}`);
+    return axios.get(
+      `/api/pos/table-categories?restaurant_id=${restaurant_id}`
+    );
+  },
+  createTableCategory: async (payload: {
+    name: string;
+    restaurant_id: number;
+  }) => {
+    return axios.post("/api/pos/table-categories", payload);
+  },
+  deleteTableCategory: async (table_category_id: number) => {
+    return axios.delete(`/api/pos/table-categories/${table_category_id}`);
   },
 };

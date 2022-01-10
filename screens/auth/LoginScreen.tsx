@@ -88,7 +88,7 @@ const LoginScreen = () => {
           token: data.response.token,
           user: data.response.user,
           loginpass: data.response.login_pass,
-          restaurantInfo: data.response.restaurantInfo,
+          restaurantInfo: data.response.restaurant,
         })
       );
       navigation.navigate("Passcode");

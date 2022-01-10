@@ -14,6 +14,7 @@ import {
   Spinner,
   Pressable,
   Menu,
+  AlertDialog,
 } from "native-base";
 import React, { useEffect, useRef, useState } from "react";
 import { MaterialIcons, Entypo, Feather, Ionicons } from "@expo/vector-icons";
@@ -24,83 +25,105 @@ import { useAppSelector } from "../../app/hooks";
 import { StaffApi } from "../../api/StaffApi";
 import { ListRenderItemInfo, Platform } from "react-native";
 import { useForm, Controller } from "react-hook-form";
-import { CreateTableType, TableListType } from "../../types/tableType";
+import {
+  CreateTableCategoryType,
+  CreateTableType,
+  TableCategoryListType,
+} from "../../types/tableType";
 import { TableApi } from "../../api/TableApi";
 import PullToRefreshScrollView from "../../components/PullToRefreshScrollView";
 
-type TableSettingScreenProp = DrawerNavigationProp<
+type TableCategorySettingProp = DrawerNavigationProp<
   RootStackParamList,
-  "TableSetting"
+  "TableCategorySetting"
 >;
-type TableSettingScreenRouteProp = RouteProp<
+type TableCategorySettingRouteProp = RouteProp<
   RootStackParamList,
-  "TableSetting"
+  "TableCategorySetting"
 >;
-const TableSettingScreen = () => {
+const TableCategorySetting = () => {
   const {
     control,
     handleSubmit,
-    watch,
+    reset,
     formState: { errors },
-  } = useForm<CreateTableType>();
+  } = useForm<CreateTableCategoryType>();
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
-  const [tableList, setTableList] = useState<TableListType[]>([]);
+  const [isConfirmDelete, setIsConfirmDelete] = useState<boolean>(false);
+  const [selectedDelete, setSelectedDelete] = useState<number>(0);
+  const [tableCategoryList, setTableCategoryList] = useState<
+    TableCategoryListType[]
+  >([]);
   const toast = useToast();
   const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
-  const navigation = useNavigation<TableSettingScreenProp>();
-
+  const navigation = useNavigation<TableCategorySettingProp>();
+  const cancelRef = useRef(null);
   useEffect(() => {
-    getAllTable();
+    getAllTableCategory();
   }, []);
 
-  const getAllTable = async () => {
+  const getAllTableCategory = async () => {
     setIsRefreshing(true);
     if (restaurantInfo) {
       const restaurantId: number = restaurantInfo.id;
-      const result = await TableApi.getTable(restaurantId);
-      console.log(result);
-      if (result.status === 200 && result.data.status === 1001) {
-        console.log(result.data.response.tableLists);
+      const result = await TableApi.getTableCategory(restaurantId);
+      if (result.status === 200) {
         if (
-          result.data.response.tableLists &&
-          result.data.response.tableLists.length > 0
+          result.data.response.table_categories &&
+          result.data.response.table_categories.length > 0
         ) {
-          setTableList(result.data.response.tableLists);
+          setTableCategoryList(result.data.response.table_categories);
         }
       }
     }
     setIsRefreshing(false);
   };
 
-  const onSubmit = async (field: CreateTableType) => {
+  const onSubmit = async (field: CreateTableCategoryType) => {
     const restaurantId: number = restaurantInfo.id;
     const payload = {
       ...field,
       restaurant_id: restaurantId,
     };
-    console.log(payload);
-    // const result = await StaffApi.createStaff(payload);
-    // console.log(result);
-    // if (result.status === 200) {
-    //   console.log(result.data);
-    // } else if (result.status === 422) {
-    //   console.log(result.data);
-    //   await toast.closeAll();
-    //   toast.show({
-    //     title: "Email or password is wrong!",
-    //     status: "error",
-    //     placement: "top",
-    //   });
-    // } else {
-    //   await toast.closeAll();
-    //   toast.show({
-    //     title: "Try again later!",
-    //     description: "Something wrong...",
-    //     status: "warning",
-    //     placement: "top",
-    //   });
-    // }
+    const result = await TableApi.createTableCategory(payload);
+    if (result.status === 200) {
+      await toast.closeAll();
+      toast.show({
+        title: "Success!",
+        description: "Create new table category success.",
+        status: "success",
+        placement: "top",
+      });
+      reset();
+      getAllTableCategory();
+    } else {
+      await toast.closeAll();
+      toast.show({
+        title: "Try again later!",
+        description: "Something wrong...",
+        status: "warning",
+        placement: "top",
+      });
+    }
+    setOpenAddModal(false);
+  };
+
+  const confirmDelete = (id: number) => {
+    setIsConfirmDelete(true);
+    setSelectedDelete(id);
+  };
+  const onCloseConfirm = () => {
+    setIsConfirmDelete(false);
+    setSelectedDelete(0);
+  };
+
+  const onDelete = async () => {
+    console.log(selectedDelete);
+    const result = await TableApi.deleteTableCategory(selectedDelete);
+    console.log(result)
+    console.log(result.data);
+    onCloseConfirm();
   };
 
   return (
@@ -127,13 +150,7 @@ const TableSettingScreen = () => {
             <Text py={3} px={2} flex={1} textAlign="center">
               Name
             </Text>
-            <Text py={3} px={2} flex={1} textAlign="center">
-              Category
-            </Text>
-            <Text py={3} px={2} flex={.5} textAlign="center">
-              Action
-            </Text>
-            {/* <Pressable
+            <Pressable
               flex={0.5}
               textAlign="center"
               py={3}
@@ -153,28 +170,32 @@ const TableSettingScreen = () => {
                   "textColor.buttonText"
                 )}
               />
-            </Pressable> */}
+            </Pressable>
           </Flex>
-          {tableList.length > 0 ? (
+          {tableCategoryList.length > 0 ? (
             <FlatList
               refreshing={isRefreshing}
-              onRefresh={getAllTable}
-              keyExtractor={(item, index) => item.table_name + index}
-              data={tableList}
+              onRefresh={getAllTableCategory}
+              keyExtractor={(item, index) => item.id + index}
+              data={tableCategoryList}
               renderItem={({
                 item,
                 index,
-              }: ListRenderItemInfo<TableListType>) => (
-                <TableSettingListItem table={item} index={index} />
+              }: ListRenderItemInfo<TableCategoryListType>) => (
+                <TableCategorySettingListItem
+                  category={item}
+                  index={index}
+                  confirmDelete={confirmDelete}
+                />
               )}
             />
           ) : !isRefreshing ? (
             <PullToRefreshScrollView
               isRefreshing={isRefreshing}
-              onRefresh={getAllTable}
+              onRefresh={getAllTableCategory}
             >
               <Flex direction="row" justify="center" alignItems="center" m={5}>
-                <Text>No Table Found</Text>
+                <Text>No Category Found</Text>
               </Flex>
             </PullToRefreshScrollView>
           ) : (
@@ -194,7 +215,7 @@ const TableSettingScreen = () => {
         >
           <Modal.Content alignSelf="center" maxWidth="600px">
             <Modal.CloseButton />
-            <Modal.Header>Add Table</Modal.Header>
+            <Modal.Header>New Table Category</Modal.Header>
             <Modal.Body>
               <Text
                 fontFamily="sf-pro-text-semibold"
@@ -202,7 +223,7 @@ const TableSettingScreen = () => {
                 fontSize={15}
                 py={2}
               >
-                Name
+                Category Name
               </Text>
               <Controller
                 control={control}
@@ -218,7 +239,7 @@ const TableSettingScreen = () => {
                       pl={5}
                       my={errors.name ? 4 : 2}
                       h={12}
-                      placeholder="Full Name"
+                      placeholder="Category Name"
                       type="text"
                       fontFamily="sf-pro-text-regular"
                       fontSize="15px"
@@ -253,32 +274,74 @@ const TableSettingScreen = () => {
           </Modal.Content>
         </KeyboardAvoidingView>
       </Modal>
+      <AlertDialog
+        leastDestructiveRef={cancelRef}
+        isOpen={isConfirmDelete}
+        onClose={onCloseConfirm}
+        closeOnOverlayClick={true}
+        size="md"
+      >
+        <AlertDialog.Content>
+          <AlertDialog.CloseButton />
+          <AlertDialog.Header>Delete</AlertDialog.Header>
+          <AlertDialog.Body>
+            Are you sure you want to delete this table category?
+          </AlertDialog.Body>
+          <AlertDialog.Footer>
+            <Button.Group space={2}>
+              <Button
+                variant="unstyled"
+                colorScheme="coolGray"
+                _text={{
+                  fontFamily: "sf-pro-text-medium",
+                  fontSize: "13px",
+                }}
+                ref={cancelRef}
+              >
+                Cancel
+              </Button>
+              <Button
+                onPress={onDelete}
+                colorScheme="danger"
+                _text={{
+                  color: "textColor.buttonText",
+                  fontFamily: "sf-pro-text-medium",
+                  fontSize: "13px",
+                }}
+              >
+                Confirm
+              </Button>
+            </Button.Group>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
+      </AlertDialog>
     </>
   );
 };
 
-interface TableSettingListItemProps {
-  table: TableListType;
+interface TableCategorySettingListItemProps {
+  category: TableCategoryListType;
   index: number;
+  confirmDelete: Function;
 }
 
-const TableSettingListItem = ({ table, index }: TableSettingListItemProps) => {
+const TableCategorySettingListItem = ({
+  category,
+  index,
+  confirmDelete,
+  F,
+}: TableCategorySettingListItemProps) => {
   return (
     <Flex direction="row" py={4}>
       <Text flex={0.5} textAlign="center">
         {index + 1}
       </Text>
       <Text flex={1} textAlign="center">
-        {table.id}
+        {category.id}
       </Text>
 
       <Text flex={1} textAlign="center">
-        {table.table_name}
-      </Text>
-      <Text flex={1} textAlign="center">
-        {table.table_categories.length > 0
-          ? table.table_categories.map((category) => `${category.name},`)
-          : "-"}
+        {category.name}
       </Text>
       <Flex flex={0.5} textAlign="center">
         <Menu
@@ -300,11 +363,13 @@ const TableSettingListItem = ({ table, index }: TableSettingListItemProps) => {
           }}
         >
           <Menu.Item>Edit</Menu.Item>
-          <Menu.Item>Delete</Menu.Item>
+          <Menu.Item onPress={() => confirmDelete(category.id)}>
+            Delete
+          </Menu.Item>
         </Menu>
       </Flex>
     </Flex>
   );
 };
 
-export default TableSettingScreen;
+export default TableCategorySetting;

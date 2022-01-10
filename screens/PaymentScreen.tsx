@@ -12,20 +12,36 @@ import {
   FlatList,
   Button,
   Image,
+  View,
 } from "native-base";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "./RootStackParams";
 import NumberPadInput from "../components/NumberPadInput";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
+import { ItemInCartType } from "../types/itemType";
 
 type PaymentScreenProp = StackNavigationProp<RootStackParamList, "Payment">;
+type PaymentScreenRouteProp = RouteProp<RootStackParamList, "Payment">;
+
 const PaymentScreen = () => {
   const [selectedMethod, setSelectedMethod] = useState<number>(1);
   const [selectedAmount, setSelectedAmount] = useState<number>(1);
+  const [itemList, setItemList] = useState<ItemInCartType[]>([]);
   const navigation = useNavigation<PaymentScreenProp>();
+  const route = useRoute<PaymentScreenRouteProp>();
+  const { order } = route.params;
 
+  useEffect(() => {
+    if (order && order.length > 0) {
+      console.log(order);
+      console.log("asdasdasdasdasdasdas");
+      setItemList(order[0].items);
+    } else {
+      navigation.goBack();
+    }
+  }, []);
   const paymentMethods = [
     {
       id: 1,
@@ -123,11 +139,11 @@ const PaymentScreen = () => {
                   "greyColor.800"
                 )}
               >
-                {/* <FlatList
-                keyExtractor={(item, index) => `${item.name}${index}`}
-                data={order.items}
-                renderItem={({ item }) => <CartListItem item={item} />}
-              /> */}
+                <FlatList
+                  keyExtractor={(item, index) => `${item.name}${index}`}
+                  data={itemList}
+                  renderItem={({ item }) => <CartListItem item={item} />}
+                />
               </Flex>
               <Flex py={4} px={5} flexBasis="20%">
                 <Flex direction="row" align="center" justify="space-between">
@@ -411,6 +427,131 @@ const PaymentScreen = () => {
         /> */}
       </Stack>
     </>
+  );
+};
+interface CartListItemProps {
+  item: any;
+  index: number;
+}
+
+const CartListItem = ({ item, index }: CartListItemProps) => {
+  return (
+    <Pressable>
+      {({ isHovered, isFocused, isPressed }) => {
+        return (
+          <Flex
+            w="100%"
+            py={1}
+            bg={isPressed || isHovered ? "dark.100:alpha.30" : "transparent"}
+            direction="row"
+            align="center"
+            justify="space-between"
+          >
+            <Flex direction="row" align="center" flex={3}>
+              <Image
+                h="55px"
+                w="55px"
+                resizeMode={"cover"}
+                borderRadius="md"
+                mr="10px"
+                bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
+                source={{
+                  uri: item.imageURL,
+                }}
+                fallbackSource={require("./../assets/fallback-img.jpg")}
+                alt="Alternate Text"
+              />
+              <VStack>
+                <Text
+                  color={
+                    item.orderStatus === 1
+                      ? useColorModeValue("red.400", "red.500")
+                      : useColorModeValue("dark.100", "light.100")
+                  }
+                  fontFamily="sf-pro-text-semibold"
+                  fontWeight="400"
+                  fontSize={15}
+                  isTruncated
+                  noOfLines={2}
+                  maxW={{ base: "150", md: "110" }}
+                >
+                  {item.id}. {item.name}
+                </Text>
+                <Text
+                  color={
+                    item.orderStatus === 1
+                      ? useColorModeValue("red.400", "red.500")
+                      : useColorModeValue("dark.100", "light.100")
+                  }
+                  fontFamily="sf-pro-text-regular"
+                  fontWeight="400"
+                  fontSize={{ base: 14, md: 12 }}
+                  isTruncated
+                  noOfLines={2}
+                  maxW={{ base: "150", md: "120" }}
+                >
+                  {item.addons?.length > 0 &&
+                    item.addons.map((addon, index) => {
+                      if (index + 1 === item.addons?.length) {
+                        return `${addon.name}`;
+                      } else {
+                        return `${addon.name}, `;
+                      }
+                    })}
+                </Text>
+              </VStack>
+            </Flex>
+            <View flex={2} pr={2}>
+              <Text
+                color={
+                  item.discountType && item.discountAmount !== 0
+                    ? useColorModeValue("green.400", "green.500")
+                    : item.orderStatus === 1
+                    ? useColorModeValue("red.400", "red.500")
+                    : useColorModeValue("dark.100", "light.100")
+                }
+                textAlign="right"
+              >
+                {item.discountType && item.discountType === 1
+                  ? `RM ${(
+                      (item.calculatedPrice - item.discountAmount) *
+                      item.quantity
+                    ).toFixed(2)}`
+                  : item.discountType && item.discountType === 2
+                  ? `RM  ${(
+                      ((item.calculatedPrice * (100 - item.discountAmount)) /
+                        100) *
+                      item.quantity
+                    ).toFixed(2)}`
+                  : item.discountType && item.discountType === 3
+                  ? `RM ${(item.discountAmount * item.quantity).toFixed(2)}`
+                  : item.discountType && item.discountType === 4
+                  ? "Free"
+                  : `RM ${item.calculatedPrice * item.quantity.toFixed(2)}`}
+              </Text>
+            </View>
+            <Flex justify="center" align="center">
+              <Flex
+                bg="themeColor.500"
+                px={3}
+                py={0.5}
+                borderRadius="xl"
+                ml={2}
+              >
+                <Text
+                  fontFamily="sf-pro-text-medium"
+                  fontWeight="500"
+                  fontSize="12px"
+                  color="greyColor.50"
+                >
+                  x{item.quantity}
+                </Text>
+              </Flex>
+            </Flex>
+          </Flex>
+        );
+      }}
+    </Pressable>
   );
 };
 

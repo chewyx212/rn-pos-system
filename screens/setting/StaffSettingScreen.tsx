@@ -20,12 +20,13 @@ import { MaterialIcons, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { RootStackParamList } from "../RootStackParams";
-import { useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { StaffApi } from "../../api/StaffApi";
 import { ListRenderItemInfo, Platform } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { CreateStaffType, StaffListType } from "../../types/staffType";
 import PullToRefreshScrollView from "../../components/PullToRefreshScrollView";
+import { logout } from "../../app/auth/authSlice";
 
 type StaffSettingScreenProp = DrawerNavigationProp<
   RootStackParamList,
@@ -39,7 +40,7 @@ const StaffSettingScreen = () => {
   const {
     control,
     handleSubmit,
-    watch,
+    reset,
     formState: { errors },
   } = useForm<CreateStaffType>();
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
@@ -47,7 +48,9 @@ const StaffSettingScreen = () => {
   const [staffList, setStaffList] = useState<StaffListType[]>([]);
   const toast = useToast();
   const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
+  const aaaa = useAppSelector((state) => state.auth);
   const navigation = useNavigation<StaffSettingScreenProp>();
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     getAllStaff();
@@ -55,6 +58,8 @@ const StaffSettingScreen = () => {
 
   const getAllStaff = async () => {
     setIsRefreshing(true);
+    console.log("herererAGASDFG")
+    console.log(aaaa);
     if (restaurantInfo) {
       const restaurantId: number = restaurantInfo.id;
       const result = await StaffApi.getStaff(restaurantId);
@@ -68,6 +73,8 @@ const StaffSettingScreen = () => {
           setStaffList(result.data.response.staffs);
         }
       }
+    } else {
+      dispatch(logout())
     }
     setIsRefreshing(false);
   };
@@ -80,9 +87,16 @@ const StaffSettingScreen = () => {
     };
     console.log(payload);
     const result = await StaffApi.createStaff(payload);
-    console.log(result);
-    if (result.status === 200) {
-      console.log(result.data);
+    console.log(result.data);
+    console.log(result.status);
+    if (result.status === 200 &&result.data.status == 2001) {
+      await toast.closeAll();
+      toast.show({
+        title: "Add Staff Success!",
+        status: "success",
+        placement: "top",
+      });
+    setOpenAddModal(false);
     } else if (result.status === 422) {
       console.log(result.data);
       await toast.closeAll();
@@ -91,6 +105,7 @@ const StaffSettingScreen = () => {
         status: "error",
         placement: "top",
       });
+      reset()
     } else {
       await toast.closeAll();
       toast.show({
@@ -99,6 +114,7 @@ const StaffSettingScreen = () => {
         status: "warning",
         placement: "top",
       });
+    setOpenAddModal(false);
     }
   };
 
@@ -157,7 +173,7 @@ const StaffSettingScreen = () => {
               />
             </Pressable>
           </Flex>
-          {staffList.length > 0 && !isRefreshing ? (
+          {staffList.length > 0  ? (
             <FlatList
               refreshing={isRefreshing}
               onRefresh={getAllStaff}
@@ -170,17 +186,7 @@ const StaffSettingScreen = () => {
                 <StaffSettingListItem staff={item} index={index} />
               )}
             />
-          ) : isRefreshing ? (
-            <PullToRefreshScrollView
-              isRefreshing={isRefreshing}
-              onRefresh={getAllStaff}
-            >
-              <Flex direction="row" justify="center" alignItems="center" m={5}>
-                <Spinner accessibilityLabel="Loading posts" mx={10} />
-                <Heading fontSize="md">Loading</Heading>
-              </Flex>
-            </PullToRefreshScrollView>
-          ) : (
+          ) : !isRefreshing ? (
             <PullToRefreshScrollView
               isRefreshing={isRefreshing}
               onRefresh={getAllStaff}
@@ -189,7 +195,7 @@ const StaffSettingScreen = () => {
                 <Text>No Staff Found</Text>
               </Flex>
             </PullToRefreshScrollView>
-          )}
+          ):<></>}
         </Flex>
       </Flex>
       <Modal
@@ -500,7 +506,7 @@ const StaffSettingListItem = ({ staff, index }: StaffSettingListItemProps) => {
       <Text flex={1} textAlign="center">
         {staff.type}
       </Text>
-      <Flex flex={1} textAlign="center">
+      <Flex flex={.5} textAlign="center">
         <Menu
           trigger={(triggerProps) => {
             return (
@@ -508,13 +514,18 @@ const StaffSettingListItem = ({ staff, index }: StaffSettingListItemProps) => {
                 accessibilityLabel="More options menu"
                 {...triggerProps}
               >
-                <HamburgerIcon />
+                <Icon
+                  as={Feather}
+                  ml="auto"
+                  mr={3}
+                  name="more-vertical"
+                  size={5}
+                />
               </Pressable>
             );
           }}
         >
           <Menu.Item>Edit</Menu.Item>
-          <Menu.Item>Delete</Menu.Item>
         </Menu>
       </Flex>
     </Flex>

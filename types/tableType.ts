@@ -31,8 +31,19 @@ export interface CreateTableType {
   restaurant_id: string;
 }
 
+
 export interface TableListType {
   id: number;
-  name: string;
-  floor: string;
+  table_name: string;
+  table_categories: TableCategoryListType[];
 }
+
+export interface TableCategoryListType {
+  id: number;
+  name: string;
+}
+
+export interface CreateTableCategoryType{
+  name: string;
+}
+
