@@ -80,27 +80,6 @@ const TableSettingScreen = () => {
       restaurant_id: restaurantId,
     };
     console.log(payload);
-    // const result = await StaffApi.createStaff(payload);
-    // console.log(result);
-    // if (result.status === 200) {
-    //   console.log(result.data);
-    // } else if (result.status === 422) {
-    //   console.log(result.data);
-    //   await toast.closeAll();
-    //   toast.show({
-    //     title: "Email or password is wrong!",
-    //     status: "error",
-    //     placement: "top",
-    //   });
-    // } else {
-    //   await toast.closeAll();
-    //   toast.show({
-    //     title: "Try again later!",
-    //     description: "Something wrong...",
-    //     status: "warning",
-    //     placement: "top",
-    //   });
-    // }
   };
 
   return (

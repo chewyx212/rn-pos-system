@@ -142,7 +142,6 @@ const MenuScreen = () => {
 
   const onSubmit = () => {
     console.log(isStockCheck);
-    // console.log(selectedEditItem);
     console.log(enteredAmount);
     onCloseHandler();
   };

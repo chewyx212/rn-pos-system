@@ -51,18 +51,7 @@ const ProtectedNavigator = () => {
 
 const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
   const title = getHeaderTitle(options, route.name);
-  // const state = navigation.getState();
-  // const state = useNavigationState();
   let routeName = getFocusedRouteNameFromRoute(route) ?? title;
-  console.log(routeName);
-
-  console.log("here");
-  console.log(title);
-  // let actualRoute = state.routes[state.index];
-
-  // while (actualRoute.state) {
-  //   actualRoute = actualRoute.state.routes[actualRoute.state.index];
-  // }
   return (
     <Flex
       direction="row"

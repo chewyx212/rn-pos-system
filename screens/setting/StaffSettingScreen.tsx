@@ -58,14 +58,10 @@ const StaffSettingScreen = () => {
 
   const getAllStaff = async () => {
     setIsRefreshing(true);
-    console.log("herererAGASDFG")
-    console.log(aaaa);
     if (restaurantInfo) {
       const restaurantId: number = restaurantInfo.id;
       const result = await StaffApi.getStaff(restaurantId);
-      console.log(result);
       if (result.status === 200 && result.data.status === 2002) {
-        console.log(result.data.response.staffs);
         if (
           result.data.response.staffs &&
           result.data.response.staffs.length > 0
@@ -85,10 +81,7 @@ const StaffSettingScreen = () => {
       ...field,
       restaurant_id: restaurantId,
     };
-    console.log(payload);
     const result = await StaffApi.createStaff(payload);
-    console.log(result.data);
-    console.log(result.status);
     if (result.status === 200 &&result.data.status == 2001) {
       await toast.closeAll();
       toast.show({
@@ -98,7 +91,6 @@ const StaffSettingScreen = () => {
       });
     setOpenAddModal(false);
     } else if (result.status === 422) {
-      console.log(result.data);
       await toast.closeAll();
       toast.show({
         title: "Email or password is wrong!",

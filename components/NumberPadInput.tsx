@@ -17,6 +17,7 @@ interface IProps {
   headerTitle: string;
   isDecimal: boolean;
   maximumInputLength: number;
+  maximumNumber?: number;
 }
 
 const NumberPadInput: React.FC<IProps> = ({
@@ -26,6 +27,7 @@ const NumberPadInput: React.FC<IProps> = ({
   headerTitle,
   isDecimal,
   maximumInputLength,
+  maximumNumber,
 }) => {
   const [enteredValue, setEnteredValue] = useState<string>("0");
   const [enteredDecimalValue, setEnteredDecimalValue] =
@@ -83,8 +85,16 @@ const NumberPadInput: React.FC<IProps> = ({
   const onSubmitHandler = () => {
     if (isDecimal) {
       if (Number(enteredDecimalValue) > 0) {
-        getInput(Number(enteredDecimalValue));
-        onCloseHandler();
+        if (maximumNumber && Number(enteredDecimalValue) > maximumNumber) {
+          toast.show({
+            background: "red.500",
+            description: `Number cannot higher than ${maximumNumber}.`,
+            isClosable: true,
+          });
+        } else {
+          getInput(Number(enteredDecimalValue));
+          onCloseHandler();
+        }
       } else {
         toast.show({
           background: "red.500",
@@ -94,8 +104,16 @@ const NumberPadInput: React.FC<IProps> = ({
       }
     } else {
       if (Number(enteredValue) > 0) {
-        getInput(parseFloat(enteredValue));
-        onCloseHandler();
+        if (maximumNumber && Number(enteredValue) > maximumNumber) {
+          toast.show({
+            background: "red.500",
+            description: `Number cannot higher than ${maximumNumber}.`,
+            isClosable: true,
+          });
+        } else {
+          getInput(parseFloat(enteredValue));
+          onCloseHandler();
+        }
       } else {
         toast.show({
           background: "red.500",
@@ -154,7 +172,9 @@ const NumberPadInput: React.FC<IProps> = ({
                 onPress={onDeleteHandler}
               ></Button>
             </Flex>
-            <Text>Maximum length: {maximumInputLength} digits.</Text>
+            {maximumInputLength < 10 && (
+              <Text>Maximum length: {maximumInputLength} digits.</Text>
+            )}
             <Flex direction="row" justify="center" w="100%" wrap="wrap">
               {[...Array(9)].map((elementInArray, index) => (
                 <Button

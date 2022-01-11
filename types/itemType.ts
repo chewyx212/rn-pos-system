@@ -74,4 +74,5 @@ export interface OrderDetailType {
   discountAmount: number;
   reference: string;
   tax: number;
+  paid: number;
 }

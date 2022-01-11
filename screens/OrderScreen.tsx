@@ -71,6 +71,7 @@ const OrderScreen = () => {
     discountType: 1,
     discountAmount: 0.0,
     reference: "",
+    paid: 0.0,
     tax: 0.0,
   };
   const [itemList, setItemList] = useState<ItemType[]>([]);
@@ -211,7 +212,6 @@ const OrderScreen = () => {
 
   const getAllItem = async () => {
     // setIsRefreshing(true);
-    // console.log(restaurantInfo);
     // if (restaurantInfo) {
     //   const restaurantId: number = restaurantInfo.id;
     //   const result = await ItemApi.getItem(restaurantId);
@@ -224,7 +224,6 @@ const OrderScreen = () => {
     //     }
     //   }
     // } else {
-    //   console.log("logout");
     //   dispatch(logout());
     // }
     // setIsRefreshing(false);
@@ -778,6 +777,7 @@ const OrderScreen = () => {
       discountType: selectedDiscountType,
       discountAmount: enteredAmount,
       reference: enteredReference,
+      paid: 0,
     };
     // if (isEditCartMode) {
     //   const orderValue = await fetchOrder();
@@ -785,14 +785,10 @@ const OrderScreen = () => {
     //   console.log(orderTemp);
     //   if (orders && orders[0]) {
     //     let orderIndex = orders[0].orderIndex;
-    //     console.log(orderTemp[orderIndex]);
     //     orderTemp[orderIndex] = {
     //       ...orderTemp[orderIndex],
     //       detail: { ...orderTemp[orderIndex].detail, ...discountDetail },
     //     };
-    //     console.log(
-    //       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    //     );
     //     console.log(orderTemp[orderIndex].detail);
     //     orders[0] = orderTemp[orderIndex];
     //     await storeOrder(orderTemp);

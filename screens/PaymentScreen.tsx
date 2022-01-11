@@ -20,7 +20,7 @@ import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "./RootStackParams";
 import NumberPadInput from "../components/NumberPadInput";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
-import { ItemInCartType } from "../types/itemType";
+import { ItemInCartType, OrderDetailType } from "../types/itemType";
 
 type PaymentScreenProp = StackNavigationProp<RootStackParamList, "Payment">;
 type PaymentScreenRouteProp = RouteProp<RootStackParamList, "Payment">;
@@ -28,6 +28,10 @@ type PaymentScreenRouteProp = RouteProp<RootStackParamList, "Payment">;
 const PaymentScreen = () => {
   const [selectedMethod, setSelectedMethod] = useState<number>(1);
   const [selectedAmount, setSelectedAmount] = useState<number>(1);
+  const [openSplitAmount, setOpenSplitAmount] = useState<boolean>(false);
+  const [openCustomAmount, setOpenCustomAmount] = useState<boolean>(false);
+  const [splitAmount, setSplitAmount] = useState<number>(0);
+  const [customAmount, setCustomAmount] = useState<number>(0);
   const [itemList, setItemList] = useState<ItemInCartType[]>([]);
   const navigation = useNavigation<PaymentScreenProp>();
   const route = useRoute<PaymentScreenRouteProp>();
@@ -86,8 +90,25 @@ const PaymentScreen = () => {
   const subHeadingStyle = {
     fontFamily: "sf-pro-text-bold",
     fontWeight: "700",
-    fontSize: "17px",
-    color: useColorModeValue("greyColor.700", "greyColor.500"),
+    fontSize: "16px",
+    color: useColorModeValue("greyColor.600", "greyColor.500"),
+  };
+  const onOpenSplitAmount = () => {
+    setOpenSplitAmount(true);
+  };
+
+  const onSplitAmount = (enteredValue: number) => {
+    console.log(enteredValue);
+    setSplitAmount(enteredValue);
+  };
+
+  const onOpenCustomAmount = () => {
+    setOpenCustomAmount(true);
+  };
+
+  const onCustomAmount = (enteredValue: number) => {
+    setSelectedAmount(6);
+    setCustomAmount(enteredValue);
   };
 
   return (
@@ -129,8 +150,8 @@ const PaymentScreen = () => {
                 </Text>
               </Flex>
               <Flex
-                flexBasis="70%"
-                py={4}
+                flex={1}
+                py={3}
                 px={5}
                 w="100%"
                 borderBottomWidth={2}
@@ -145,7 +166,7 @@ const PaymentScreen = () => {
                   renderItem={({ item }) => <CartListItem item={item} />}
                 />
               </Flex>
-              <Flex py={4} px={5} flexBasis="20%">
+              <Flex justifyContent="flex-end" py={4} px={5}>
                 <Flex direction="row" align="center" justify="space-between">
                   <Text
                     fontFamily="sf-pro-text-medium"
@@ -159,41 +180,63 @@ const PaymentScreen = () => {
                     fontWeight="500"
                     fontSize="15px"
                   >
-                    RM 123.00
+                    {order[0].detail.subtotal}
                   </Text>
                 </Flex>
-                <Flex direction="row" align="center" justify="space-between">
-                  <Text
-                    fontFamily="sf-pro-text-medium"
-                    fontWeight="500"
-                    fontSize="15px"
-                  >
-                    Discount
-                  </Text>
-                  <Text
-                    fontFamily="sf-pro-text-medium"
-                    fontWeight="500"
-                    fontSize="15px"
-                  >
-                    - RM 1.00
-                  </Text>
-                </Flex>
-                <Flex direction="row" align="center" justify="space-between">
-                  <Text
-                    fontFamily="sf-pro-text-medium"
-                    fontWeight="500"
-                    fontSize="15px"
-                  >
-                    Tax
-                  </Text>
-                  <Text
-                    fontFamily="sf-pro-text-medium"
-                    fontWeight="500"
-                    fontSize="15px"
-                  >
-                    - RM 1.00
-                  </Text>
-                </Flex>
+                {!(
+                  order[0].detail.discountType !== 4 &&
+                  order[0].detail.discountAmount === 0
+                ) && (
+                  <Flex direction="row" align="center" justify="space-between">
+                    <Text
+                      fontFamily="sf-pro-text-medium"
+                      fontWeight="500"
+                      fontSize="15px"
+                    >
+                      Discount
+                    </Text>
+                    <Text
+                      fontFamily="sf-pro-text-medium"
+                      fontWeight="500"
+                      fontSize="15px"
+                    >
+                      {order[0].detail.discountType === 1
+                        ? `- RM ${order[0].detail.discountAmount.toFixed(2)}`
+                        : order[0].detail.discountType === 2
+                        ? `- RM ${(
+                            order[0].detail.subtotal -
+                            order[0].detail.total +
+                            order[0].detail.tax
+                          ).toFixed(2)} (${order[0].detail.discountAmount}%)`
+                        : order[0].detail.discountType === 3
+                        ? `- RM ${(
+                            order[0].detail.subtotal -
+                            order[0].detail.total +
+                            order[0].detail.tax
+                          ).toFixed(2)}`
+                        : "FOC"}
+                    </Text>
+                  </Flex>
+                )}
+
+                {order[0].detail.tax > 0 && order[0].detail.discountType !== 4 && (
+                  <Flex direction="row" align="center" justify="space-between">
+                    <Text
+                      fontFamily="sf-pro-text-medium"
+                      fontWeight="500"
+                      fontSize="15px"
+                    >
+                      Tax
+                    </Text>
+                    <Text
+                      fontFamily="sf-pro-text-medium"
+                      fontWeight="500"
+                      fontSize="15px"
+                    >
+                      {order[0].detail.tax.toFixed(2)}
+                    </Text>
+                  </Flex>
+                )}
                 <Flex direction="row" align="center" justify="space-between">
                   <Text
                     fontFamily="sf-pro-text-bold"
@@ -207,15 +250,33 @@ const PaymentScreen = () => {
                     fontWeight="700"
                     fontSize="17px"
                   >
-                    RM 123.00
+                    {order[0].detail.total}
                   </Text>
                 </Flex>
+                {order[0].detail.paid > 0 && (
+                  <Flex direction="row" align="center" justify="space-between">
+                    <Text
+                      fontFamily="sf-pro-text-bold"
+                      fontWeight="700"
+                      fontSize="17px"
+                    >
+                      Paid
+                    </Text>
+                    <Text
+                      fontFamily="sf-pro-text-bold"
+                      fontWeight="700"
+                      fontSize="17px"
+                    >
+                      {order[0].detail.paid}
+                    </Text>
+                  </Flex>
+                )}
               </Flex>
             </Flex>
             <Flex flex={1} mx={2}>
               <Flex direction="row" px={2} pb={1} justify="space-between">
                 <Text {...subHeadingStyle}>Payable Amount</Text>
-                <Pressable>
+                <Pressable onPress={() => onOpenSplitAmount()}>
                   <Text
                     fontFamily="sf-pro-text-medium"
                     color={useColorModeValue(
@@ -239,9 +300,14 @@ const PaymentScreen = () => {
                 <Text
                   fontFamily="sf-pro-display-bold"
                   fontWeight="700"
-                  fontSize="26px"
+                  fontSize="24px"
                 >
-                  RM 50.00
+                  RM{" "}
+                  {splitAmount > 0
+                    ? splitAmount.toFixed(2)
+                    : order[0].detail.paid > 0
+                    ? order[0].detail.total - order[0].detail.paid
+                    : order[0].detail.total.toFixed(2)}
                 </Text>
               </Flex>
               <Text px={2} pt={10} pb={1} {...subHeadingStyle}>
@@ -375,23 +441,37 @@ const PaymentScreen = () => {
                   flexBasis="31%"
                   maxW="31%"
                   flex={1}
-                  bg={useColorModeValue("light.50", "dark.100")}
+                  bg={
+                    selectedAmount === 6
+                      ? useColorModeValue("themeColor.50", "themeColor.100")
+                      : useColorModeValue("white", "greyColor.900")
+                  }
                   shadow={2}
                   borderRadius="md"
-                  borderColor="transparent"
+                  borderColor={
+                    selectedAmount === 6
+                      ? useColorModeValue("themeColor.500", "themeColor.500")
+                      : "transparent"
+                  }
                   borderWidth={1}
                   p={5}
                   mx="1%"
                   my={1}
+                  onPress={() => {
+                    if (customAmount > 0) {
+                      setSelectedAmount(6);
+                    }
+                    onOpenCustomAmount();
+                  }}
                 >
                   <Text
                     textAlign="center"
                     fontFamily="sf-pro-text-medium"
                     fontWeight="600"
                     fontSize="15px"
-                    color={useColorModeValue("light.700", "dark.400")}
+                    color={useColorModeValue("greyColor.800", "greyColor.300")}
                   >
-                    Custom
+                    {customAmount > 0 ? customAmount : "Custom"}
                   </Text>
                 </Pressable>
               </Flex>
@@ -417,141 +497,146 @@ const PaymentScreen = () => {
         </VStack>
 
         {/* <-------------- Custom Quantity Modal when --> */}
-        {/* <NumberPadInput
-          isOpen={showCustomQuantity}
-          onClose={() => setShowCustomQuantity(false)}
-          headerTitle={`Discount Amount`}
-          getInput={onSelectAmount}
-          isDecimal={selectedDiscountType === 1 || selectedDiscountType === 3}
-          maximumInputLength={selectedDiscountType === 2 ? 4 : 8}
-        /> */}
+        <NumberPadInput
+          isOpen={openSplitAmount}
+          onClose={() => setOpenSplitAmount(false)}
+          headerTitle={`Split Amount`}
+          getInput={onSplitAmount}
+          isDecimal={true}
+          maximumInputLength={12}
+          maximumNumber={
+            order[0].detail.paid > 0
+              ? (order[0].detail.total = order[0].detail.paid)
+              : order[0].detail.total
+          }
+        />
+        <NumberPadInput
+          isOpen={openCustomAmount}
+          onClose={() => setOpenCustomAmount(false)}
+          headerTitle={`Custom Amount`}
+          getInput={onCustomAmount}
+          isDecimal={true}
+          maximumInputLength={12}
+          maximumNumber={
+            splitAmount > 0
+              ? splitAmount
+              : order[0].detail.paid > 0
+              ? (order[0].detail.total = order[0].detail.paid)
+              : order[0].detail.total
+          }
+        />
       </Stack>
     </>
   );
 };
 interface CartListItemProps {
   item: any;
-  index: number;
 }
 
-const CartListItem = ({ item, index }: CartListItemProps) => {
+const CartListItem = ({ item }: CartListItemProps) => {
   return (
-    <Pressable>
-      {({ isHovered, isFocused, isPressed }) => {
-        return (
-          <Flex
-            w="100%"
-            py={1}
-            bg={isPressed || isHovered ? "dark.100:alpha.30" : "transparent"}
-            direction="row"
-            align="center"
-            justify="space-between"
+    <Flex
+      w="100%"
+      py={1}
+      direction="row"
+      align="center"
+      justify="space-between"
+    >
+      <Flex direction="row" align="center" flex={3}>
+        <Image
+          h="55px"
+          w="55px"
+          resizeMode={"cover"}
+          borderRadius="md"
+          mr="10px"
+          bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
+          source={{
+            uri: item.imageURL,
+          }}
+          fallbackSource={require("./../assets/fallback-img.jpg")}
+          alt="Alternate Text"
+        />
+        <VStack>
+          <Text
+            color={
+              item.orderStatus === 1
+                ? useColorModeValue("red.400", "red.500")
+                : useColorModeValue("dark.100", "light.100")
+            }
+            fontFamily="sf-pro-text-semibold"
+            fontWeight="400"
+            fontSize={15}
+            isTruncated
+            noOfLines={2}
+            maxW={{ base: "150", md: "110" }}
           >
-            <Flex direction="row" align="center" flex={3}>
-              <Image
-                h="55px"
-                w="55px"
-                resizeMode={"cover"}
-                borderRadius="md"
-                mr="10px"
-                bg={useColorModeValue("dark.500:alpha.20", "dark.300:alpha.20")}
-                source={{
-                  uri: item.imageURL,
-                }}
-                fallbackSource={require("./../assets/fallback-img.jpg")}
-                alt="Alternate Text"
-              />
-              <VStack>
-                <Text
-                  color={
-                    item.orderStatus === 1
-                      ? useColorModeValue("red.400", "red.500")
-                      : useColorModeValue("dark.100", "light.100")
-                  }
-                  fontFamily="sf-pro-text-semibold"
-                  fontWeight="400"
-                  fontSize={15}
-                  isTruncated
-                  noOfLines={2}
-                  maxW={{ base: "150", md: "110" }}
-                >
-                  {item.id}. {item.name}
-                </Text>
-                <Text
-                  color={
-                    item.orderStatus === 1
-                      ? useColorModeValue("red.400", "red.500")
-                      : useColorModeValue("dark.100", "light.100")
-                  }
-                  fontFamily="sf-pro-text-regular"
-                  fontWeight="400"
-                  fontSize={{ base: 14, md: 12 }}
-                  isTruncated
-                  noOfLines={2}
-                  maxW={{ base: "150", md: "120" }}
-                >
-                  {item.addons?.length > 0 &&
-                    item.addons.map((addon, index) => {
-                      if (index + 1 === item.addons?.length) {
-                        return `${addon.name}`;
-                      } else {
-                        return `${addon.name}, `;
-                      }
-                    })}
-                </Text>
-              </VStack>
-            </Flex>
-            <View flex={2} pr={2}>
-              <Text
-                color={
-                  item.discountType && item.discountAmount !== 0
-                    ? useColorModeValue("green.400", "green.500")
-                    : item.orderStatus === 1
-                    ? useColorModeValue("red.400", "red.500")
-                    : useColorModeValue("dark.100", "light.100")
+            {item.id}. {item.name}
+          </Text>
+          <Text
+            color={
+              item.orderStatus === 1
+                ? useColorModeValue("red.400", "red.500")
+                : useColorModeValue("dark.100", "light.100")
+            }
+            fontFamily="sf-pro-text-regular"
+            fontWeight="400"
+            fontSize={{ base: 14, md: 12 }}
+            isTruncated
+            noOfLines={2}
+            maxW={{ base: "150", md: "120" }}
+          >
+            {item.addons?.length > 0 &&
+              item.addons.map((addon, index) => {
+                if (index + 1 === item.addons?.length) {
+                  return `${addon.name}`;
+                } else {
+                  return `${addon.name}, `;
                 }
-                textAlign="right"
-              >
-                {item.discountType && item.discountType === 1
-                  ? `RM ${(
-                      (item.calculatedPrice - item.discountAmount) *
-                      item.quantity
-                    ).toFixed(2)}`
-                  : item.discountType && item.discountType === 2
-                  ? `RM  ${(
-                      ((item.calculatedPrice * (100 - item.discountAmount)) /
-                        100) *
-                      item.quantity
-                    ).toFixed(2)}`
-                  : item.discountType && item.discountType === 3
-                  ? `RM ${(item.discountAmount * item.quantity).toFixed(2)}`
-                  : item.discountType && item.discountType === 4
-                  ? "Free"
-                  : `RM ${item.calculatedPrice * item.quantity.toFixed(2)}`}
-              </Text>
-            </View>
-            <Flex justify="center" align="center">
-              <Flex
-                bg="themeColor.500"
-                px={3}
-                py={0.5}
-                borderRadius="xl"
-                ml={2}
-              >
-                <Text
-                  fontFamily="sf-pro-text-medium"
-                  fontWeight="500"
-                  fontSize="12px"
-                  color="greyColor.50"
-                >
-                  x{item.quantity}
-                </Text>
-              </Flex>
-            </Flex>
-          </Flex>
-        );
-      }}
-    </Pressable>
+              })}
+          </Text>
+        </VStack>
+      </Flex>
+      <View flex={2} pr={2}>
+        <Text
+          color={
+            item.discountType && item.discountAmount !== 0
+              ? useColorModeValue("green.400", "green.500")
+              : item.orderStatus === 1
+              ? useColorModeValue("red.400", "red.500")
+              : useColorModeValue("dark.100", "light.100")
+          }
+          textAlign="right"
+        >
+          {item.discountType && item.discountType === 1
+            ? `RM ${(
+                (item.calculatedPrice - item.discountAmount) *
+                item.quantity
+              ).toFixed(2)}`
+            : item.discountType && item.discountType === 2
+            ? `RM  ${(
+                ((item.calculatedPrice * (100 - item.discountAmount)) / 100) *
+                item.quantity
+              ).toFixed(2)}`
+            : item.discountType && item.discountType === 3
+            ? `RM ${(item.discountAmount * item.quantity).toFixed(2)}`
+            : item.discountType && item.discountType === 4
+            ? "Free"
+            : `RM ${item.calculatedPrice * item.quantity.toFixed(2)}`}
+        </Text>
+      </View>
+      <Flex justify="center" align="center">
+        <Flex bg="themeColor.500" px={3} py={0.5} borderRadius="xl" ml={2}>
+          <Text
+            fontFamily="sf-pro-text-medium"
+            fontWeight="500"
+            fontSize="12px"
+            color="greyColor.50"
+          >
+            x{item.quantity}
+          </Text>
+        </Flex>
+      </Flex>
+    </Flex>
   );
 };
 
