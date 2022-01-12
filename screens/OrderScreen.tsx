@@ -62,6 +62,7 @@ import {
 } from "../app/stock/stockSlice";
 import { logout } from "../app/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StockItemType } from "../types/stockType";
 
 type OrderScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -80,13 +81,17 @@ const OrderScreen = () => {
   };
   const [itemList, setItemList] = useState<ItemType[]>([]);
   const [categoryList, setCategoryList] = useState<ItemCategoryType[]>([]);
+  const [stockList, setStockList] = useState<StockItemType[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number>(0);
+  const [noStockList, setNoStockList] = useState<number[]>([]);
   const [selectedItem, setSelectedItem] = useState<ItemType>();
+  const [selectedNoStockItem, setSelectedNoStockItem] = useState<ItemType>();
   const [selectedItemQuantity, setSelectedItemQuantity] = useState<number>(1);
   const [selectedItemAddon, setSelectedItemAddon] = useState({});
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
   const [fixedCartItem, setFixedCartItem] = useState<ItemInCartType[]>([]);
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
+  const [openNoStockModal, setOpenNoStockModal] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [openSelectionModal, setOpenSelectionModal] = useState<boolean>(false);
   const [isEditCartMode, setIsEditCartMode] = useState<boolean>(false);
@@ -112,7 +117,7 @@ const OrderScreen = () => {
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
-  const stocks = useAppSelector((state) => state.stock.stockItems);
+  const stockSlice = useAppSelector((state) => state.stock.stockItems);
   const cancelRef = useRef(null);
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
@@ -171,8 +176,6 @@ const OrderScreen = () => {
   }, [cartItem, fixedCartItem]);
 
   useEffect(() => {
-    console.log(stocks);
-
     if (orders && orders.length > 0) {
       setIsEditCartMode(true);
       let sentArray: any[] = [];
@@ -200,7 +203,7 @@ const OrderScreen = () => {
     } else {
       dispatch(clearCart());
     }
-    checkStock();
+    getStock();
     getAllItem();
   }, []);
 
@@ -216,11 +219,29 @@ const OrderScreen = () => {
     console.log(result);
     onVerifiedVoidOrder();
   };
-  const checkStock = async () => {
+  const getStock = async () => {
     const stocks = await AsyncStorage.getItem("stocks");
     console.log(stocks);
     if (stocks) {
       dispatch(setStockItems({ items: JSON.parse(stocks) }));
+      setStockList(JSON.parse(stocks));
+    }
+  };
+
+  const noStockHandler = (item: ItemType | undefined, isConfirm: boolean) => {
+    if ((isConfirm && item) || (item && noStockList.includes(item?.id))) {
+      setNoStockList((prevState) => {
+        prevState.push(item.id);
+        return prevState;
+      });
+      setSelectedNoStockItem(undefined);
+      setOpenNoStockModal(false);
+      item.addons?.length === 0
+        ? sendCartHandler(item, 1)
+        : onOpenAddonHandler(item);
+    } else if (item) {
+      setSelectedNoStockItem(item);
+      setOpenNoStockModal(true);
     }
   };
 
@@ -409,6 +430,17 @@ const OrderScreen = () => {
         quantity,
       })
     );
+    setStockList((prevState) => {
+      const findStockIndex = prevState.findIndex(
+        (stock) => stock.id === item.id
+      );
+      if (findStockIndex < 0) {
+        prevState.push({ id: item.id, in_cart: quantity });
+      } else {
+        prevState[findStockIndex].in_cart += quantity;
+      }
+      return prevState;
+    });
   };
 
   const onSubmitOrder = async (orderStatus: number) => {
@@ -417,12 +449,6 @@ const OrderScreen = () => {
         ...item,
         orderStatus,
       }));
-
-      let stockArray: any[] = tempArray.map((item) => ({
-        id: item.id,
-        quantity: item.quantity,
-      }));
-      console.log(stockArray);
 
       if (isEditCartMode && orders) {
         const orderValue = await fetchOrder();
@@ -462,7 +488,8 @@ const OrderScreen = () => {
           orderStatus,
           detail: orderDetail,
         });
-        dispatch(updateStockItems({ items: stockArray }));
+        dispatch(updateStockItems({ items: stockList }));
+        await AsyncStorage.setItem("stocks", JSON.stringify(stockList));
         await storeOrder(orderValue);
         dispatch(setOrder(orderValue));
         setOpenCart(false);
@@ -488,49 +515,78 @@ const OrderScreen = () => {
   };
 
   const onAddAddon = async () => {
-    let addonsPayload: any[] = [];
-    Object.values(addonForm).forEach((item: any | any[]) => {
-      if (item.length > 0) {
-        addonsPayload = [...addonsPayload, ...item];
-      } else if (item.length === undefined) {
-        addonsPayload.push(item);
-      }
-    });
-    let payload: ItemInCartType = {
-      ...selectedItem,
-      calculatedPrice: selectedItem.price,
-      addons: addonsPayload,
-      discountType: 1,
-      discountAmount: 0,
-      reference: "",
-      quantity: selectedItemQuantity,
-      itemIndex: cartItem.length,
-    };
-    if (payload.addons.length > 0) {
-      payload.addons.forEach((addon) => {
-        (payload.calculatedPrice += parseFloat(addon.price)).toFixed(2);
+    if (selectedItem) {
+      let addonsPayload: any[] = [];
+      Object.values(addonForm).forEach((item: any | any[]) => {
+        if (item.length > 0) {
+          addonsPayload = [...addonsPayload, ...item];
+        } else if (item.length === undefined) {
+          addonsPayload.push(item);
+        }
       });
-    }
-    if (isEditAddon) {
-      payload = {
-        ...selectedEditItem,
-        ...payload,
+      let payload: ItemInCartType = {
+        ...selectedItem,
+        calculatedPrice: selectedItem.price,
+        addons: addonsPayload,
+        discountType: 1,
+        discountAmount: 0,
+        reference: "",
         quantity: selectedItemQuantity,
-        itemIndex: selectedEditItemIndex,
+        itemIndex: cartItem.length,
       };
-      dispatch(updateCartItem({ index: selectedEditItemIndex, item: payload }));
-    } else {
-      dispatch(
-        changeCart({
-          item: {
-            ...payload,
-          },
+      if (payload.addons.length > 0) {
+        payload.addons.forEach((addon) => {
+          (payload.calculatedPrice += parseFloat(addon.price)).toFixed(2);
+        });
+      }
+      if (isEditAddon && selectedEditItem) {
+        payload = {
+          ...selectedEditItem,
+          ...payload,
           quantity: selectedItemQuantity,
-        })
-      );
-
-      dispatch(updateStockItems({ id: payload.id, selectedItemQuantity }));
+          itemIndex: selectedEditItemIndex,
+        };
+        dispatch(
+          updateCartItem({ index: selectedEditItemIndex, item: payload })
+        );
+        const difference = selectedItemQuantity - selectedEditItem.quantity;
+        setStockList((prevState) => {
+          const findStockIndex = prevState.findIndex(
+            (stock) => stock.id === selectedEditItem.id
+          );
+          if (findStockIndex < 0) {
+            prevState.push({
+              id: selectedEditItem.id,
+              in_cart: selectedEditItemQuantity,
+            });
+          } else {
+            prevState[findStockIndex].in_cart += difference;
+          }
+          return prevState;
+        });
+      } else {
+        dispatch(
+          changeCart({
+            item: {
+              ...payload,
+            },
+            quantity: selectedItemQuantity,
+          })
+        );
+        setStockList((prevState) => {
+          const findStockIndex = prevState.findIndex(
+            (stock) => stock.id === payload.id
+          );
+          if (findStockIndex < 0) {
+            prevState.push({ id: payload.id, in_cart: payload.quantity });
+          } else {
+            prevState[findStockIndex].in_cart += payload.quantity;
+          }
+          return prevState;
+        });
+      }
     }
+
     onCloseModalHandler();
   };
 
@@ -582,6 +638,8 @@ const OrderScreen = () => {
 
   const onClearCartHandler = () => {
     setOrderDetail(initialOrderDetail);
+    setStockList([]);
+    setNoStockList([]);
     dispatch(clearCart());
   };
 
@@ -592,6 +650,18 @@ const OrderScreen = () => {
     if (fixedCartItem.length === 0 && index === 0) {
       voidCreatedOrder();
     }
+    console.log(item.quantity);
+    setStockList((prevState) => {
+      const findStockIndex = prevState.findIndex(
+        (stock) => stock.id === item.id
+      );
+      console.log(findStockIndex);
+      if (findStockIndex >= 0) {
+        console.log(prevState[findStockIndex]);
+        prevState[findStockIndex].in_cart -= item.quantity;
+      }
+      return prevState;
+    });
     dispatch(deleteCartItem({ index }));
   };
 
@@ -651,14 +721,31 @@ const OrderScreen = () => {
   };
 
   const onEditedQuantity = () => {
-    const editedItem = {
-      ...selectedEditItem,
-      quantity: selectedEditItemQuantity,
-    };
-    dispatch(
-      updateCartItem({ index: selectedEditItemIndex, item: editedItem })
-    );
-    setIsEditQuantity(false);
+    if (selectedEditItem) {
+      const editedItem = {
+        ...selectedEditItem,
+        quantity: selectedEditItemQuantity,
+      };
+      dispatch(
+        updateCartItem({ index: selectedEditItemIndex, item: editedItem })
+      );
+      const difference = selectedEditItemQuantity - selectedEditItem.quantity;
+      setStockList((prevState) => {
+        const findStockIndex = prevState.findIndex(
+          (stock) => stock.id === selectedEditItem.id
+        );
+        if (findStockIndex < 0) {
+          prevState.push({
+            id: selectedEditItem.id,
+            in_cart: selectedEditItemQuantity,
+          });
+        } else {
+          prevState[findStockIndex].in_cart += difference;
+        }
+        return prevState;
+      });
+      setIsEditQuantity(false);
+    }
   };
 
   const onSelectAmount = (amount: number) => {
@@ -935,6 +1022,20 @@ const OrderScreen = () => {
                     "dark.400:alpha.50",
                     "dark.300:alpha.40"
                   );
+                  let lowStock = false;
+                  let noStock = false;
+                  if (item.is_stock_check) {
+                    let findStock = stockList.find(
+                      (stock) => stock.id === item.id
+                    );
+                    if (findStock) {
+                      lowStock =
+                        (item.stock ? item.stock : 0) - findStock.in_cart <=
+                        (item.stock_minimum ? item.stock_minimum : -1);
+                      noStock =
+                        (item.stock ? item.stock : 0) - findStock.in_cart <= 0;
+                    }
+                  }
                   return (
                     <Pressable
                       key={item.id}
@@ -943,11 +1044,13 @@ const OrderScreen = () => {
                       borderRadius="lg"
                       mx={{ base: "1%", lg: "1.5%" }}
                       my={{ base: "2%", lg: "1.5%" }}
-                      onPress={() =>
-                        item.addons?.length === 0
+                      onPress={() => {
+                        noStock
+                          ? noStockHandler(item, false)
+                          : item.addons?.length === 0
                           ? sendCartHandler(item, 1)
-                          : onOpenAddonHandler(item)
-                      }
+                          : onOpenAddonHandler(item);
+                      }}
                     >
                       {({ isHovered, isFocused, isPressed }) => {
                         return (
@@ -996,16 +1099,21 @@ const OrderScreen = () => {
                                   {item.id}
                                 </Text>
                                 {item.is_stock_check &&
-                                (item.stock ? item.stock : 0) <=
-                                  (item.stock_minimum
-                                    ? item.stock_minimum
-                                    : 0) ? (
+                                (lowStock ||
+                                  (item.stock ? item.stock : 0) <=
+                                    (item.stock_minimum
+                                      ? item.stock_minimum
+                                      : 0)) ? (
                                   <Circle
                                     size={4}
-                                    bg="red.600"
+                                    bg={
+                                      noStock
+                                        ? "themeColor.900"
+                                        : "themeColor.400"
+                                    }
                                     mr={3}
                                     borderWidth={3}
-                                    borderColor="light.100"
+                                    borderColor="greyColor.50"
                                     shadow={3}
                                   />
                                 ) : (
@@ -1111,6 +1219,52 @@ const OrderScreen = () => {
           />
         </Box>
 
+        {/* <-------------- Confirmation Modal when no stock--> */}
+        <AlertDialog
+          leastDestructiveRef={cancelRef}
+          isOpen={openNoStockModal}
+          onClose={() => setOpenNoStockModal(false)}
+          closeOnOverlayClick={true}
+          size="md"
+        >
+          <AlertDialog.Content>
+            <AlertDialog.CloseButton />
+            <AlertDialog.Header>
+              This item have no stock already.
+            </AlertDialog.Header>
+            <AlertDialog.Body>
+              Do you still want to add into cart?
+            </AlertDialog.Body>
+            <AlertDialog.Footer>
+              <Button.Group space={2}>
+                <Button
+                  variant="unstyled"
+                  _text={{
+                    color: "greyColor.700",
+                    fontFamily: "sf-pro-text-medium",
+                    fontSize: "13px",
+                  }}
+                  onPress={() => setOpenNoStockModal(false)}
+                  ref={cancelRef}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  colorScheme="themeColor"
+                  _text={{
+                    color: "textColor.buttonText",
+                    fontFamily: "sf-pro-text-medium",
+                    fontSize: "13px",
+                  }}
+                  onPress={() => noStockHandler(selectedNoStockItem, true)}
+                >
+                  Add to Cart
+                </Button>
+              </Button.Group>
+            </AlertDialog.Footer>
+          </AlertDialog.Content>
+        </AlertDialog>
+
         {/* <-------------- Confirmation Modal when checkout--> */}
         <AlertDialog
           leastDestructiveRef={cancelRef}
@@ -1129,9 +1283,8 @@ const OrderScreen = () => {
               <Button.Group space={2}>
                 <Button
                   variant="unstyled"
-                  colorScheme="coolGray"
                   _text={{
-                    color: "textColor.buttonText",
+                    color: "greyColor.700",
                     fontFamily: "sf-pro-text-medium",
                     fontSize: "13px",
                   }}
@@ -1745,7 +1898,7 @@ const CartListItem = ({
             )}
           {renderRightAction(
             "pricetags-outline",
-            "amber.700",
+            "themeColor.400",
             128,
             progress,
             discountItemHandler,
