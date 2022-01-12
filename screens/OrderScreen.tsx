@@ -55,7 +55,11 @@ import {
 } from "../types/itemType";
 import { OrderType } from "../types/tableType";
 import { ItemApi } from "../api/ItemApi";
-import { addStockItem, updateStockItems } from "../app/stock/stockSlice";
+import {
+  addStockItem,
+  setStockItems,
+  updateStockItems,
+} from "../app/stock/stockSlice";
 import { logout } from "../app/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -95,7 +99,6 @@ const OrderScreen = () => {
   const [showDiscountModal, setShowDiscountModal] = useState<boolean>(false);
   const [applyOnOrder, setApplyOnOrder] = useState<boolean>(false);
   const [togglePasscode, setTogglePasscode] = useState<boolean>(false);
-
   const [showCustomQuantity, setShowCustomQuantity] = useState<boolean>(false);
   const [selectedDiscountType, setSelectedDiscountType] = useState<number>(1);
   const [enteredAmount, setEnteredAmount] = useState<number>(0);
@@ -109,6 +112,7 @@ const OrderScreen = () => {
   const dispatch = useAppDispatch();
   const cartItem = useAppSelector((state) => state.cart.cartItem);
   const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
+  const stocks = useAppSelector((state) => state.stock.stockItems);
   const cancelRef = useRef(null);
   const toast = useToast();
   const navigation = useNavigation<OrderScreenNavigationProp>();
@@ -167,6 +171,8 @@ const OrderScreen = () => {
   }, [cartItem, fixedCartItem]);
 
   useEffect(() => {
+    console.log(stocks);
+
     if (orders && orders.length > 0) {
       setIsEditCartMode(true);
       let sentArray: any[] = [];
@@ -194,6 +200,7 @@ const OrderScreen = () => {
     } else {
       dispatch(clearCart());
     }
+    checkStock();
     getAllItem();
   }, []);
 
@@ -208,6 +215,13 @@ const OrderScreen = () => {
     console.log("heihei");
     console.log(result);
     onVerifiedVoidOrder();
+  };
+  const checkStock = async () => {
+    const stocks = await AsyncStorage.getItem("stocks");
+    console.log(stocks);
+    if (stocks) {
+      dispatch(setStockItems({ items: JSON.parse(stocks) }));
+    }
   };
 
   const getAllItem = async () => {
@@ -395,14 +409,6 @@ const OrderScreen = () => {
         quantity,
       })
     );
-    dispatch(addStockItem({ id: item.id, quantity, status: 1 }));
-    await toast.closeAll();
-    toast.show({
-      background: "emerald.500",
-      description: `${item.name} added into cart.`,
-      placement: "top",
-      isClosable: true,
-    });
   };
 
   const onSubmitOrder = async (orderStatus: number) => {
@@ -411,6 +417,12 @@ const OrderScreen = () => {
         ...item,
         orderStatus,
       }));
+
+      let stockArray: any[] = tempArray.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+      }));
+      console.log(stockArray);
 
       if (isEditCartMode && orders) {
         const orderValue = await fetchOrder();
@@ -450,6 +462,7 @@ const OrderScreen = () => {
           orderStatus,
           detail: orderDetail,
         });
+        dispatch(updateStockItems({ items: stockArray }));
         await storeOrder(orderValue);
         dispatch(setOrder(orderValue));
         setOpenCart(false);
@@ -518,13 +531,6 @@ const OrderScreen = () => {
 
       dispatch(updateStockItems({ id: payload.id, selectedItemQuantity }));
     }
-    await toast.closeAll();
-    toast.show({
-      background: "emerald.500",
-      description: `${payload.name} added into cart.`,
-      placement: "top",
-      isClosable: true,
-    });
     onCloseModalHandler();
   };
 
@@ -672,7 +678,7 @@ const OrderScreen = () => {
       ) {
         await toast.closeAll();
         toast.show({
-          background: "amber.500",
+          background: "themeColor.500",
           description: `Discount Amount cannot greater than original price`,
           placement: "top",
           isClosable: true,
@@ -837,12 +843,15 @@ const OrderScreen = () => {
                 Order
               </Heading>
             </Flex>
-            <IconButton
+            <Button
               display={{ md: "none" }}
-              icon={<Icon as={AntDesign} name="shoppingcart" size="sm" />}
+              leftIcon={<Icon as={AntDesign} name="shoppingcart" size="sm" />}
               mr={5}
               onPress={() => setOpenCart(true)}
-            />
+              colorScheme="themeColor"
+            >
+              {cartItem.length}
+            </Button>
           </Flex>
           <Stack maxH={{ md: "9%" }}>
             <ScrollView
@@ -873,7 +882,7 @@ const OrderScreen = () => {
                   );
                   textColor = useColorModeValue(
                     "textColor.buttonText",
-                    "light.50"
+                    "greyColor.50"
                   );
                 }
                 return (

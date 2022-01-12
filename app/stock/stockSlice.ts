@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createSlice } from "@reduxjs/toolkit";
 import { StockItemType } from "../../types/stockType";
 
@@ -45,20 +46,32 @@ const stockSlice = createSlice({
         }
       }
     },
+    setStockItems: (state, action) => {
+      state.stockItems = [...action.payload.items];
+    },
     updateStockItems: (state, action) => {
-      const findIndex = state.stockItems.findIndex(
-        (stock) => stock.id === action.payload.id
-      );
-      if (state.stockItems.length > 0 && findIndex && findIndex >= 0) {
-        if (action.payload.quantity === 0) {
-          state.stockItems.splice(findIndex, 1);
+      action.payload.items.forEach((item: { id: number; quantity: number }) => {
+        const findIndex = state.stockItems.findIndex(
+          (stock) => stock.id === item.id
+        );
+        if (state.stockItems.length > 0 && findIndex && findIndex >= 0) {
+          if (item.quantity === 0) {
+            state.stockItems.splice(findIndex, 1);
+          } else {
+            state.stockItems[findIndex] = {
+              ...state.stockItems[findIndex],
+              in_cart: item.quantity,
+            };
+          }
         } else {
-          state.stockItems[findIndex] = {
-            ...state.stockItems[findIndex],
-            in_cart: action.payload.quantity,
-          };
+          state.stockItems.push({
+            id: item.id,
+            in_cart: item.quantity,
+          });
         }
-      }
+      });
+
+      AsyncStorage.setItem("stocks", JSON.stringify(state.stockItems));
     },
     clearStockItems: (state) => {
       state.stockItems = [];
@@ -71,5 +84,6 @@ export const {
   minusStockItem,
   updateStockItems,
   clearStockItems,
+  setStockItems,
 } = stockSlice.actions;
 export default stockSlice.reducer;

@@ -64,6 +64,7 @@ const PasscodeScreen = () => {
 
   const submitHandler = async (passcode: string) => {
     const result = await AuthApi.counterLogin({ pos_password: passcode });
+    console.log(result)
     if (result.data.status === 711) {
       await AsyncStorage.setItem("passcode", passcode);
       dispatch(verifyPasscode());

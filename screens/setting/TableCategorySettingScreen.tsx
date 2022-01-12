@@ -122,7 +122,7 @@ const TableCategorySetting = () => {
     console.log(selectedDelete);
     const result = await TableApi.deleteTableCategory(selectedDelete);
     console.log(result)
-    console.log(result.data);
+    getAllTableCategory()
     onCloseConfirm();
   };
 
