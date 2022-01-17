@@ -33,49 +33,40 @@ import { RootStackParamList } from "./RootStackParams";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import {
   OrderType,
-  TableCategoryType,
-  TableDataType,
+  TableCategoryListType,
+  TableListType,
 } from "../types/tableType";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setOrder } from "../app/order/orderSlice";
 import { LinearGradient } from "expo-linear-gradient";
+import { TableApi } from "../api/TableApi";
 
 const mappingItemCategory = () => {
-  // let category: TableCategoryType[] = [];
-  // let idList: number[] = [];
-  // tableData.forEach((table: TableDataType) => {
-  //   if (!idList.includes(table.table_category.id)) {
-  //     idList.push(table.table_category.id);
-  //     category.push(table.table_category);
-  //   }
-  // });
-  // return category;
   return tableCategoryData;
 };
 
 type TableScreenProp = DrawerNavigationProp<RootStackParamList, "Table">;
 type TableScreenRouteProp = RouteProp<RootStackParamList, "Table">;
 const TableScreen = () => {
-  const [tableList, setTableList] = useState<TableDataType[]>([]);
-  const [categoryList, setCategoryList] = useState<TableCategoryType[]>(
-    mappingItemCategory()
-  );
+  const [tableList, setTableList] = useState<TableListType[]>([]);
+  const [categoryList, setCategoryList] = useState<TableCategoryListType[]>([]);
   const [orderList, setOrderList] = useState<any[]>([]);
   const [isAllCategory, setIsAllCategory] = useState<boolean>(true);
   const [showQuantityModal, setShowQuantityModal] = useState<boolean>(false);
   const [showOrderType, setShowOrderType] = useState<boolean>(false);
   const [showCustomQuantityModal, setShowCustomQuantityModal] =
     useState<boolean>(false);
-  const [selectedTable, setSelectedTable] = useState<TableDataType>({});
+  const [selectedTable, setSelectedTable] = useState<TableListType>({});
   const [showOrder, setShowOrder] = useState<OrderType>({});
-  const [showTableOrder, setShowTableOrder] = useState<TableDataType>({});
+  const [showTableOrder, setShowTableOrder] = useState<TableListType>({});
   const [selectedCategory, setSelectedCategory] = useState<number>(
     mappingItemCategory()[0].id
   );
   const [openCart, setOpenCart] = useState<boolean>(false);
   const [openTableCart, setOpenTableCart] = useState<boolean>(false);
   const [togglePasscode, setTogglePasscode] = useState<boolean>(false);
+  const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
 
   const dispatch = useAppDispatch();
   const orderItem = useAppSelector((state) => state.order.orders);
@@ -99,18 +90,54 @@ const TableScreen = () => {
   ];
 
   useEffect(() => {
-    orderItemMapping();
+    getTable();
   }, []);
   useEffect(() => {
-    orderItemMapping();
+    getTable();
   }, [orderItem]);
 
+  const getTable = async () => {
+    if (restaurantInfo) {
+      const restaurantId: number = restaurantInfo.id;
+      const result = await TableApi.getTable(restaurantId);
+      if (result.status === 200 && result.data.status === 1001) {
+        if (
+          result.data.response.tableLists &&
+          result.data.response.tableLists.length > 0
+        ) {
+          const list = result.data.response.tableLists.map(
+            (table: TableListType) => ({
+              ...table,
+              order: [],
+              status: 0,
+              pax: 0,
+              total: "0",
+            })
+          );
+          let tempCategoryList: TableCategoryListType[] = [];
+          let tempIdList: number[] = [];
+          list.forEach((table: TableListType) => {
+            if (table.table_categories.length > 0) {
+              table.table_categories.forEach((category) => {
+                if (!tempIdList.includes(category.id)) {
+                  tempIdList.push(category.id);
+                  tempCategoryList.push(category);
+                }
+              });
+            }
+          });
+          orderItemMapping(list);
+          setCategoryList(tempCategoryList);
+        }
+      }
+    }
+  };
   const orderRefresher = () => {
     setOpenTableCart(false);
     setOpenCart(false);
-    orderItemMapping();
+    getTable();
   };
-  const orderItemMapping = async () => {
+  const orderItemMapping = async (tableList: TableListType[]) => {
     const orderValue = await fetchOrder();
     // await AsyncStorage.removeItem('orders');
     let temp: number[] = [];
@@ -124,9 +151,9 @@ const TableScreen = () => {
       }
       order.orderIndex = index;
     });
-    let tableTemp: TableDataType[] = [];
+    let tableTemp: TableListType[] = [];
     setOrderList(otherOrder);
-    tableData.forEach((table) => {
+    tableList.forEach((table) => {
       if (temp.includes(table.id)) {
         let tempOrder = orderTemp.filter((order) => order.tableId === table.id);
         tableTemp.push({
@@ -171,7 +198,6 @@ const TableScreen = () => {
         temp.total = orderDetail.detail.total;
 
         temp.status = tempStatus;
-        console.log(temp);
       }
     });
     setTableList(tableTemp);
@@ -183,7 +209,7 @@ const TableScreen = () => {
     setOpenCart(true);
   };
 
-  const onSelectShowTableOrder = (table: TableDataType) => {
+  const onSelectShowTableOrder = (table: TableListType) => {
     setShowTableOrder(table);
     setOpenTableCart(true);
     setOpenCart(false);
@@ -242,7 +268,6 @@ const TableScreen = () => {
   const checkoutOrder = (order) => {
     navigation.navigate("Payment", { order });
   };
-
 
   return (
     <>
@@ -597,7 +622,7 @@ const TableScreen = () => {
                                 fontFamily="sf-pro-display-bold"
                                 fontSize="22px"
                               >
-                                {table.name}
+                                {table.table_name}
                               </Text>
 
                               <Flex>
