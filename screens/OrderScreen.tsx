@@ -127,14 +127,6 @@ const OrderScreen = () => {
     headerShown: false,
   });
   const selectionButtonGroup = [
-    // {
-    //   name: "Add Customer",
-    //   icon: AntDesign,
-    //   iconName: "adduser",
-    //   function: () => {
-    //     setOpenSelectionModal(false);
-    //   },
-    // },
     {
       name: "Add Discount",
       icon: Feather,
@@ -311,7 +303,7 @@ const OrderScreen = () => {
     };
     let items = cartItem;
     if (fixedCartItem.length > 0) {
-      // this will combine "SENT TO KITCHEN" item with "IN THE KITCHEN" item
+      // this will combine "SENT TO KITCHEN" item with "ON HOLD" item
       items = fixedCartItem.concat(cartItem);
     }
 
@@ -466,6 +458,9 @@ const OrderScreen = () => {
           orderValue[orderIndex].detail = orderDetail;
         }
 
+        
+        dispatch(updateStockItems({ items: stockList }));
+        await AsyncStorage.setItem("stocks", JSON.stringify(stockList));
         await storeOrder(orderValue);
         dispatch(setOrder(orderValue));
         setOpenCart(false);
@@ -838,9 +833,8 @@ const OrderScreen = () => {
   };
 
   const onVerifiedVoidOrder = async () => {
-    setOrderDetail(initialOrderDetail);
-    onClearCartHandler();
     voidCreatedOrder();
+    onClearCartHandler();
     navigation.navigate("Table");
   };
 
@@ -851,8 +845,32 @@ const OrderScreen = () => {
       let orderIndex = orders[0]?.orderIndex;
       orderTemp.splice(orderIndex, 1);
 
+      let tempStockList: StockItemType[] = [...stockList];
+      // orders[0].items.forEach((item) => {
+      //   console.log("looooping");
+      //   console.log(item.id);
+      //   console.log(item.quantity);
+      //   stockList.forEach(stock => {
+      //     if (stock.id === item.id) {
+      //       tempStockList.push({
+      //         id: stock.id,
+      //         id: stock.in_cart - item.quantity,
+      //       })
+      //     }
+      //   })
+      // });
+      orders[0].items.forEach((item) => {
+        let index = tempStockList.findIndex((stock) => stock.id === item.id);
+        if (index >= 0) {
+          tempStockList[index].in_cart - item.quantity <= 0
+            ? (tempStockList[index].in_cart = 0)
+            : (tempStockList[index].in_cart -= item.quantity);
+        }
+      });
       await storeOrder(orderTemp);
       dispatch(setOrder(orderTemp));
+      setStockList(tempStockList);
+      await AsyncStorage.setItem("stocks", JSON.stringify(tempStockList));
       refresher();
     }
   };
