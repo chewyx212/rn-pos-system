@@ -4,7 +4,7 @@ import TableScreen from "../screens/TableScreen";
 import CameraScreen from "../screens/CameraScreen";
 import PrinterScreen from "../screens/PrinterScreen";
 import { useWindowDimensions } from "react-native";
-import { Foundation, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import {
   Flex,
   Icon,
@@ -16,7 +16,7 @@ import {
 import MenuScreen from "../screens/MenuScreen";
 import MemberScreen from "../screens/MemberScreen";
 import TransactionScreen from "../screens/TransactionScreen";
-import SettingScreen from "../screens/SettingSceen";
+import ReportScreen from "../screens/ReportScreen";
 import SettingNavigator from "./SettingNavigator";
 
 const Drawer = createDrawerNavigator();
@@ -42,6 +42,7 @@ const DrawerNavigator = () => {
       <Drawer.Screen name="Menu" component={MenuScreen} />
       <Drawer.Screen name="Member" component={MemberScreen} />
       <Drawer.Screen name="Transaction" component={TransactionScreen} />
+      <Drawer.Screen name="Report" component={ReportScreen} />
       <Drawer.Screen name="Setting" component={SettingNavigator} />
       <Drawer.Screen name="Camera" component={CameraScreen} />
       <Drawer.Screen name="Printer" component={PrinterScreen} />
@@ -54,9 +55,9 @@ const CustomDrawerContent = (props) => {
     {
       name: "Table",
       display: "Order",
-      icon: Foundation,
-      iconName: "clipboard-notes",
-      activeIcon: "clipboard-pencil",
+      icon: Ionicons,
+      iconName: "clipboard-outline",
+      activeIcon: "clipboard",
     },
     {
       name: "Menu",
@@ -75,6 +76,14 @@ const CustomDrawerContent = (props) => {
     {
       name: "Transaction",
       display: "Transaction",
+      icon: Ionicons,
+      iconName: "cash-outline",
+      activeIcon: "cash",
+    },
+
+    {
+      name: "Report",
+      display: "Report",
       icon: Ionicons,
       iconName: "stats-chart-outline",
       activeIcon: "stats-chart",
@@ -133,7 +142,7 @@ const CustomDrawerContent = (props) => {
                     color: isActive ? "light.100" : "themeColor.500:alpha.50",
                   }}
                   _dark={{ color: isActive ? "light.300" : "themeColor.200" }}
-                  size={7}
+                  size={6}
                   name={isActive ? item.activeIcon : item.iconName}
                 />
                 <Text

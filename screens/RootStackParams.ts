@@ -16,8 +16,9 @@ export type RootStackParamList = {
   Member: undefined;
   Menu: undefined;
   Transaction: undefined;
+  Report: undefined;
   Setting: undefined;
-  Payment:  {
+  Payment: {
     order: any;
   };
 
