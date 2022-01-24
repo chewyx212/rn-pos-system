@@ -483,6 +483,20 @@ const OrderScreen = () => {
           orderStatus,
           detail: orderDetail,
         });
+        
+        console.log({
+          id:
+            orderValue.length > 0
+              ? orderValue[orderValue.length - 1].id + 1
+              : 1,
+          orderType,
+          tableId,
+          pax,
+          items: tempArray,
+          orderIndex: orderValue.length,
+          orderStatus,
+          detail: orderDetail,
+        });
         dispatch(updateStockItems({ items: stockList }));
         await AsyncStorage.setItem("stocks", JSON.stringify(stockList));
         await storeOrder(orderValue);

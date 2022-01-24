@@ -129,8 +129,11 @@ const TableScreen = () => {
           orderItemMapping(list);
           setCategoryList(tempCategoryList);
         }
+      } else {
+        orderItemMapping([]);
       }
     }
+    orderItemMapping([]);
   };
   const orderRefresher = () => {
     setOpenTableCart(false);
@@ -236,27 +239,28 @@ const TableScreen = () => {
     });
   };
 
-  const openPasscode = () => {
-    navigation.setOptions({
-      drawerType: "front",
-    });
-    navigation.closeDrawer();
-    setTogglePasscode(true);
-  };
-  const closePasscode = () => {
-    navigation.setOptions({
-      drawerType: "permanent",
-    });
-    setTogglePasscode(false);
-  };
+  // const openPasscode = () => {
+  //   navigation.setOptions({
+  //     drawerType: "front",
+  //   });
+  //   navigation.closeDrawer();
+  //   setTogglePasscode(true);
+  // };
+  // const closePasscode = () => {
+  //   navigation.setOptions({
+  //     drawerType: "permanent",
+  //   });
+  //   setTogglePasscode(false);
+  // };
 
-  const submitHandler = (result) => {
-    console.log("heihei");
-  };
+  // const submitHandler = (result) => {
+  //   console.log("heihei");
+  // };
 
   const onSelectStartOrder = () => {
     setShowOrderType(true);
   };
+
   const onSelectOrderType = (type: number) => {
     setShowOrderType(false);
     navigation.navigate("Order", {
@@ -265,6 +269,7 @@ const TableScreen = () => {
       refresher: orderRefresher,
     });
   };
+  
   const checkoutOrder = (order) => {
     navigation.navigate("Payment", { order });
   };
@@ -797,7 +802,7 @@ const TableScreen = () => {
           onPress={() => setOpenCart(false)}
         ></Pressable>
       )}
-      <PasscodeVerification
+      {/* <PasscodeVerification
         isOpen={togglePasscode}
         onClose={closePasscode}
         submitHandler={submitHandler}
@@ -806,7 +811,7 @@ const TableScreen = () => {
         right="0"
         bottom="0"
         h="100%"
-      />
+      /> */}
 
       <SlideFromRight
         isOpen={openTableCart}

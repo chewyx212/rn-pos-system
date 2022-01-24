@@ -7,6 +7,7 @@ import {
   Input,
   KeyboardAvoidingView,
   useToast,
+  useColorModeValue,
 } from "native-base";
 import React, { useEffect } from "react";
 import { Platform } from "react-native";
@@ -82,7 +83,7 @@ const LoginScreen = () => {
         "restaurantInfo",
         JSON.stringify(data.response.restaurant)
       );
-      console.log(data.response)
+      console.log(data.response);
       dispatch(
         login({
           token: data.response.token,
@@ -245,8 +246,12 @@ const LoginScreen = () => {
               w="100%"
               mt={5}
               h={12}
+              bg={useColorModeValue("themeColor.500", "themeColor.600")}
+              _pressed={{
+                bg: useColorModeValue("themeColor.700", "themeColor.700"),
+              }}
               _text={{
-                color: "dark.800",
+                color: "textColor.buttonText",
                 fontFamily: "sf-pro-text-medium",
                 fontSize: "17px",
               }}
