@@ -55,12 +55,7 @@ import {
 } from "../types/itemType";
 import { OrderType } from "../types/tableType";
 import { ItemApi } from "../api/ItemApi";
-import {
-  addStockItem,
-  setStockItems,
-  updateStockItems,
-} from "../app/stock/stockSlice";
-import { logout } from "../app/auth/authSlice";
+import { setStockItems, updateStockItems } from "../app/stock/stockSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StockItemType } from "../types/stockType";
 
@@ -92,7 +87,6 @@ const OrderScreen = () => {
   const [fixedCartItem, setFixedCartItem] = useState<ItemInCartType[]>([]);
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
   const [openNoStockModal, setOpenNoStockModal] = useState<boolean>(false);
-  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [openSelectionModal, setOpenSelectionModal] = useState<boolean>(false);
   const [isEditCartMode, setIsEditCartMode] = useState<boolean>(false);
   const [openCart, setOpenCart] = useState<boolean>(false);
@@ -458,7 +452,6 @@ const OrderScreen = () => {
           orderValue[orderIndex].detail = orderDetail;
         }
 
-        
         dispatch(updateStockItems({ items: stockList }));
         await AsyncStorage.setItem("stocks", JSON.stringify(stockList));
         await storeOrder(orderValue);
@@ -483,7 +476,7 @@ const OrderScreen = () => {
           orderStatus,
           detail: orderDetail,
         });
-        
+
         console.log({
           id:
             orderValue.length > 0
@@ -937,12 +930,12 @@ const OrderScreen = () => {
         position="relative"
         h="100%"
         direction="row"
-        pl={5}
+        px={2}
         bg={useColorModeValue("greyColor.50", "greyColor.1000")}
       >
         <VStack h="100%" flex={6} mr="1%" pt={3}>
           <Flex direction="row" w="100%" justify="space-between" align="center">
-            <Flex direction="row">
+            <Flex direction="row" align="center">
               <IconButton
                 _icon={{
                   color: "themeColor.500",
@@ -950,14 +943,14 @@ const OrderScreen = () => {
                 }}
                 colorScheme="themeColor"
                 icon={<Icon as={Ionicons} name="arrow-back" size="sm" />}
-                mr={5}
+                mr={{ base: 3, md: 5 }}
                 onPress={() => navigation.goBack()}
               />
               <Heading
                 size="lg"
+                fontSize={{ base: 24, md: 32 }}
                 fontFamily="sf-pro-display-bold"
                 fontWeight="600"
-                fontSize={{ base: 24, md: 32 }}
               >
                 Order
               </Heading>
@@ -967,7 +960,13 @@ const OrderScreen = () => {
               leftIcon={<Icon as={AntDesign} name="shoppingcart" size="sm" />}
               mr={5}
               onPress={() => setOpenCart(true)}
+              variant="ghost"
               colorScheme="themeColor"
+              _text={{
+                fontSize: "lg",
+                fontFamily: "sf-pro-display-bold",
+                fontWeight: "600",
+              }}
             >
               {cartItem.length}
             </Button>
@@ -1106,7 +1105,7 @@ const OrderScreen = () => {
                               h="100%"
                               w="100%"
                               pl={2}
-                              pb={2}
+                              py={2}
                               borderRadius="lg"
                               position="absolute"
                               justify="space-between"
@@ -1487,7 +1486,7 @@ const OrderScreen = () => {
                   >
                     Discount type
                   </Text>
-                  <Flex direction="row" justify="space-between">
+                  <Flex direction="row" justify="space-between" flexWrap="wrap">
                     {discountType.map((type) => {
                       let bg = useColorModeValue("light.300", "dark.300");
                       let textColor = useColorModeValue(
@@ -1507,7 +1506,9 @@ const OrderScreen = () => {
                         <Button
                           h="100px"
                           flex={1}
-                          mr={1}
+                          flexBasis={{ base: "49%", md: "23%" }}
+                          mr={"1%"}
+                          mb={"1%"}
                           disabled={isActive}
                           bg={bg}
                           _text={{
@@ -1585,9 +1586,13 @@ const OrderScreen = () => {
               <Modal.Footer>
                 <Button.Group space={2}>
                   <Button
-                    variant="ghost"
+                    variant="unstyled"
                     colorScheme="blueGray"
                     size="lg"
+                    _text={{
+                      fontFamily: "sf-pro-text-medium",
+                      fontSize: "15px",
+                    }}
                     onPress={() => {
                       setShowDiscountModal(false);
                     }}
@@ -1595,7 +1600,12 @@ const OrderScreen = () => {
                     Cancel
                   </Button>
                   <Button
-                    size="lg"
+                    colorScheme="themeColor"
+                    _text={{
+                      color: "textColor.buttonText",
+                      fontFamily: "sf-pro-text-medium",
+                      fontSize: "15px",
+                    }}
                     onPress={applyOnOrder ? onDiscountOrder : onApplyDiscount}
                   >
                     Apply
@@ -1632,7 +1642,11 @@ const OrderScreen = () => {
         right="0"
         h="100%"
       >
-        <VStack h="100%" bg={useColorModeValue("light.100", "muted.800")}>
+        <VStack
+          safeAreaTop
+          h="100%"
+          bg={useColorModeValue("light.100", "muted.800")}
+        >
           <View w="100%" flex={14} px={3}>
             <Flex direction="row" justify="space-between" align="center" py={2}>
               <Heading
@@ -1641,26 +1655,48 @@ const OrderScreen = () => {
                 fontWeight="600"
                 fontSize={17}
               >
-                Current Order
+                Current Order {''}
+                <Text fontFamily="sf-pro-text-regular" fontSize={13}>
+                  {orderType === 1 && ` Table Number: ${tableId}`}
+                  {orderType === 2 && " Take  Away"}
+                  {orderType === 3 && " Delivery"}
+                  {orderType === 4 && " Counter"}
+                </Text>
               </Heading>
               <IconButton
                 icon={<Icon as={AntDesign} name="close" size="sm" />}
                 onPress={() => setOpenCart(false)}
               />
             </Flex>
-            <FlatList
-              keyExtractor={(item, index) => item.name + index}
-              data={cartItem}
-              renderItem={({ item, index }) => (
-                <CartListItem
-                  item={item}
-                  index={index}
-                  deleteItemHandler={deleteItemHandler}
-                  editItemHandler={editItemHandler}
-                  discountItemHandler={discountItemHandler}
-                />
-              )}
-            />
+            {fixedCartItem.length > 0 ? (
+              <FlatList
+                keyExtractor={(item, index) => item.name + index}
+                data={fixedCartItem.concat(cartItem)}
+                renderItem={({ item, index }) => (
+                  <CartListItem
+                    item={item}
+                    index={index}
+                    deleteItemHandler={deleteItemHandler}
+                    editItemHandler={editItemHandler}
+                    discountItemHandler={discountItemHandler}
+                  />
+                )}
+              />
+            ) : (
+              <FlatList
+                keyExtractor={(item, index) => item.name + index}
+                data={cartItem}
+                renderItem={({ item, index }) => (
+                  <CartListItem
+                    item={item}
+                    index={index}
+                    deleteItemHandler={deleteItemHandler}
+                    editItemHandler={editItemHandler}
+                    discountItemHandler={discountItemHandler}
+                  />
+                )}
+              />
+            )}
           </View>
           <OrderDetailComponent
             setOpenSelectionModal={setOpenSelectionModal}
@@ -1680,6 +1716,7 @@ const OrderScreen = () => {
         right="0 "
       >
         <VStack
+          safeAreaTop
           h="100%"
           bg={useColorModeValue("light.100", "muted.800")}
           py={5}
@@ -1693,9 +1730,16 @@ const OrderScreen = () => {
                     color="themeColor.500"
                     as={Entypo}
                     name="chevron-left"
-                    size="xs"
+                    size="14"
                   />
-                  <Text color="themeColor.500">Cancel</Text>
+                  <Text
+                    fontFamily="sf-pro-text-medium"
+                    fontWeight="500"
+                    fontSize={14}
+                    color="themeColor.500"
+                  >
+                    Cancel
+                  </Text>
                 </Flex>
               </Pressable>
 
@@ -1718,7 +1762,13 @@ const OrderScreen = () => {
                 <VStack>
                   <Text fontSize="md">{selectedItem?.id}</Text>
                   <Text fontSize="md">{selectedItem?.name}</Text>
-                  <Text pt={1} color="themeColor.500" fontSize="lg" bold>
+                  <Text
+                    pt={1}
+                    color="themeColor.500"
+                    fontFamily="sf-pro-text-medium"
+                    fontWeight="800"
+                    fontSize={20}
+                  >
                     RM {selectedItem?.price}
                   </Text>
                 </VStack>
@@ -1834,7 +1884,18 @@ const OrderScreen = () => {
                   </Text>
                   <Button
                     flex={1}
-                    colorScheme="green"
+                    borderColor={useColorModeValue(
+                      "themeColor.500",
+                      "themeColor.600"
+                    )}
+                    _pressed={{
+                      bg: useColorModeValue("themeColor.700", "themeColor.700"),
+                    }}
+                    _text={{
+                      color: "textColor.buttonText",
+                      fontFamily: "sf-pro-text-medium",
+                      fontSize: "15px",
+                    }}
                     py={3}
                     leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
                     onPress={() =>
@@ -1846,6 +1907,15 @@ const OrderScreen = () => {
                   mt="auto"
                   mb={1}
                   p={3}
+                  bg={useColorModeValue("themeColor.500", "themeColor.600")}
+                  _pressed={{
+                    bg: useColorModeValue("themeColor.700", "themeColor.700"),
+                  }}
+                  _text={{
+                    color: "textColor.buttonText",
+                    fontFamily: "sf-pro-text-medium",
+                    fontSize: "15px",
+                  }}
                   onPress={onAddAddon}
                   disabled={selectedItemQuantity === 0}
                 >

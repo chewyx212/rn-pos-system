@@ -59,12 +59,11 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
       shadow={1}
       justify="space-between"
       align="center"
-      px={6}
+      px={{ base: 4, md: 6 }}
       pb={1}
       safeAreaTop
     >
       <Flex direction="row" align="center">
-        
         {routeName === "Payment" ? (
           <IconButton
             _icon={{
@@ -74,27 +73,26 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
             py={4}
             colorScheme="primary"
             icon={<Icon as={Ionicons} name="arrow-back" size="sm" />}
-            
             onPress={() => navigation.goBack()}
           />
         ) : (
           <Image
-            w={16}
-            h={16}
+            w={{ base: 12, md: 16 }}
+            h={{ base: 12, md: 16 }}
             alt="bg image"
             source={require("./../assets/logo-min-1.png")}
           />
         )}
         <Heading
           fontFamily="sf-pro-display-bold"
-          fontWeight={700}
-          fontSize={30}
-          pl={8}
+          fontWeight={800}
+          fontSize={{ base: 24, md: 30 }}
+          pl={{ base: 3, md: 8 }}
         >
           {routeName}
         </Heading>
       </Flex>
-      <Flex direction="row">
+      <Flex direction="row" align="center">
         <IconButton
           _pressed={{
             bg: "greyColor.50",
@@ -113,7 +111,7 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
           onPress={useColorMode().toggleColorMode}
         />
         <IconButton
-          ml={6}
+          ml={{ base: 2, md: 6 }}
           _pressed={{
             bg: useColorModeValue("greyColor.50", "greyColor.800"),
           }}

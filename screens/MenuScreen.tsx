@@ -61,20 +61,20 @@ const MenuScreen = () => {
 
   const getAllItem = async () => {
     setIsRefreshing(true);
-    if (restaurantInfo) {
-      const restaurantId: number = restaurantInfo.id;
-      const result = await ItemApi.getItem(restaurantId);
-      if (result.status === 200 && result.data.status === 0) {
-        if (
-          result.data.response.item_lists &&
-          result.data.response.item_lists.length > 0
-        ) {
-          mappingAllItem(result.data.response.item_lists);
-        }
-      }
-    }
+    // if (restaurantInfo) {
+    //   const restaurantId: number = restaurantInfo.id;
+    //   const result = await ItemApi.getItem(restaurantId);
+    //   if (result.status === 200 && result.data.status === 0) {
+    //     if (
+    //       result.data.response.item_lists &&
+    //       result.data.response.item_lists.length > 0
+    //     ) {
+    //       mappingAllItem(result.data.response.item_lists);
+    //     }
+    //   }
+    // }
     setIsRefreshing(false);
-    // mappingAllItem(itemData);
+    mappingAllItem(itemData);
   };
 
   const mappingAllItem = (response: any[]) => {

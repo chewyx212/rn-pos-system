@@ -127,11 +127,11 @@ const CustomDrawerContent = (props) => {
           >
             {() => (
               <Flex
-                direction={{ base: "row", md: "column" }}
+                flexDirection={{ base: "row", md: "column" }}
                 w="100%"
                 h="100%"
                 align="center"
-                justify={{ base: "space-between", md: "center" }}
+                justifyContent={{ base: "space-between", md: "center" }}
                 p={{ base: 5, md: 0 }}
                 textAlign="center"
               >

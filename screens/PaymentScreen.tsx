@@ -13,6 +13,8 @@ import {
   Button,
   Image,
   View,
+  useBreakpointValue,
+  Box,
 } from "native-base";
 import React, { useState, useEffect } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -21,6 +23,11 @@ import { RootStackParamList } from "./RootStackParams";
 import NumberPadInput from "../components/NumberPadInput";
 import { AntDesign, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import { ItemInCartType, OrderDetailType } from "../types/itemType";
+import { fetchOrder, storeOrder } from "../helpers/fetchOrder";
+import { setOrder } from "../app/order/orderSlice";
+import { useAppDispatch } from "../app/hooks";
+import { StockItemType } from "../types/stockType";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type PaymentScreenProp = StackNavigationProp<RootStackParamList, "Payment">;
 type PaymentScreenRouteProp = RouteProp<RootStackParamList, "Payment">;
@@ -35,13 +42,17 @@ const PaymentScreen = () => {
   const [itemList, setItemList] = useState<ItemInCartType[]>([]);
   const navigation = useNavigation<PaymentScreenProp>();
   const route = useRoute<PaymentScreenRouteProp>();
+  const dispatch = useAppDispatch();
   const { order } = route.params;
-
+  const breakPoint: boolean = useBreakpointValue({
+    base: true,
+    md: false,
+  });
+  console.log(breakPoint);
   useEffect(() => {
     if (order && order.length > 0) {
-      console.log(order);
-      console.log("asdasdasdasdasdasdas");
       setItemList(order[0].items);
+      console.log(order);
     } else {
       navigation.goBack();
     }
@@ -98,7 +109,6 @@ const PaymentScreen = () => {
   };
 
   const onSplitAmount = (enteredValue: number) => {
-    console.log(enteredValue);
     setSplitAmount(enteredValue);
   };
 
@@ -111,6 +121,29 @@ const PaymentScreen = () => {
     setCustomAmount(enteredValue);
   };
 
+  const voidCreatedOrder = async () => {
+    const orderValue = await fetchOrder();
+    let orderTemp = [...orderValue];
+    if (order && order[0]) {
+      let orderIndex = order[0]?.orderIndex;
+      orderTemp.splice(orderIndex, 1);
+
+      // let tempStockList: StockItemType[] = [...stockList];
+
+      // order[0].items.forEach((item) => {
+      //   let index = tempStockList.findIndex((stock) => stock.id === item.id);
+      //   if (index >= 0) {
+      //     tempStockList[index].in_cart - item.quantity <= 0
+      //       ? (tempStockList[index].in_cart = 0)
+      //       : (tempStockList[index].in_cart -= item.quantity);
+      //   }
+      // });
+      await storeOrder(orderTemp);
+      dispatch(setOrder(orderTemp));
+      // await AsyncStorage.setItem("stocks", JSON.stringify(tempStockList));
+    }
+  };
+
   return (
     <>
       <Stack
@@ -118,382 +151,420 @@ const PaymentScreen = () => {
         position="relative"
         h="100%"
         direction="row"
-        pl={5}
         bg={useColorModeValue("greyColor.50", "greyColor.1000")}
       >
-        <VStack h="100%" flex={6} mr="1%" pt={3}>
-          <Flex direction="row" flex={1} my={1}>
+        <VStack h="100%" flex={6} pt={3}>
+          <ScrollView scrollEnabled={breakPoint}>
             <Flex
+              flexDirection={{ base: "column", md: "row" }}
               flex={1}
+              my={1}
               mx={2}
-              bg={useColorModeValue("white", "greyColor.900")}
-              shadow={5}
-              borderRadius="xl"
             >
               <Flex
-                flexBasis="10%"
-                py={4}
-                px={5}
-                w="100%"
-                borderBottomWidth={2}
-                borderBottomColor={useColorModeValue(
-                  "greyColor.100",
-                  "greyColor.800"
-                )}
-              >
-                <Text
-                  fontFamily="sf-pro-display-bold"
-                  fontWeight="700"
-                  fontSize={22}
-                >
-                  Order Detail
-                </Text>
-              </Flex>
-              <Flex
                 flex={1}
-                py={3}
-                px={5}
-                w="100%"
-                borderBottomWidth={2}
-                borderBottomColor={useColorModeValue(
-                  "greyColor.100",
-                  "greyColor.800"
-                )}
+                mx={2}
+                bg={useColorModeValue("white", "greyColor.900")}
+                shadow={5}
+                borderRadius="xl"
               >
-                <FlatList
-                  keyExtractor={(item, index) => `${item.name}${index}`}
-                  data={itemList}
-                  renderItem={({ item }) => <CartListItem item={item} />}
-                />
-              </Flex>
-              <Flex justifyContent="flex-end" py={4} px={5}>
-                <Flex direction="row" align="center" justify="space-between">
+                <Flex
+                  flexBasis="10%"
+                  py={4}
+                  px={5}
+                  w="100%"
+                  borderBottomWidth={2}
+                  borderBottomColor={useColorModeValue(
+                    "greyColor.100",
+                    "greyColor.800"
+                  )}
+                >
                   <Text
-                    fontFamily="sf-pro-text-medium"
-                    fontWeight="500"
-                    fontSize="15px"
+                    fontFamily="sf-pro-display-bold"
+                    fontWeight="700"
+                    fontSize={22}
                   >
-                    Subtotal
-                  </Text>
-                  <Text
-                    fontFamily="sf-pro-text-medium"
-                    fontWeight="500"
-                    fontSize="15px"
-                  >
-                    {order[0].detail.subtotal}
+                    Order Detail
                   </Text>
                 </Flex>
-                {!(
-                  order[0].detail.discountType !== 4 &&
-                  order[0].detail.discountAmount === 0
-                ) && (
-                  <Flex direction="row" align="center" justify="space-between">
-                    <Text
-                      fontFamily="sf-pro-text-medium"
-                      fontWeight="500"
-                      fontSize="15px"
-                    >
-                      Discount
-                    </Text>
-                    <Text
-                      fontFamily="sf-pro-text-medium"
-                      fontWeight="500"
-                      fontSize="15px"
-                    >
-                      {order[0].detail.discountType === 1
-                        ? `- RM ${order[0].detail.discountAmount.toFixed(2)}`
-                        : order[0].detail.discountType === 2
-                        ? `- RM ${(
-                            order[0].detail.subtotal -
-                            order[0].detail.total +
-                            order[0].detail.tax
-                          ).toFixed(2)} (${order[0].detail.discountAmount}%)`
-                        : order[0].detail.discountType === 3
-                        ? `- RM ${(
-                            order[0].detail.subtotal -
-                            order[0].detail.total +
-                            order[0].detail.tax
-                          ).toFixed(2)}`
-                        : "FOC"}
-                    </Text>
-                  </Flex>
-                )}
+                <Flex
+                  flex={1}
+                  py={3}
+                  px={5}
+                  w="100%"
+                  borderBottomWidth={2}
+                  borderBottomColor={useColorModeValue(
+                    "greyColor.100",
+                    "greyColor.800"
+                  )}
+                >
+                  {!breakPoint && (
+                    <FlatList
+                      nestedScrollEnabled
+                      keyExtractor={(item, index) => `${item.name}${index}`}
+                      data={itemList}
+                      renderItem={({ item }) => <CartListItem item={item} />}
+                    />
+                  )}
 
-                {order[0].detail.tax > 0 && order[0].detail.discountType !== 4 && (
+                  {breakPoint &&
+                    itemList.map((item, index) => {
+                      return (
+                        <CartListItem
+                          key={`${item.name}${index}`}
+                          item={item}
+                        />
+                      );
+                    })}
+                </Flex>
+                <Flex justifyContent="flex-end" py={4} px={5}>
                   <Flex direction="row" align="center" justify="space-between">
                     <Text
                       fontFamily="sf-pro-text-medium"
                       fontWeight="500"
                       fontSize="15px"
                     >
-                      Tax
+                      Subtotal
                     </Text>
                     <Text
                       fontFamily="sf-pro-text-medium"
                       fontWeight="500"
                       fontSize="15px"
                     >
-                      {order[0].detail.tax.toFixed(2)}
+                      {order[0].detail.subtotal.toFixed(2)}
                     </Text>
                   </Flex>
-                )}
-                <Flex direction="row" align="center" justify="space-between">
+                  {!(
+                    order[0].detail.discountType !== 4 &&
+                    order[0].detail.discountAmount === 0
+                  ) && (
+                    <Flex
+                      direction="row"
+                      align="center"
+                      justify="space-between"
+                    >
+                      <Text
+                        fontFamily="sf-pro-text-medium"
+                        fontWeight="500"
+                        fontSize="15px"
+                      >
+                        Discount
+                      </Text>
+                      <Text
+                        fontFamily="sf-pro-text-medium"
+                        fontWeight="500"
+                        fontSize="15px"
+                      >
+                        {order[0].detail.discountType === 1
+                          ? `- RM ${order[0].detail.discountAmount.toFixed(2)}`
+                          : order[0].detail.discountType === 2
+                          ? `- RM ${(
+                              order[0].detail.subtotal -
+                              order[0].detail.total +
+                              order[0].detail.tax
+                            ).toFixed(2)} (${order[0].detail.discountAmount}%)`
+                          : order[0].detail.discountType === 3
+                          ? `- RM ${(
+                              order[0].detail.subtotal -
+                              order[0].detail.total +
+                              order[0].detail.tax
+                            ).toFixed(2)}`
+                          : "FOC"}
+                      </Text>
+                    </Flex>
+                  )}
+
+                  {order[0].detail.tax > 0 &&
+                    order[0].detail.discountType !== 4 && (
+                      <Flex
+                        direction="row"
+                        align="center"
+                        justify="space-between"
+                      >
+                        <Text
+                          fontFamily="sf-pro-text-medium"
+                          fontWeight="500"
+                          fontSize="15px"
+                        >
+                          Tax
+                        </Text>
+                        <Text
+                          fontFamily="sf-pro-text-medium"
+                          fontWeight="500"
+                          fontSize="15px"
+                        >
+                          {order[0].detail.tax.toFixed(2)}
+                        </Text>
+                      </Flex>
+                    )}
+                  <Flex direction="row" align="center" justify="space-between">
+                    <Text
+                      fontFamily="sf-pro-text-bold"
+                      fontWeight="700"
+                      fontSize="17px"
+                    >
+                      Total
+                    </Text>
+                    <Text
+                      fontFamily="sf-pro-text-bold"
+                      fontWeight="700"
+                      fontSize="17px"
+                    >
+                      {order[0].detail.total.toFixed(2)}
+                    </Text>
+                  </Flex>
+                  {order[0].detail.paid > 0 && (
+                    <Flex
+                      direction="row"
+                      align="center"
+                      justify="space-between"
+                    >
+                      <Text
+                        fontFamily="sf-pro-text-bold"
+                        fontWeight="700"
+                        fontSize="17px"
+                      >
+                        Paid
+                      </Text>
+                      <Text
+                        fontFamily="sf-pro-text-bold"
+                        fontWeight="700"
+                        fontSize="17px"
+                      >
+                        {order[0].detail.paid}
+                      </Text>
+                    </Flex>
+                  )}
+                </Flex>
+              </Flex>
+              <Flex mt={{ base: 5, md: 0 }} flex={1} mx={2}>
+                <Flex direction="row" px={2} pb={1} justify="space-between">
+                  <Text {...subHeadingStyle}>Payable Amount</Text>
+                  <Pressable onPress={() => onOpenSplitAmount()}>
+                    <Text
+                      fontFamily="sf-pro-text-medium"
+                      color={useColorModeValue(
+                        "themeColor.500",
+                        "themeColor.500"
+                      )}
+                    >
+                      Split Amount
+                    </Text>
+                  </Pressable>
+                </Flex>
+                <Flex
+                  flexBasis="17%"
+                  borderRadius="lg"
+                  w="100%"
+                  p={7}
+                  bg={useColorModeValue("white", "greyColor.900")}
+                  shadow={2}
+                  align="center"
+                  justify="center"
+                >
                   <Text
-                    fontFamily="sf-pro-text-bold"
+                    fontFamily="sf-pro-display-bold"
                     fontWeight="700"
-                    fontSize="17px"
+                    fontSize="24px"
                   >
-                    Total
-                  </Text>
-                  <Text
-                    fontFamily="sf-pro-text-bold"
-                    fontWeight="700"
-                    fontSize="17px"
-                  >
-                    {order[0].detail.total}
+                    RM{" "}
+                    {splitAmount > 0
+                      ? splitAmount.toFixed(2)
+                      : order[0].detail.paid > 0
+                      ? order[0].detail.total - order[0].detail.paid
+                      : order[0].detail.total.toFixed(2)}
                   </Text>
                 </Flex>
-                {order[0].detail.paid > 0 && (
-                  <Flex direction="row" align="center" justify="space-between">
-                    <Text
-                      fontFamily="sf-pro-text-bold"
-                      fontWeight="700"
-                      fontSize="17px"
-                    >
-                      Paid
-                    </Text>
-                    <Text
-                      fontFamily="sf-pro-text-bold"
-                      fontWeight="700"
-                      fontSize="17px"
-                    >
-                      {order[0].detail.paid}
-                    </Text>
-                  </Flex>
-                )}
-              </Flex>
-            </Flex>
-            <Flex flex={1} mx={2}>
-              <Flex direction="row" px={2} pb={1} justify="space-between">
-                <Text {...subHeadingStyle}>Payable Amount</Text>
-                <Pressable onPress={() => onOpenSplitAmount()}>
-                  <Text
-                    fontFamily="sf-pro-text-medium"
-                    color={useColorModeValue(
+                <Text px={2} pt={10} pb={1} {...subHeadingStyle}>
+                  Choose Payment Method
+                </Text>
+                <Flex direction="row">
+                  {paymentMethods.map((method) => {
+                    let backgroundColor = useColorModeValue(
+                      "white",
+                      "greyColor.900"
+                    );
+                    let borderColor = useColorModeValue(
                       "themeColor.500",
                       "themeColor.500"
-                    )}
-                  >
-                    Split Amount
-                  </Text>
-                </Pressable>
-              </Flex>
-              <Flex
-                flexBasis="17%"
-                borderRadius="lg"
-                w="100%"
-                bg={useColorModeValue("white", "greyColor.900")}
-                shadow={2}
-                align="center"
-                justify="center"
-              >
-                <Text
-                  fontFamily="sf-pro-display-bold"
-                  fontWeight="700"
-                  fontSize="24px"
-                >
-                  RM{" "}
-                  {splitAmount > 0
-                    ? splitAmount.toFixed(2)
-                    : order[0].detail.paid > 0
-                    ? order[0].detail.total - order[0].detail.paid
-                    : order[0].detail.total.toFixed(2)}
+                    );
+
+                    let textColor = useColorModeValue(
+                      "greyColor.800",
+                      "greyColor.300"
+                    );
+                    const isActive = method.id === selectedMethod;
+                    if (isActive) {
+                      backgroundColor = useColorModeValue(
+                        "themeColor.50",
+                        "themeColor.100"
+                      );
+
+                      textColor = useColorModeValue(
+                        "greyColor.900",
+                        "greyColor.700"
+                      );
+                    }
+                    return (
+                      <Pressable
+                        key={method.id}
+                        flex={1}
+                        bg={backgroundColor}
+                        shadow={2}
+                        borderRadius="lg"
+                        borderColor={isActive ? borderColor : "transparent"}
+                        borderWidth={1.5}
+                        mx={method.id === 2 ? { base: 2, md: 4 } : 0}
+                        onPress={() => {
+                          setSelectedMethod(method.id);
+                        }}
+                      >
+                        <Flex align="center" py={{ base: 3, md: 6 }}>
+                          <Image
+                            size="xs"
+                            resizeMode={"cover"}
+                            borderRadius="md"
+                            source={method.img}
+                            alt="Alternate Text"
+                          />
+
+                          <Text
+                            fontFamily="sf-pro-text-medium"
+                            fontWeight="600"
+                            fontSize="15px"
+                            pt={2}
+                            color={textColor}
+                          >
+                            {method.name}
+                          </Text>
+                        </Flex>
+                      </Pressable>
+                    );
+                  })}
+                </Flex>
+                <Text px={2} pt={10} pb={1} {...subHeadingStyle}>
+                  Quick Payment
                 </Text>
-              </Flex>
-              <Text px={2} pt={10} pb={1} {...subHeadingStyle}>
-                Choose Payment Method
-              </Text>
-              <Flex direction="row">
-                {paymentMethods.map((method) => {
-                  let backgroundColor = useColorModeValue(
-                    "white",
-                    "greyColor.900"
-                  );
-                  let borderColor = useColorModeValue(
-                    "themeColor.500",
-                    "themeColor.500"
-                  );
-
-                  let textColor = useColorModeValue(
-                    "greyColor.800",
-                    "greyColor.300"
-                  );
-                  const isActive = method.id === selectedMethod;
-                  if (isActive) {
-                    backgroundColor = useColorModeValue(
-                      "themeColor.50",
-                      "themeColor.100"
+                <Flex direction="row" wrap="wrap">
+                  {quickPayments.map((payment) => {
+                    let backgroundColor = useColorModeValue(
+                      "white",
+                      "greyColor.900"
+                    );
+                    let borderColor = useColorModeValue(
+                      "themeColor.500",
+                      "themeColor.500"
                     );
 
-                    textColor = useColorModeValue(
-                      "greyColor.900",
-                      "greyColor.700"
+                    let textColor = useColorModeValue(
+                      "greyColor.800",
+                      "greyColor.300"
                     );
-                  }
-                  return (
-                    <Pressable
-                      key={method.id}
-                      flex={1}
-                      bg={backgroundColor}
-                      shadow={2}
-                      borderRadius="lg"
-                      borderColor={isActive ? borderColor : "transparent"}
-                      borderWidth={1.5}
-                      mx={method.id === 2 ? 5 : 0}
-                      onPress={() => {
-                        setSelectedMethod(method.id);
-                      }}
-                    >
-                      <Flex align="center" py={6}>
-                        <Image
-                          size="xs"
-                          resizeMode={"cover"}
-                          borderRadius="md"
-                          source={method.img}
-                          alt="Alternate Text"
-                        />
+                    const isActive = payment.id === selectedAmount;
+                    if (isActive) {
+                      backgroundColor = useColorModeValue(
+                        "themeColor.50",
+                        "themeColor.100"
+                      );
 
+                      textColor = useColorModeValue(
+                        "greyColor.900",
+                        "greyColor.700"
+                      );
+                    }
+                    return (
+                      <Pressable
+                        key={payment.id}
+                        flexBasis="31%"
+                        maxW="31%"
+                        flex={1}
+                        bg={backgroundColor}
+                        shadow={2}
+                        borderRadius="md"
+                        borderColor={isActive ? borderColor : "transparent"}
+                        borderWidth={1}
+                        p={5}
+                        mx="1%"
+                        my={1}
+                        onPress={() => {
+                          setSelectedAmount(payment.id);
+                        }}
+                      >
                         <Text
+                          textAlign="center"
                           fontFamily="sf-pro-text-medium"
                           fontWeight="600"
                           fontSize="15px"
-                          pt={2}
                           color={textColor}
                         >
-                          {method.name}
+                          {payment.name}
                         </Text>
-                      </Flex>
-                    </Pressable>
-                  );
-                })}
-              </Flex>
-              <Text px={2} pt={10} pb={1} {...subHeadingStyle}>
-                Quick Payment
-              </Text>
-              <Flex direction="row" wrap="wrap">
-                {quickPayments.map((payment) => {
-                  let backgroundColor = useColorModeValue(
-                    "white",
-                    "greyColor.900"
-                  );
-                  let borderColor = useColorModeValue(
-                    "themeColor.500",
-                    "themeColor.500"
-                  );
-
-                  let textColor = useColorModeValue(
-                    "greyColor.800",
-                    "greyColor.300"
-                  );
-                  const isActive = payment.id === selectedAmount;
-                  if (isActive) {
-                    backgroundColor = useColorModeValue(
-                      "themeColor.50",
-                      "themeColor.100"
+                      </Pressable>
                     );
-
-                    textColor = useColorModeValue(
-                      "greyColor.900",
-                      "greyColor.700"
-                    );
-                  }
-                  return (
-                    <Pressable
-                      key={payment.id}
-                      flexBasis="31%"
-                      maxW="31%"
-                      flex={1}
-                      bg={backgroundColor}
-                      shadow={2}
-                      borderRadius="md"
-                      borderColor={isActive ? borderColor : "transparent"}
-                      borderWidth={1}
-                      p={5}
-                      mx="1%"
-                      my={1}
-                      onPress={() => {
-                        setSelectedAmount(payment.id);
-                      }}
-                    >
-                      <Text
-                        textAlign="center"
-                        fontFamily="sf-pro-text-medium"
-                        fontWeight="600"
-                        fontSize="15px"
-                        color={textColor}
-                      >
-                        {payment.name}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-                <Pressable
-                  flexBasis="31%"
-                  maxW="31%"
-                  flex={1}
-                  bg={
-                    selectedAmount === 6
-                      ? useColorModeValue("themeColor.50", "themeColor.100")
-                      : useColorModeValue("white", "greyColor.900")
-                  }
-                  shadow={2}
-                  borderRadius="md"
-                  borderColor={
-                    selectedAmount === 6
-                      ? useColorModeValue("themeColor.500", "themeColor.500")
-                      : "transparent"
-                  }
-                  borderWidth={1}
-                  p={5}
-                  mx="1%"
-                  my={1}
-                  onPress={() => {
-                    if (customAmount > 0) {
-                      setSelectedAmount(6);
+                  })}
+                  <Pressable
+                    flexBasis="31%"
+                    maxW="31%"
+                    flex={1}
+                    bg={
+                      selectedAmount === 6
+                        ? useColorModeValue("themeColor.50", "themeColor.100")
+                        : useColorModeValue("white", "greyColor.900")
                     }
-                    onOpenCustomAmount();
-                  }}
-                >
-                  <Text
-                    textAlign="center"
-                    fontFamily="sf-pro-text-medium"
-                    fontWeight="600"
-                    fontSize="15px"
-                    color={useColorModeValue("greyColor.800", "greyColor.300")}
+                    shadow={2}
+                    borderRadius="md"
+                    borderColor={
+                      selectedAmount === 6
+                        ? useColorModeValue("themeColor.500", "themeColor.500")
+                        : "transparent"
+                    }
+                    borderWidth={1}
+                    p={5}
+                    mx="1%"
+                    my={1}
+                    onPress={() => {
+                      if (customAmount > 0) {
+                        setSelectedAmount(6);
+                      }
+                      onOpenCustomAmount();
+                    }}
                   >
-                    {customAmount > 0 ? customAmount : "Custom"}
-                  </Text>
-                </Pressable>
-              </Flex>
+                    <Text
+                      textAlign="center"
+                      fontFamily="sf-pro-text-medium"
+                      fontWeight="600"
+                      fontSize="15px"
+                      color={useColorModeValue(
+                        "greyColor.800",
+                        "greyColor.300"
+                      )}
+                    >
+                      {customAmount > 0 ? customAmount : "Custom"}
+                    </Text>
+                  </Pressable>
+                </Flex>
 
-              <Button
-                mt="auto"
-                mb={1}
-                p={4}
-                bg={useColorModeValue("themeColor.500", "themeColor.600")}
-                _pressed={{
-                  bg: useColorModeValue("themeColor.700", "themeColor.700"),
-                }}
-                _text={{
-                  color: "textColor.buttonText",
-                  fontFamily: "sf-pro-text-medium",
-                  fontSize: "15px",
-                }}
-              >
-                Pay
-              </Button>
+                <Button
+                  mt="auto"
+                  mt={{ base: 5, md: 1 }}
+                  mb={1}
+                  p={4}
+                  bg={useColorModeValue("themeColor.500", "themeColor.600")}
+                  _pressed={{
+                    bg: useColorModeValue("themeColor.700", "themeColor.700"),
+                  }}
+                  _text={{
+                    color: "textColor.buttonText",
+                    fontFamily: "sf-pro-text-medium",
+                    fontSize: "15px",
+                  }}
+                  onPress={voidCreatedOrder}
+                >
+                  Pay
+                </Button>
+              </Flex>
             </Flex>
-          </Flex>
+          </ScrollView>
         </VStack>
 
         {/* <-------------- Custom Quantity Modal when --> */}

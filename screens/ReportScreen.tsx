@@ -66,7 +66,7 @@ const ReportScreen = () => {
         h="100%"
         bg={useColorModeValue("greyColor.50", "greyColor.1000")}
       >
-        <Flex direction="row">
+        <Flex flexDirection={{ base: "column", md: "row" }}>
           <Flex
             borderRadius="xl"
             bg={useColorModeValue("white", "greyColor.1000")}

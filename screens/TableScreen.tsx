@@ -81,7 +81,7 @@ const TableScreen = () => {
     },
     {
       id: 3,
-      name: "Delivery Order",
+      name: "Delivery",
     },
     {
       id: 4,
@@ -129,8 +129,6 @@ const TableScreen = () => {
           orderItemMapping(list);
           setCategoryList(tempCategoryList);
         }
-      } else {
-        orderItemMapping([]);
       }
     }
     orderItemMapping([]);
@@ -269,7 +267,7 @@ const TableScreen = () => {
       refresher: orderRefresher,
     });
   };
-  
+
   const checkoutOrder = (order) => {
     navigation.navigate("Payment", { order });
   };
@@ -759,7 +757,7 @@ const TableScreen = () => {
                     borderColor="light.400"
                     borderWidth={0.5}
                     bg="transparent"
-                    _text={{ color: "light.400" }}
+                    _text={{ color: "light.400", textAlign: "center" }}
                     _pressed={{
                       bg: useColorModeValue("light.200", "dark.200"),
                     }}
@@ -767,7 +765,7 @@ const TableScreen = () => {
                     mx="1.6%"
                     my="3%"
                     maxW="30%"
-                    h={40}
+                    h={{ base: 20, md: 40 }}
                     onPress={() => onSelectOrderType(type.id)}
                   >
                     {type.name}
