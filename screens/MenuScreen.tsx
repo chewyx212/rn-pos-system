@@ -18,9 +18,10 @@ import {
   Pressable,
   ScrollView,
   Switch,
+  useBreakpointValue,
 } from "native-base";
 import React, { useEffect, useState } from "react";
-import { MaterialIcons, Entypo, Feather, Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Entypo, Feather, Ionicons } from "@expo/vector-icons";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { RootStackParamList } from "./RootStackParams";
@@ -32,7 +33,9 @@ import {
   AddonType,
   EditItemForm,
   ItemCategoryType,
+  ItemCategoryWithLessItemType,
   ItemType,
+  LessItemType,
 } from "../types/itemType";
 import NumberPadInput from "../components/NumberPadInput";
 import PullToRefreshScrollView from "../components/PullToRefreshScrollView";
@@ -45,15 +48,23 @@ const MenuScreen = () => {
   const [openNumberPad, setOpenNumberPad] = useState<boolean>(false);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
   const [isStockCheck, setIsStockCheck] = useState<boolean>(false);
-  const [menuList, setMenuList] = useState<ItemType[]>([]);
-  const [selectedMenuList, setSelectedMenuList] = useState<ItemType[]>([]);
-  const [selectedEditItem, setSelectedEditItem] = useState<ItemType>();
+  const [menuList, setMenuList] = useState<LessItemType[]>([]);
+  const [selectedMenuList, setSelectedMenuList] = useState<LessItemType[]>([]);
+  const [selectedEditItem, setSelectedEditItem] = useState<LessItemType>();
   const [categoryList, setCategoryList] = useState<ItemCategoryType[]>([]);
+  const [categoryListWithItem, setCategoryListWithItem] = useState<
+    ItemCategoryWithLessItemType[]
+  >([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number>(0);
   const [enteredAmount, setEnteredAmount] = useState<number>(0);
   const toast = useToast();
   const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
   const navigation = useNavigation<MenuScreenProp>();
+
+  const breakPoint: boolean = useBreakpointValue({
+    base: true,
+    md: false,
+  });
 
   useEffect(() => {
     getAllItem();
@@ -61,20 +72,20 @@ const MenuScreen = () => {
 
   const getAllItem = async () => {
     setIsRefreshing(true);
-    // if (restaurantInfo) {
-    //   const restaurantId: number = restaurantInfo.id;
-    //   const result = await ItemApi.getItem(restaurantId);
-    //   if (result.status === 200 && result.data.status === 0) {
-    //     if (
-    //       result.data.response.item_lists &&
-    //       result.data.response.item_lists.length > 0
-    //     ) {
-    //       mappingAllItem(result.data.response.item_lists);
-    //     }
-    //   }
-    // }
+    if (restaurantInfo) {
+      const restaurantId: number = restaurantInfo.id;
+      const result = await ItemApi.getItem(restaurantId);
+      if (result.status === 200 && result.data.status === 0) {
+        if (
+          result.data.response.item_lists &&
+          result.data.response.item_lists.length > 0
+        ) {
+          mappingAllItem(result.data.response.item_lists);
+        }
+      }
+    }
     setIsRefreshing(false);
-    mappingAllItem(itemData);
+    // mappingAllItem(itemData);
   };
 
   const mappingAllItem = (response: any[]) => {
@@ -105,12 +116,43 @@ const MenuScreen = () => {
         });
       }
     });
-    setMenuList(itemList);
+    setMenuList(
+      itemList.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        item_category_id: item.item_category_id,
+        item_category_name: item.item_category_name,
+        restaurant_id: item.restaurant_id,
+        is_stock_check: 1,
+        stock_minimum: null,
+        stock: null,
+      }))
+    );
     setSelectedMenuList(
       itemList.filter((item) => item.item_category_id === idList[0])
     );
     setSelectedCategoryId(idList[0]);
     setCategoryList(category);
+    const allItemCategory = category.map((cat: any) => {
+      cat.items = itemList
+        .filter((item) => item.item_category_id === cat.id)
+        .map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          item_category_id: item.item_category_id,
+          item_category_name: item.item_category_name,
+          restaurant_id: item.restaurant_id,
+          is_stock_check: 1,
+          stock_minimum: null,
+          stock: null,
+        }));
+      cat.is_open = false;
+      return cat;
+    });
+    console.log(allItemCategory);
+    setCategoryListWithItem(allItemCategory);
   };
 
   const onSelectCategory = (categoryId: number) => {
@@ -120,7 +162,7 @@ const MenuScreen = () => {
     );
   };
 
-  const onPressItemHandler = (item: ItemType) => {
+  const onPressItemHandler = (item: ItemType | LessItemType) => {
     setSelectedEditItem(item);
     setIsStockCheck(item.is_stock_check === 0 ? true : false);
     setEnteredAmount(item.stock ? item.stock : 0);
@@ -140,6 +182,14 @@ const MenuScreen = () => {
     setOpenNumberPad(false);
   };
 
+  const onSwitchCategoryStatus = (index: number) => {
+    let category = [...categoryListWithItem];
+    if (category[index]) {
+      category[index].is_open = !category[index].is_open;
+    }
+    setCategoryListWithItem(category);
+  };
+
   const onSubmit = () => {
     console.log(isStockCheck);
     console.log(enteredAmount);
@@ -155,46 +205,34 @@ const MenuScreen = () => {
         pb={4}
         px={6}
         h="100%"
-        direction="row"
+        flexDirection={breakPoint ? "column" : "row"}
         bg={useColorModeValue("greyColor.50", "greyColor.1000")}
       >
-        <VStack
-          h="100%"
-          flex={6}
-          bg={useColorModeValue("white", "greyColor.900")}
-          borderRadius="xl"
-          direction="row"
-          w="100%"
-        >
-          <Flex
-            w="20%"
-            bg="transparent"
-            borderRightWidth={1}
-            borderRightColor="greyColor.100"
+        {breakPoint && (
+          <ScrollView
+            refreshControl={
+              <RefreshControl refreshing={isRefreshing} onRefresh={getAllItem} />
+            }
           >
-            <Flex
-              direction="row"
-              justify="center"
-              py={3}
-              px={2}
-              borderBottomWidth={1}
-              borderBottomColor={useColorModeValue(
-                "greyColor.100",
-                "greyColor.800"
-              )}
-            >
-              <Text textAlign="center">Category</Text>
-            </Flex>
-            <ScrollView>
-              {categoryList.map((category: ItemCategoryType) => {
-                let isActive = category.id === selectedCategoryId;
-                return (
-                  <Pressable
-                    p={4}
-                    px={10}
-                    key={category.id}
-                    bg={isActive ? "greyColor.100" : "transparent"}
-                    onPress={() => onSelectCategory(category.id)}
+            {categoryListWithItem.map((category, index) => (
+              <Flex
+                bg={useColorModeValue("white", "greyColor.900")}
+                py={3}
+                key={category.id}
+                px={4}
+                borderRadius="xl"
+                my={1}
+              >
+                <Pressable
+                  onPress={() => {
+                    onSwitchCategoryStatus(index);
+                  }}
+                >
+                  <Flex
+                    direction="row"
+                    justify="space-between"
+                    align="center"
+                    pb={category.is_open ? 4 : 0}
                   >
                     <Text
                       fontFamily="sf-pro-text-medium"
@@ -203,90 +241,177 @@ const MenuScreen = () => {
                     >
                       {category.name}
                     </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          </Flex>
-          <Flex w="80%">
+                    {!category.is_open && (
+                      <Icon
+                        as={Entypo}
+                        color="themeColor.500"
+                        name="chevron-down"
+                        size="xs"
+                      />
+                    )}
+                    {category.is_open && (
+                      <Icon
+                        as={Entypo}
+                        color="themeColor.500"
+                        name="chevron-up"
+                        size="xs"
+                      />
+                    )}
+                  </Flex>
+                </Pressable>
+                {category.is_open &&
+                  category.items.map((item) => {
+                    return (
+                      <Pressable
+                        key={item.id}
+                        p="3"
+                        borderBottomColor="greyColor.100"
+                        borderBottomWidth={1}
+                        onPress={() => onPressItemHandler(item)}
+                        display="flex"
+                        flexDirection="row"
+                        justifyContent="space-between"
+                      >
+                        <Text>{item.name}</Text>
+                        <Text pr={4}>{item.stock ? item.stock : 0}</Text>
+                      </Pressable>
+                    );
+                  })}
+              </Flex>
+            ))}
+          </ScrollView>
+        )}
+        {!breakPoint && (
+          <VStack
+            h="100%"
+            flex={6}
+            bg={useColorModeValue("white", "greyColor.900")}
+            borderRadius="xl"
+            direction="row"
+            w="100%"
+          >
             <Flex
-              direction="row"
-              textAlign="center"
-              py={3}
-              px={2}
-              borderBottomWidth={1}
-              borderBottomColor={useColorModeValue(
-                "greyColor.100",
-                "greyColor.800"
-              )}
+              w="20%"
+              bg="transparent"
+              borderRightWidth={1}
+              borderRightColor="greyColor.100"
             >
-              <Text flex={0.5} textAlign="center">
-                No.
-              </Text>
-              <Text flex={0.5} textAlign="center">
-                Id
-              </Text>
-              <Text flex={1} textAlign="center">
-                Name
-              </Text>
-              <Text flex={1} textAlign="center">
-                Price
-              </Text>
-              <Text flex={1} textAlign="center">
-                Category
-              </Text>
-              <Text flex={1} textAlign="center">
-                Stock
-              </Text>
-            </Flex>
-            {menuList.length > 0 && !isRefreshing ? (
-              <FlatList
-                refreshing={isRefreshing}
-                onRefresh={getAllItem}
-                keyExtractor={(item, index) => item.name + index}
-                data={selectedMenuList}
-                renderItem={({ item, index }) => (
-                  <MenuListItem
-                    item={item}
-                    index={index}
-                    onPress={onPressItemHandler}
-                  />
+              <Flex
+                direction="row"
+                justify="center"
+                py={3}
+                px={2}
+                borderBottomWidth={1}
+                borderBottomColor={useColorModeValue(
+                  "greyColor.100",
+                  "greyColor.800"
                 )}
-              />
-            ) : isRefreshing ? (
-              <PullToRefreshScrollView
-                isRefreshing={isRefreshing}
-                onRefresh={getAllItem}
               >
-                <Flex
-                  direction="row"
-                  justify="center"
-                  alignItems="center"
-                  m={5}
-                >
-                  <Spinner accessibilityLabel="Loading posts" mx={10} />
-                  <Heading fontSize="md">Loading</Heading>
-                </Flex>
-              </PullToRefreshScrollView>
-            ) : (
-              <PullToRefreshScrollView
-                isRefreshing={isRefreshing}
-                onRefresh={getAllItem}
+                <Text textAlign="center">Category</Text>
+              </Flex>
+              <ScrollView>
+                {categoryList.map((category: ItemCategoryType) => {
+                  let isActive = category.id === selectedCategoryId;
+                  return (
+                    <Pressable
+                      p={4}
+                      px={10}
+                      key={category.id}
+                      bg={isActive ? "greyColor.100" : "transparent"}
+                      onPress={() => onSelectCategory(category.id)}
+                    >
+                      <Text
+                        fontFamily="sf-pro-text-medium"
+                        fontWeight="600"
+                        fontSize={15}
+                      >
+                        {category.name}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </Flex>
+            <Flex w="80%">
+              <Flex
+                direction="row"
+                textAlign="center"
+                py={3}
+                px={2}
+                borderBottomWidth={1}
+                borderBottomColor={useColorModeValue(
+                  "greyColor.100",
+                  "greyColor.800"
+                )}
               >
-                <Flex
-                  direction="row"
-                  justify="center"
-                  alignItems="center"
-                  m={5}
+                <Text flex={0.5} textAlign="center">
+                  No.
+                </Text>
+                <Text flex={0.5} textAlign="center">
+                  Id
+                </Text>
+                <Text flex={1} textAlign="center">
+                  Name
+                </Text>
+                <Text flex={1} textAlign="center">
+                  Price
+                </Text>
+                <Text flex={1} textAlign="center">
+                  Category
+                </Text>
+                <Text flex={1} textAlign="center">
+                  Stock
+                </Text>
+              </Flex>
+              {menuList.length > 0 && !isRefreshing ? (
+                <FlatList
+                  refreshing={isRefreshing}
+                  onRefresh={getAllItem}
+                  keyExtractor={(item, index) => item.name + index}
+                  data={selectedMenuList}
+                  renderItem={({ item, index }) => (
+                    <MenuListItem
+                      item={item}
+                      index={index}
+                      onPress={onPressItemHandler}
+                    />
+                  )}
+                />
+              ) : isRefreshing ? (
+                <PullToRefreshScrollView
+                  isRefreshing={isRefreshing}
+                  onRefresh={getAllItem}
                 >
-                  <Heading fontSize="md" ml={-10}>
-                    No Item Found
-                  </Heading>
-                </Flex>
-              </PullToRefreshScrollView>
-            )}
-          </Flex>
-        </VStack>
+                  <Flex
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    m={5}
+                  >
+                    <Spinner accessibilityLabel="Loading posts" mx={10} />
+                    <Heading fontSize="md">Loading</Heading>
+                  </Flex>
+                </PullToRefreshScrollView>
+              ) : (
+                <PullToRefreshScrollView
+                  isRefreshing={isRefreshing}
+                  onRefresh={getAllItem}
+                >
+                  <Flex
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    m={5}
+                  >
+                    <Heading fontSize="md" ml={-10}>
+                      No Item Found
+                    </Heading>
+                  </Flex>
+                </PullToRefreshScrollView>
+              )}
+            </Flex>
+          </VStack>
+        )}
       </Stack>
 
       {/* ------------------------------- this is edit stock modalllllllll----------------------------------------------- */}

@@ -15,6 +15,7 @@ import {
   View,
   useBreakpointValue,
   Box,
+  useToast,
 } from "native-base";
 import React, { useState, useEffect } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -43,16 +44,15 @@ const PaymentScreen = () => {
   const navigation = useNavigation<PaymentScreenProp>();
   const route = useRoute<PaymentScreenRouteProp>();
   const dispatch = useAppDispatch();
+  const toast = useToast();
   const { order } = route.params;
   const breakPoint: boolean = useBreakpointValue({
     base: true,
     md: false,
   });
-  console.log(breakPoint);
   useEffect(() => {
     if (order && order.length > 0) {
       setItemList(order[0].items);
-      console.log(order);
     } else {
       navigation.goBack();
     }
@@ -140,6 +140,15 @@ const PaymentScreen = () => {
       // });
       await storeOrder(orderTemp);
       dispatch(setOrder(orderTemp));
+      await toast.closeAll();
+      toast.show({
+        title: `Payment Success!`,
+        status: "success",
+        placement: "top",
+        isClosable: true,
+      });
+      navigation.navigate("Table");
+
       // await AsyncStorage.setItem("stocks", JSON.stringify(tempStockList));
     }
   };

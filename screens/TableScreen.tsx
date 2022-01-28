@@ -41,6 +41,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setOrder } from "../app/order/orderSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import { TableApi } from "../api/TableApi";
+import { RefreshControl } from "react-native";
 
 const mappingItemCategory = () => {
   return tableCategoryData;
@@ -66,6 +67,7 @@ const TableScreen = () => {
   const [openCart, setOpenCart] = useState<boolean>(false);
   const [openTableCart, setOpenTableCart] = useState<boolean>(false);
   const [togglePasscode, setTogglePasscode] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(true);
   const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
 
   const dispatch = useAppDispatch();
@@ -97,9 +99,12 @@ const TableScreen = () => {
   }, [orderItem]);
 
   const getTable = async () => {
+    setIsRefreshing(true);
     if (restaurantInfo) {
+      console.log('sdadfsdsgdfgsdnfkjgsdfnkgjsdfnjk')
       const restaurantId: number = restaurantInfo.id;
       const result = await TableApi.getTable(restaurantId);
+      console.log(result.data.response)
       if (result.status === 200 && result.data.status === 1001) {
         if (
           result.data.response.tableLists &&
@@ -130,8 +135,10 @@ const TableScreen = () => {
           setCategoryList(tempCategoryList);
         }
       }
+    } else {
+      orderItemMapping([]);
     }
-    orderItemMapping([]);
+    setIsRefreshing(false);
   };
   const orderRefresher = () => {
     setOpenTableCart(false);
@@ -269,6 +276,8 @@ const TableScreen = () => {
   };
 
   const checkoutOrder = (order) => {
+    setOpenTableCart(false);
+    setOpenCart(false);
     navigation.navigate("Payment", { order });
   };
 
@@ -429,6 +438,9 @@ const TableScreen = () => {
             _contentContainerStyle={{
               px: "5px",
             }}
+            refreshControl={
+              <RefreshControl refreshing={isRefreshing} onRefresh={getTable} />
+            }
           >
             <Flex flex="1" direction="row" wrap="wrap" justify="flex-start">
               <Pressable

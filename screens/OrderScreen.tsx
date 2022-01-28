@@ -960,9 +960,9 @@ const OrderScreen = () => {
               leftIcon={<Icon as={AntDesign} name="shoppingcart" size="sm" />}
               mr={5}
               onPress={() => setOpenCart(true)}
-              variant="ghost"
-              colorScheme="themeColor"
+              variant="unstyled"
               _text={{
+                color: "themeColor.500",
                 fontSize: "lg",
                 fontFamily: "sf-pro-display-bold",
                 fontWeight: "600",
@@ -1645,7 +1645,7 @@ const OrderScreen = () => {
         <VStack
           safeAreaTop
           h="100%"
-          bg={useColorModeValue("light.100", "muted.800")}
+          bg={useColorModeValue("greyColor.50", "greyColor.1000")}
         >
           <View w="100%" flex={14} px={3}>
             <Flex direction="row" justify="space-between" align="center" py={2}>
@@ -1655,7 +1655,7 @@ const OrderScreen = () => {
                 fontWeight="600"
                 fontSize={17}
               >
-                Current Order {''}
+                Current Order {""}
                 <Text fontFamily="sf-pro-text-regular" fontSize={13}>
                   {orderType === 1 && ` Table Number: ${tableId}`}
                   {orderType === 2 && " Take  Away"}
@@ -1718,9 +1718,9 @@ const OrderScreen = () => {
         <VStack
           safeAreaTop
           h="100%"
-          bg={useColorModeValue("light.100", "muted.800")}
+          bg={useColorModeValue("greyColor.50", "greyColor.900")}
           py={5}
-          px={2}
+          px={{ base: 5, lg: 2 }}
         >
           {selectedItem && (
             <>
@@ -1800,6 +1800,7 @@ const OrderScreen = () => {
                                 {item.data.map((addon) => {
                                   return (
                                     <Checkbox
+                                      colorScheme="themeColor"
                                       key={addon.id}
                                       value={addon.id}
                                       my={2}
@@ -1830,6 +1831,7 @@ const OrderScreen = () => {
                               {item.data.map((addon) => {
                                 return (
                                   <Radio
+                                    colorScheme="themeColor"
                                     key={addon.id}
                                     value={addon.id}
                                     my={1.5}
@@ -1855,39 +1857,87 @@ const OrderScreen = () => {
                     }}
                   />
                 )}
-                <HStack py={2}>
-                  <Button
-                    flex={1}
-                    colorScheme="red"
-                    leftIcon={
-                      selectedItemQuantity === 0 ? (
-                        <Icon as={Entypo} name="trash" size="xs" />
-                      ) : (
-                        <Icon as={Entypo} name="minus" size="xs" />
-                      )
-                    }
-                    onPress={() => {
-                      if (selectedItemQuantity === 0) {
-                        onCloseModalHandler();
-                      } else {
-                        setSelectedItemQuantity((prevState) => {
-                          if (prevState > 0) {
-                            return prevState - 1;
-                          }
-                          return prevState;
-                        });
+                <Flex direction="row" w="100%">
+                  <Flex direction="row" py={2} flex={1} justify="center">
+                    <Button
+                      p={3}
+                      borderRadius="full"
+                      borderColor={useColorModeValue(
+                        "themeColor.500",
+                        "themeColor.600"
+                      )}
+                      borderWidth={1}
+                      bg="transparent"
+                      variant="unstyled"
+                      _text={{
+                        color: useColorModeValue(
+                          "themeColor.500",
+                          "themeColor.600"
+                        ),
+                        fontFamily: "sf-pro-text-medium",
+                        fontSize: "13px",
+                      }}
+                      leftIcon={
+                        selectedItemQuantity === 0 ? (
+                          <Icon as={Entypo} name="trash" size="5" />
+                        ) : (
+                          <Icon as={Entypo} name="minus" size="5" />
+                        )
                       }
-                    }}
-                  ></Button>
-                  <Text flex={1} alignSelf="center" textAlign="center">
-                    {selectedItemQuantity}
-                  </Text>
+                      onPress={() => {
+                        if (selectedItemQuantity === 0) {
+                          onCloseModalHandler();
+                        } else {
+                          setSelectedItemQuantity((prevState) => {
+                            if (prevState > 0) {
+                              return prevState - 1;
+                            }
+                            return prevState;
+                          });
+                        }
+                      }}
+                    ></Button>
+                    <Text
+                      alignSelf="center"
+                      textAlign="center"
+                      mx={4}
+                      fontFamily="sf-pro-text-semibold"
+                      fontSize="17px"
+                    >
+                      {selectedItemQuantity}
+                    </Text>
+                    <Button
+                      p={3}
+                      borderRadius="full"
+                      borderColor={useColorModeValue(
+                        "themeColor.500",
+                        "themeColor.600"
+                      )}
+                      borderWidth={1}
+                      bg="transparent"
+                      variant="unstyled"
+                      _text={{
+                        color: useColorModeValue(
+                          "themeColor.500",
+                          "themeColor.600"
+                        ),
+                        fontFamily: "sf-pro-text-medium",
+                        fontSize: "15px",
+                      }}
+                      py={3}
+                      leftIcon={<Icon as={Entypo} name="plus" size="5" />}
+                      onPress={() =>
+                        setSelectedItemQuantity((prevState) => prevState + 1)
+                      }
+                    ></Button>
+                  </Flex>
                   <Button
-                    flex={1}
-                    borderColor={useColorModeValue(
-                      "themeColor.500",
-                      "themeColor.600"
-                    )}
+                    flex={{ base: 3, lg: 1 }}
+                    mt="auto"
+                    mb={1}
+                    ml={2}
+                    p={3.5}
+                    bg={useColorModeValue("themeColor.500", "themeColor.600")}
                     _pressed={{
                       bg: useColorModeValue("themeColor.700", "themeColor.700"),
                     }}
@@ -1896,31 +1946,12 @@ const OrderScreen = () => {
                       fontFamily: "sf-pro-text-medium",
                       fontSize: "15px",
                     }}
-                    py={3}
-                    leftIcon={<Icon as={Entypo} name="plus" size="xs" />}
-                    onPress={() =>
-                      setSelectedItemQuantity((prevState) => prevState + 1)
-                    }
-                  ></Button>
-                </HStack>
-                <Button
-                  mt="auto"
-                  mb={1}
-                  p={3}
-                  bg={useColorModeValue("themeColor.500", "themeColor.600")}
-                  _pressed={{
-                    bg: useColorModeValue("themeColor.700", "themeColor.700"),
-                  }}
-                  _text={{
-                    color: "textColor.buttonText",
-                    fontFamily: "sf-pro-text-medium",
-                    fontSize: "15px",
-                  }}
-                  onPress={onAddAddon}
-                  disabled={selectedItemQuantity === 0}
-                >
-                  Add
-                </Button>
+                    onPress={onAddAddon}
+                    disabled={selectedItemQuantity === 0}
+                  >
+                    Add
+                  </Button>
+                </Flex>
               </View>
             </>
           )}

@@ -150,7 +150,7 @@ const MemberScreen = () => {
 
   return (
     <>
-      <VStack
+      {/* <VStack
         safeAreaBottom
         position="relative"
         pt={6}
@@ -365,7 +365,7 @@ const MemberScreen = () => {
             </Modal.Body>
           </Modal.Content>
         </KeyboardAvoidingView>
-      </Modal>
+      </Modal> */}
     </>
   );
 };

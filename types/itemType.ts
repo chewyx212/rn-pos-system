@@ -26,6 +26,26 @@ export interface ItemType {
   addons: AddonType[];
 }
 
+export interface LessItemType {
+  id: number;
+  item_category_id: number;
+  item_category_name: string;
+  restaurant_id: number;
+  name: string;
+  price: number;
+  is_stock_check: boolean | number;
+  stock_minimum: null | number;
+  stock: null | number;
+}
+
+export interface ItemCategoryWithLessItemType {
+  id: number;
+  name: string;
+  is_enabled: boolean | number;
+  is_open: boolean;
+  items: LessItemType[];
+}
+
 export interface EditItemForm {
   stock: number;
 }
