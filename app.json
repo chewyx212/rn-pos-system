@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "POS System",
-    "slug": "rn-pos-system",
+    "slug": "mw-pos-system",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
@@ -28,7 +28,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.chewyx212.rnpossystem"
+      "package": "com.techworlds.mwpossystem",
+      "versionCode":1
     },
     "web": {
       "favicon": "./assets/favicon.png"

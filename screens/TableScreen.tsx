@@ -713,7 +713,7 @@ const TableScreen = () => {
                     _pressed={{
                       bg: useColorModeValue("light.200", "dark.200"),
                     }}
-                    flexBasis="23%"
+                    flexBasis={{base:"22%" ,md:"23%"}}
                     mx="1%"
                     my="3%"
                     maxW="23%"

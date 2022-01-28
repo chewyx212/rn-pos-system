@@ -1879,9 +1879,9 @@ const OrderScreen = () => {
                       }}
                       leftIcon={
                         selectedItemQuantity === 0 ? (
-                          <Icon as={Entypo} name="trash" size="5" />
+                          <Icon as={Entypo} name="trash" size="4" />
                         ) : (
-                          <Icon as={Entypo} name="minus" size="5" />
+                          <Icon as={Entypo} name="minus" size="4" />
                         )
                       }
                       onPress={() => {
@@ -1925,14 +1925,14 @@ const OrderScreen = () => {
                         fontSize: "15px",
                       }}
                       py={3}
-                      leftIcon={<Icon as={Entypo} name="plus" size="5" />}
+                      leftIcon={<Icon as={Entypo} name="plus" size="4" />}
                       onPress={() =>
                         setSelectedItemQuantity((prevState) => prevState + 1)
                       }
                     ></Button>
                   </Flex>
                   <Button
-                    flex={{ base: 3, lg: 1 }}
+                    flex={{ base: 1, lg: 1 }}
                     mt="auto"
                     mb={1}
                     ml={2}
