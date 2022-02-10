@@ -1,4 +1,4 @@
-import { ItemInCartType } from "./../../types/itemType";
+import { ItemInCartType } from "../../types/itemType";
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {

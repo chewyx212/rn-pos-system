@@ -1,7 +1,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import ENV from '../../env';
+import ENV from '../../../env';
 axios.defaults.baseURL = ENV.API_URL
 // Request interceptor for API calls
 axios.interceptors.request.use(

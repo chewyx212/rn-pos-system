@@ -1,5 +1,5 @@
-import { ItemType } from "./../types/itemType";
-import { TableCategoryType, TableDataType } from "./../types/tableType";
+import { ItemType } from "../types/itemType";
+import { TableCategoryType, TableDataType } from "../types/tableType";
 export const itemData: ItemType[] = [
   {
     id: 1,

@@ -6,13 +6,13 @@ import {
   Box,
 } from "native-base";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import AppNavigator from "./navigation/AppNavigator";
+import AppNavigator from "./src/navigation/AppNavigator";
 import { useFonts } from "expo-font";
 import AppLoading from "expo-app-loading";
 import { SSRProvider } from "@react-aria/ssr";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { Provider } from "react-redux";
-import { store } from "./app/store";
+import { store } from "./src/app/store";
 import { Platform } from "react-native";
 import "react-native-gesture-handler";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -107,12 +107,12 @@ const config = {
 
 export default function App() {
   let [fontLoaded] = useFonts({
-    "sf-pro-display-regular": require("./assets/Fonts/SF-Pro-Display-Regular.otf"),
-    "sf-pro-display-bold": require("./assets/Fonts/SF-Pro-Display-Bold.otf"),
-    "sf-pro-text-regular": require("./assets/Fonts/SF-Pro-Text-Regular.otf"),
-    "sf-pro-text-bold": require("./assets/Fonts/SF-Pro-Text-Bold.otf"),
-    "sf-pro-text-semibold": require("./assets/Fonts/SF-Pro-Text-Semibold.otf"),
-    "sf-pro-text-medium": require("./assets/Fonts/SF-Pro-Text-Medium.otf"),
+    "sf-pro-display-regular": require("./src/assets/Fonts/SF-Pro-Display-Regular.otf"),
+    "sf-pro-display-bold": require("./src/assets/Fonts/SF-Pro-Display-Bold.otf"),
+    "sf-pro-text-regular": require("./src/assets/Fonts/SF-Pro-Text-Regular.otf"),
+    "sf-pro-text-bold": require("./src/assets/Fonts/SF-Pro-Text-Bold.otf"),
+    "sf-pro-text-semibold": require("./src/assets/Fonts/SF-Pro-Text-Semibold.otf"),
+    "sf-pro-text-medium": require("./src/assets/Fonts/SF-Pro-Text-Medium.otf"),
   });
   if (!fontLoaded) {
     return <AppLoading />;
