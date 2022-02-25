@@ -20,6 +20,7 @@ export type RootStackParamList = {
   Setting: undefined;
   Payment: {
     order: any;
+    refresher: Function;
   };
 
   TableSetting: undefined;

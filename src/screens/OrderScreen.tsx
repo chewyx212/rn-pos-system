@@ -42,7 +42,7 @@ import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "./RootStackParams";
 import Swipeable from "react-native-gesture-handler/Swipeable";
-import { Animated, Platform } from "react-native";
+import { Animated, Platform, RefreshControl } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import NumberPadInput from "../components/NumberPadInput";
 import PasscodeVerification from "../components/PasscodeVerification";
@@ -85,6 +85,7 @@ const OrderScreen = () => {
   const [selectedItemAddon, setSelectedItemAddon] = useState({});
   const [selectedAllAddon, setSelectedAllAddon] = useState([]);
   const [fixedCartItem, setFixedCartItem] = useState<ItemInCartType[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
   const [openNoStockModal, setOpenNoStockModal] = useState<boolean>(false);
   const [openSelectionModal, setOpenSelectionModal] = useState<boolean>(false);
@@ -232,23 +233,23 @@ const OrderScreen = () => {
   };
 
   const getAllItem = async () => {
-    // setIsRefreshing(true);
-    // if (restaurantInfo) {
-    //   const restaurantId: number = restaurantInfo.id;
-    //   const result = await ItemApi.getItem(restaurantId);
-    //   if (result.status === 200 && result.data.status === 0) {
-    //     if (
-    //       result.data.response.item_lists &&
-    //       result.data.response.item_lists.length > 0
-    //     ) {
-    //       mappingAllItem(result.data.response.item_lists);
-    //     }
-    //   }
-    // } else {
-    //   dispatch(logout());
-    // }
-    // setIsRefreshing(false);
-    mappingAllItem(itemData);
+    setIsRefreshing(true);
+    if (restaurantInfo) {
+      const restaurantId: number = restaurantInfo.id;
+      const result = await ItemApi.getItem(restaurantId);
+      if (result.status === 200 && result.data.status === 0) {
+        if (
+          result.data.response.item_lists &&
+          result.data.response.item_lists.length > 0
+        ) {
+          mappingAllItem(result.data.response.item_lists);
+        }
+      }
+    } else {
+      dispatch(logout());
+    }
+    setIsRefreshing(false);
+    // mappingAllItem(itemData);
   };
 
   const mappingAllItem = (response: any[]) => {
@@ -265,8 +266,11 @@ const OrderScreen = () => {
           });
         });
       } else {
+        console.log(item.name);
+        console.log(item.image_url);
         itemList.push({
           ...item,
+          imageURL: item.image_url.preview,
           price: parseFloat(item.price),
         });
       }
@@ -427,6 +431,8 @@ const OrderScreen = () => {
       }
       return prevState;
     });
+
+    onCloseModalHandler();
   };
 
   const onSubmitOrder = async (orderStatus: number) => {
@@ -652,14 +658,11 @@ const OrderScreen = () => {
     if (fixedCartItem.length === 0 && index === 0) {
       voidCreatedOrder();
     }
-    console.log(item.quantity);
     setStockList((prevState) => {
       const findStockIndex = prevState.findIndex(
         (stock) => stock.id === item.id
       );
-      console.log(findStockIndex);
       if (findStockIndex >= 0) {
-        console.log(prevState[findStockIndex]);
         prevState[findStockIndex].in_cart -= item.quantity;
       }
       return prevState;
@@ -1035,6 +1038,9 @@ const OrderScreen = () => {
             _contentContainerStyle={{
               px: "5px",
             }}
+            refreshControl={
+              <RefreshControl refreshing={isRefreshing} onRefresh={getAllItem} />
+            }
           >
             <Flex flex="1" direction="row" wrap="wrap" justify="flex-start">
               {itemList
@@ -1086,16 +1092,26 @@ const OrderScreen = () => {
                       {({ isHovered, isFocused, isPressed }) => {
                         return (
                           <>
-                            <Image
-                              h="100%"
-                              w="100%"
-                              borderRadius="lg"
-                              source={{
-                                uri: item.imageURL,
-                              }}
-                              fallbackSource={require("./../assets/fallback-img.jpg")}
-                              alt={item.name}
-                            />
+                            {item.imageURL ? (
+                              <Image
+                                h="100%"
+                                w="100%"
+                                borderRadius="lg"
+                                source={{
+                                  uri: item.imageURL,
+                                }}
+                                fallbackSource={require("./../assets/fallback-img.jpg")}
+                                alt={item.name}
+                              />
+                            ) : (
+                              <Image
+                                h="100%"
+                                w="100%"
+                                borderRadius="lg"
+                                source={require("./../assets/fallback-img.jpg")}
+                                alt={item.name}
+                              />
+                            )}
                             <Flex
                               bg={
                                 isPressed || isHovered
@@ -1744,21 +1760,36 @@ const OrderScreen = () => {
               </Pressable>
 
               <HStack pt={4}>
-                <Image
-                  size="md"
-                  resizeMode={"cover"}
-                  borderRadius="md"
-                  mr="10px"
-                  bg={useColorModeValue(
-                    "dark.500:alpha.20",
-                    "dark.300:alpha.20"
-                  )}
-                  source={{
-                    uri: selectedItem?.imageURL,
-                  }}
-                  fallbackSource={require("./../assets/fallback-img.jpg")}
-                  alt="Alternate Text"
-                />
+                {selectedItem.imageURL ? (
+                  <Image
+                    size="md"
+                    resizeMode={"cover"}
+                    borderRadius="md"
+                    mr="10px"
+                    bg={useColorModeValue(
+                      "dark.500:alpha.20",
+                      "dark.300:alpha.20"
+                    )}
+                    source={{
+                      uri: selectedItem?.imageURL,
+                    }}
+                    fallbackSource={require("./../assets/fallback-img.jpg")}
+                    alt="Alternate Text"
+                  />
+                ) : (
+                  <Image
+                    size="md"
+                    resizeMode={"cover"}
+                    borderRadius="md"
+                    mr="10px"
+                    bg={useColorModeValue(
+                      "dark.500:alpha.20",
+                      "dark.300:alpha.20"
+                    )}
+                    source={require("./../assets/fallback-img.jpg")}
+                    alt="Alternate Text"
+                  />
+                )}
                 <VStack>
                   <Text fontSize="md">{selectedItem?.id}</Text>
                   <Text fontSize="md">{selectedItem?.name}</Text>
@@ -2063,22 +2094,39 @@ const CartListItem = ({
               justify="space-between"
             >
               <Flex direction="row" align="center" flex={3}>
-                <Image
-                  h="55px"
-                  w="55px"
-                  resizeMode={"cover"}
-                  borderRadius="md"
-                  mr="10px"
-                  bg={useColorModeValue(
-                    "dark.500:alpha.20",
-                    "dark.300:alpha.20"
-                  )}
-                  source={{
-                    uri: item.imageURL,
-                  }}
-                  fallbackSource={require("./../assets/fallback-img.jpg")}
-                  alt="Alternate Text"
-                />
+                {item.imageURL ? (
+                  <Image
+                    h="55px"
+                    w="55px"
+                    resizeMode={"cover"}
+                    borderRadius="md"
+                    mr="10px"
+                    bg={useColorModeValue(
+                      "dark.500:alpha.20",
+                      "dark.300:alpha.20"
+                    )}
+                    source={{
+                      uri: item.imageURL,
+                    }}
+                    fallbackSource={require("./../assets/fallback-img.jpg")}
+                    alt="Alternate Text"
+                  />
+                ) : (
+                  <Image
+                    h="55px"
+                    w="55px"
+                    resizeMode={"cover"}
+                    borderRadius="md"
+                    mr="10px"
+                    bg={useColorModeValue(
+                      "dark.500:alpha.20",
+                      "dark.300:alpha.20"
+                    )}
+                    source={require("./../assets/fallback-img.jpg")}
+                    alt="Alternate Text"
+                  />
+                )}
+
                 <VStack>
                   <Text
                     color={
@@ -2306,7 +2354,7 @@ const OrderDetailComponent = ({
             fontSize: "15px",
           }}
         >
-          Send to Kitchen
+          Place Order
         </Button>
       </HStack>
     </Flex>

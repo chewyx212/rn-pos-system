@@ -45,7 +45,7 @@ const PaymentScreen = () => {
   const route = useRoute<PaymentScreenRouteProp>();
   const dispatch = useAppDispatch();
   const toast = useToast();
-  const { order } = route.params;
+  const { order,refresher } = route.params;
   const breakPoint: boolean = useBreakpointValue({
     base: true,
     md: false,
@@ -148,7 +148,7 @@ const PaymentScreen = () => {
         isClosable: true,
       });
       navigation.navigate("Table");
-
+      refresher()
       // await AsyncStorage.setItem("stocks", JSON.stringify(tempStockList));
     }
   };

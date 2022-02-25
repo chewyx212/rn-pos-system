@@ -45,12 +45,13 @@ const PasscodeVerification = (props: IProps) => {
             }}
           >
             <Box position="relative" w="100%" h="100%">
-              <Image
+              {/* <Image
                 w="100%"
                 h="100%"
                 alt="bg image"
                 source={require("./../assets/gradient.jpg")}
-              />
+              /> */}
+              <View w="100%" h="100%" bg="black"></View>
               <PasscodeInput
                 title={"Enter Passcode to Login"}
                 submitHandler={submitHandler}

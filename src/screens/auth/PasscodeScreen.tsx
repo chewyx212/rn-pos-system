@@ -1,4 +1,4 @@
-import { Image, Box, KeyboardAvoidingView, useToast } from "native-base";
+import { Image, Box, KeyboardAvoidingView, useToast, View } from "native-base";
 import React, { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -64,7 +64,7 @@ const PasscodeScreen = () => {
 
   const submitHandler = async (passcode: string) => {
     const result = await AuthApi.counterLogin({ pos_password: passcode });
-    console.log(result)
+    console.log(result);
     if (result.data.status === 711) {
       await AsyncStorage.setItem("passcode", passcode);
       dispatch(verifyPasscode());
@@ -115,12 +115,13 @@ const PasscodeScreen = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <Box position="relative" w="100%" h="100%">
-        <Image
+        {/* <Image
           w="100%"
           h="100%"
           alt="bg image"
           source={require("./../../assets/gradient.jpg")}
-        />
+        /> */}
+        <View w="100%" h="100%" bg="black"></View>
         <PasscodeInput
           title={
             isLoginPass

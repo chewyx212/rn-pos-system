@@ -101,10 +101,10 @@ const TableScreen = () => {
   const getTable = async () => {
     setIsRefreshing(true);
     if (restaurantInfo) {
-      console.log('sdadfsdsgdfgsdnfkjgsdfnkgjsdfnjk')
+      console.log("sdadfsdsgdfgsdnfkjgsdfnkgjsdfnjk");
       const restaurantId: number = restaurantInfo.id;
       const result = await TableApi.getTable(restaurantId);
-      console.log(result.data.response)
+      console.log(result.data.response);
       if (result.status === 200 && result.data.status === 1001) {
         if (
           result.data.response.tableLists &&
@@ -278,7 +278,7 @@ const TableScreen = () => {
   const checkoutOrder = (order) => {
     setOpenTableCart(false);
     setOpenCart(false);
-    navigation.navigate("Payment", { order });
+    navigation.navigate("Payment", { order, refresher: orderRefresher });
   };
 
   return (
@@ -444,7 +444,7 @@ const TableScreen = () => {
           >
             <Flex flex="1" direction="row" wrap="wrap" justify="flex-start">
               <Pressable
-                flexBasis={{ base: "46%", lg: "18%" }}
+                flexBasis={{ base: "46%", lg: "17.5%" }}
                 h={{ base: "150px", md: "165px" }}
                 borderRadius="lg"
                 mx={{ base: "2%", md: "1.5", lg: "1%" }}
@@ -493,7 +493,7 @@ const TableScreen = () => {
                   return (
                     <Pressable
                       key={order.id}
-                      flexBasis={{ base: "46%", lg: "18%" }}
+                      flexBasis={{ base: "46%", lg: "17.5%" }}
                       h={{ base: "150px", md: "165px" }}
                       borderRadius="lg"
                       mx={{ base: "2%", md: "1.5", lg: "1%" }}
@@ -585,7 +585,7 @@ const TableScreen = () => {
                   return (
                     <Pressable
                       key={table.id}
-                      flexBasis={{ base: "46%", lg: "18%" }}
+                      flexBasis={{ base: "46%", lg: "17.5%" }}
                       h={{ base: "150px", md: "165px" }}
                       borderRadius="lg"
                       mx={{ base: "2%", md: "1.5", lg: "1%" }}
@@ -713,7 +713,7 @@ const TableScreen = () => {
                     _pressed={{
                       bg: useColorModeValue("light.200", "dark.200"),
                     }}
-                    flexBasis={{base:"22%" ,md:"23%"}}
+                    flexBasis={{ base: "22%", md: "23%" }}
                     mx="1%"
                     my="3%"
                     maxW="23%"
