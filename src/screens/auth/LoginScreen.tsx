@@ -96,7 +96,7 @@ const LoginScreen = () => {
     } else if (data.status === 701) {
       await toast.closeAll();
       toast.show({
-        title: "Email or password is wrong!",
+        title: "Username or password is wrong!",
         status: "error",
         placement: "top",
       });
@@ -161,7 +161,7 @@ const LoginScreen = () => {
                           fontFamily="sf-pro-text-medium"
                           fontSize="15px"
                         >
-                          Email
+                          Username
                         </Text>
                       </Flex>
                     }

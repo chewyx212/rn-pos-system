@@ -110,7 +110,7 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
           }
           onPress={useColorMode().toggleColorMode}
         />
-        <IconButton
+        {/* <IconButton
           ml={{ base: 2, md: 6 }}
           _pressed={{
             bg: useColorModeValue("greyColor.50", "greyColor.800"),
@@ -127,7 +127,7 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
             />
           }
           onPress={() => navigation.navigate("Home", { screen: "Setting" })}
-        />
+        /> */}
       </Flex>
     </Flex>
   );
