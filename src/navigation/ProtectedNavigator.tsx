@@ -10,6 +10,7 @@ import CameraScreen from "../screens/CameraScreen";
 import PrinterScreen from "../screens/PrinterScreen";
 import DrawerNavigator from "./DrawerNavigator";
 import PaymentScreen from "../screens/PaymentScreen";
+import { DrawerActions } from "@react-navigation/native";
 import {
   Flex,
   Heading,
@@ -52,6 +53,7 @@ const ProtectedNavigator = () => {
 const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
   const title = getHeaderTitle(options, route.name);
   let routeName = getFocusedRouteNameFromRoute(route) ?? title;
+  console.log(navigation);
   return (
     <Flex
       direction="row"
@@ -76,13 +78,33 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
             onPress={() => navigation.goBack()}
           />
         ) : (
-          <Image
-            w={{ base: 12, md: 16 }}
-            h={{ base: 12, md: 16 }}
-            alt="bg image"
-            source={require("./../assets/logo-min-1.png")}
-          />
+          <>
+            <Image
+              w={{ base: 0, md: 16 }}
+              h={{ base: 0, md: 16 }}
+              alt="bg image"
+              source={require("./../assets/logo-min-1.png")}
+            />
+          </>
         )}
+        <IconButton
+          display={{ base: "flex", md: "none" }}
+          _pressed={{
+            bg: "greyColor.50",
+          }}
+          icon={
+            <Icon
+              as={Ionicons}
+              name="menu-outline"
+              size="md"
+              color={useColorModeValue(
+                "iconColor.lightGrey",
+                "iconColor.darkGrey"
+              )}
+            />
+          }
+          onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+        />
         <Heading
           fontFamily="sf-pro-display-bold"
           fontWeight={800}
@@ -110,24 +132,25 @@ const CustomHeader = ({ navigation, route, options }: StackHeaderProps) => {
           }
           onPress={useColorMode().toggleColorMode}
         />
-        {/* <IconButton
-          ml={{ base: 2, md: 6 }}
-          _pressed={{
-            bg: useColorModeValue("greyColor.50", "greyColor.800"),
-          }}
-          icon={
-            <Icon
-              as={Ionicons}
-              name="settings-outline"
-              size="sm"
-              color={useColorModeValue(
-                "iconColor.lightGrey",
-                "iconColor.darkGrey"
-              )}
-            />
-          }
-          onPress={() => navigation.navigate("Home", { screen: "Setting" })}
-        /> */}
+
+          <IconButton
+            ml={{ base: 2, md: 6 }}
+            _pressed={{
+              bg: useColorModeValue("greyColor.50", "greyColor.800"),
+            }}
+            icon={
+              <Icon
+                as={Ionicons}
+                name="settings-outline"
+                size="sm"
+                color={useColorModeValue(
+                  "iconColor.lightGrey",
+                  "iconColor.darkGrey"
+                )}
+              />
+            }
+            onPress={() => navigation.navigate("Home", { screen: "Setting" })}
+          />
       </Flex>
     </Flex>
   );

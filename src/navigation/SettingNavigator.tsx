@@ -75,12 +75,13 @@ const CustomDrawerContent = (props) => {
     },
   ];
   return (
-    <Flex h="100%" pl={6} pt={6} pb={3}>
+    <Flex h="100%" px={{base:6, md:0} } pl={6}  pt={6} pb={3}>
       <Flex
         h="100%"
         w="100%"
         borderBottomLeftRadius="xl"
         borderLeftRadius="xl"
+        borderRightRadius={{base:"xl", md:"none"}}
         _light={{
           bg: "white",
         }}

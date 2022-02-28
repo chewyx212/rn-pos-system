@@ -50,7 +50,7 @@ const StaffSettingScreen = () => {
   const restaurantInfo = useAppSelector((state) => state.auth.restaurantInfo);
   const aaaa = useAppSelector((state) => state.auth);
   const navigation = useNavigation<StaffSettingScreenProp>();
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     getAllStaff();
@@ -70,7 +70,7 @@ const StaffSettingScreen = () => {
         }
       }
     } else {
-      dispatch(logout())
+      dispatch(logout());
     }
     setIsRefreshing(false);
   };
@@ -82,14 +82,14 @@ const StaffSettingScreen = () => {
       restaurant_id: restaurantId,
     };
     const result = await StaffApi.createStaff(payload);
-    if (result.status === 200 &&result.data.status == 2001) {
+    if (result.status === 200 && result.data.status == 2001) {
       await toast.closeAll();
       toast.show({
         title: "Add Staff Success!",
         status: "success",
         placement: "top",
       });
-    setOpenAddModal(false);
+      setOpenAddModal(false);
     } else if (result.status === 422) {
       await toast.closeAll();
       toast.show({
@@ -97,7 +97,7 @@ const StaffSettingScreen = () => {
         status: "error",
         placement: "top",
       });
-      reset()
+      reset();
     } else {
       await toast.closeAll();
       toast.show({
@@ -106,7 +106,7 @@ const StaffSettingScreen = () => {
         status: "warning",
         placement: "top",
       });
-    setOpenAddModal(false);
+      setOpenAddModal(false);
     }
   };
 
@@ -114,6 +114,7 @@ const StaffSettingScreen = () => {
     <>
       <Flex
         bg={useColorModeValue("greyColor.50", "greyColor.1000")}
+        pl={{ base: 6, md: "none" }}
         pb={3}
         pt={6}
         pr={6}
@@ -121,6 +122,7 @@ const StaffSettingScreen = () => {
       >
         <Flex
           bg={useColorModeValue("white", "greyColor.900")}
+          borderLeftRadius={{ base: "xl", md: "none" }}
           borderRightRadius="xl"
           h="100%"
         >
@@ -165,7 +167,7 @@ const StaffSettingScreen = () => {
               />
             </Pressable>
           </Flex>
-          {staffList.length > 0  ? (
+          {staffList.length > 0 ? (
             <FlatList
               refreshing={isRefreshing}
               onRefresh={getAllStaff}
@@ -187,7 +189,9 @@ const StaffSettingScreen = () => {
                 <Text>No Staff Found</Text>
               </Flex>
             </PullToRefreshScrollView>
-          ):<></>}
+          ) : (
+            <></>
+          )}
         </Flex>
       </Flex>
       <Modal
@@ -498,7 +502,7 @@ const StaffSettingListItem = ({ staff, index }: StaffSettingListItemProps) => {
       <Text flex={1} textAlign="center">
         {staff.type}
       </Text>
-      <Flex flex={.5} textAlign="center">
+      <Flex flex={0.5} textAlign="center">
         <Menu
           trigger={(triggerProps) => {
             return (

@@ -33,7 +33,7 @@ const DrawerNavigator = () => {
         drawerHideStatusBarOnOpen: true,
         drawerStyle: isLargeScreen
           ? { width: "auto", minWidth: "8%", backgroundColor: "#ff0000" }
-          : { width: "100%" },
+          : { width: "70%" },
       }}
       drawerContent={CustomDrawerContent}
       initialRouteName="StaffSetting"
@@ -121,8 +121,8 @@ const CustomDrawerContent = (props) => {
                 bg: isActive ? "themeColor.400" : "themeColor.200",
               },
             }}
-            borderRadius="lg"
-            w={{ base: "300px", md: "100%" }}
+            borderRadius={{ base: 'xs', lg: "lg" }}
+            w="100%"
             h="75px"
           >
             {() => (
